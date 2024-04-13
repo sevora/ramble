@@ -27,7 +27,6 @@ router.post('/login', async (request, response) => {
     if ( results.length === 0 ) return response.sendStatus(400); // user does not exist or password is incorrect
 
     const user = results[0];
-    console.log(user.uuid)
     const token = jsonwebtoken.sign({ uuid: user.uuid }, process.env.SERVER_JWT_KEY || '', { expiresIn: 60 * 60 * 24 * 30 });
   
     // we set the cookie to expire after 30 days only
@@ -103,8 +102,6 @@ router.post('/view', httpOnlyAuthentication, async(request, response) => {
     if (!success) return response.sendStatus(400);
 
     const { username } = request.body as z.infer<typeof viewSchema>;
-
-    console.log(request.authenticated?.uuid)
 
     // the question and answer changes depending on if the username is provided or not,
     // we do not need to escape the question as it is hardcoded here, but the answer must be escaped for safety
