@@ -37,11 +37,8 @@ router.post('/login', async (request, response) => {
         maxAge: 1000 * 60 * 60 * 24 * 30
     });
 
-    // send the username and common name that signifies a successful log-in
-    response.json({
-        username: user.user_name,
-        userCommonName: user.user_common_name
-    });
+    // we only send a 200 to signify success in logging-in
+    response.sendStatus(200);
 });
 
 /**
@@ -57,6 +54,7 @@ router.post('/logout', httpOnlyAuthentication, async(_request, response) => {
         maxAge: -1
     });
 
+    // signifies success on logging-out
     response.sendStatus(200);
 });
 
@@ -85,7 +83,7 @@ router.post('/signup', async(request, response) => {
             'INSERT INTO user (user_common_name, user_name, user_password) VALUES (?, ?, ?)', 
             [ username, username, sha256(password) ]
         )
-        return response.sendStatus(200);
+        return response.sendStatus(200); // the signup is a success
     } catch {
        return response.sendStatus(500); // must be some server error
     }
@@ -111,6 +109,8 @@ router.post('/view', httpOnlyAuthentication, async(request, response) => {
     if ( results.length === 0 ) return response.sendStatus(404); // user does not exist
 
     const user = results[0];
+
+    // in this one, we actually want to send the details
     response.json({
         userCommonName: user.user_common_name,
         username: user.user_name,
@@ -139,12 +139,12 @@ router.post('/update', httpOnlyAuthentication, async(request, response) => {
     const { username, userCommonName, biography, password } = request.body as z.infer<typeof updateSchema>;
 
     try {
-        // there must be a better way to this.
+        // there must be a better way to this
         if (username) await connection.query('UPDATE user SET user_name = ? WHERE BIN_TO_UUID(user_id) = ?', [ username, uuid ]);
         if (userCommonName) await connection.query('UPDATE user SET user_common_name = ? WHERE BIN_TO_UUID(user_id) = ?', [ userCommonName, uuid ]);
         if (biography) await connection.query('UPDATE user SET user_biography = ? WHERE BIN_TO_UUID(user_id) = ?', [ biography, uuid ]);
         if (password) await connection.query('UPDATE user SET user_password = ? WHERE BIN_TO_UUID(user_id) = ?', [ sha256(password), uuid ]);
-        return response.sendStatus(200);
+        return response.sendStatus(200); // only send a 200 to signify success of operation
     } catch {
         return response.sendStatus(500); // only a server error would've reached here
     }
@@ -167,9 +167,9 @@ router.post('/delete', httpOnlyAuthentication, async(request, response) => {
 
     try {
         await connection.query('DELETE FROM user WHERE BIN_TO_UUID(user_id) = ? AND user_password = ?', [ uuid, sha256(password) ]);
-        return response.sendStatus(200);
+        return response.sendStatus(200); // only send to signify success of operation
     } catch {
-        return response.sendStatus(400);
+        return response.sendStatus(400); // probably trying to delete a non-existing account
     }
 });
 
