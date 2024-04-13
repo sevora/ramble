@@ -1,9 +1,14 @@
 import { Navigate, RouteObject } from 'react-router-dom';
 
 import DashBoard from './DashBoard';
+import Home from './Home';
+import Profile from './Profile';
+import ViewPost from './ViewPost';
+import Search from './Search';
 import Landing from './Landing';
 import LogIn from './LogIn';
 import SignUp from './SignUp';
+import NotFound from './NotFound';
 
 interface RoutesParameters {
     isLoggedIn: boolean;
@@ -19,7 +24,10 @@ const routes = ({ isLoggedIn }: RoutesParameters): RouteObject[] => [
         // <DashBoard /> has an <Outlet /> component inside which renders the child routes here
         element: isLoggedIn ? <DashBoard /> : <Navigate to="/welcome" />,
         children: [
-            { path: '/', element: <div>You are logged-in</div> }
+            { path: '/', element: <Home /> },
+            { path: '/profile/:username', element: <Profile /> },
+            { path: '/post/:postId', element: <ViewPost /> },
+            { path: '/search', element: <Search /> }
         ]
     },
     {
@@ -27,9 +35,13 @@ const routes = ({ isLoggedIn }: RoutesParameters): RouteObject[] => [
          // <Landing /> has an <Outlet /> component inside which renders the child routes here
         element: !isLoggedIn ? <Landing /> : <Navigate to="/" />,
         children: [
-            { path: '/', element: <LogIn /> },
-            { path: '/signup', element: <SignUp /> }
+            { path: '/welcome', element: <LogIn /> },
+            { path: '/welcome/signup', element: <SignUp /> }
         ]
+    },
+    {
+        path: '/*',
+        element: <NotFound />
     }
 
 ]

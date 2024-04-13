@@ -15,8 +15,8 @@ const router = Router();
 router.post('/login', async (request, response) => {
     // the schema required for logging in
     const loginSchema = z.object({
-        username: z.string().min(4).max(25),
-        password: z.string().min(8),
+        username: z.string().min(4).max(25).regex(/[a-z0-9_]+/),
+        password: z.string().min(8)
     });
 
     const { success } = loginSchema.safeParse(request.body);
@@ -27,6 +27,7 @@ router.post('/login', async (request, response) => {
     if ( results.length === 0 ) return response.sendStatus(400); // user does not exist or password is incorrect
 
     const user = results[0];
+    console.log(user.uuid)
     const token = jsonwebtoken.sign({ uuid: user.uuid }, process.env.SERVER_JWT_KEY || '', { expiresIn: 60 * 60 * 24 * 30 });
   
     // we set the cookie to expire after 30 days only
@@ -103,9 +104,12 @@ router.post('/view', httpOnlyAuthentication, async(request, response) => {
 
     const { username } = request.body as z.infer<typeof viewSchema>;
 
-    // the question and answer changes depending on if the username is provided or not
+    console.log(request.authenticated?.uuid)
+
+    // the question and answer changes depending on if the username is provided or not,
+    // we do not need to escape the question as it is hardcoded here, but the answer must be escaped for safety
     const [ question, answer ] = username !== undefined ? [ 'user_name', username ] : [ 'BIN_TO_UUID(user_id)', request.authenticated?.uuid ];
-    const [ results ] = await connection.query<any[]>('SELECT user_name, user_common_name, user_biography, user_created_at FROM user WHERE ? = ?', [ question, answer ]);
+    const [ results ] = await connection.query<any[]>(`SELECT user_name, user_common_name, user_biography, user_created_at FROM user WHERE ${question} = ?`, [ answer ]);
     if ( results.length === 0 ) return response.sendStatus(404); // user does not exist
 
     const user = results[0];
