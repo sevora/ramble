@@ -105,6 +105,22 @@ router.post('/view/:username', httpOnlyAuthentication, async(request, response) 
 
 
 /**
+ * Use this to view your profile, requires being logged-in.
+ */
+router.post('/view', httpOnlyAuthentication, async(request, response) => {
+    const [ results ] = await connection.query<any[]>('SELECT user_name, user_common_name, user_biography, user_created_at FROM user WHERE BIN_TO_UUID(user_id) = ?', [ request.authenticated?.uuid ]);
+    if ( results.length === 0 ) return response.sendStatus(404); // user does not exist
+
+    const user = results[0];
+    response.json({
+        userCommonName: user.user_common_name,
+        username: user.user_name,
+        userBiography: user.user_biography,
+        userCreatedAt: user.user_created_at
+    });
+});
+
+/**
  * Use this to update profile details. Since this is httpOnlyAuthentication, the 
  * username is actually taken from the cookie and not from the original body of the request.
  */
