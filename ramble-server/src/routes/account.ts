@@ -23,7 +23,7 @@ router.post('/login', async (request, response) => {
     if (!success) return response.sendStatus(400); // information sent is incomplete
 
     const { username, password } = request.body as z.infer<typeof loginSchema>;
-    const [ results ] = await connection.query<any[]>('SELECT BIN_TO_UUID(user_id) AS uuid FROM user WHERE user_name = ? AND user_password = ?', [ username, sha256(password) ]);
+    const [ results ] = await connection.query<any[]>('SELECT BIN_TO_UUID(user_id) AS uuid, user_common_name, user_name FROM user WHERE user_name = ? AND user_password = ?', [ username, sha256(password) ]);
     if ( results.length === 0 ) return response.sendStatus(400); // user does not exist or password is incorrect
 
     const user = results[0];
@@ -37,7 +37,11 @@ router.post('/login', async (request, response) => {
         maxAge: 1000 * 60 * 60 * 24 * 30
     });
 
-    response.sendStatus(200);
+    // send the username and common name that signifies a successful log-in
+    response.json({
+        username: user.user_name,
+        userCommonName: user.user_common_name
+    });
 });
 
 /**
@@ -88,27 +92,22 @@ router.post('/signup', async(request, response) => {
 });
 
 /**
- * Use this to view the profile of a user, requires being logged-in.
- */
-router.post('/view/:username', httpOnlyAuthentication, async(request, response) => {
-    const [ results ] = await connection.query<any[]>('SELECT user_name, user_common_name, user_biography, user_created_at FROM user WHERE user_name = ?', [ request.params.username ]);
-    if ( results.length === 0 ) return response.sendStatus(404); // user does not exist
-
-    const user = results[0];
-    response.json({
-        userCommonName: user.user_common_name,
-        username: user.user_name,
-        userBiography: user.user_biography,
-        userCreatedAt: user.user_created_at
-    });
-});
-
-
-/**
- * Use this to view your profile, requires being logged-in.
+ * Use this to view your profile or the profile of another user, requires being logged-in.
+ * If username is provided in the request body use that, otherwise use the client's user_id.
  */
 router.post('/view', httpOnlyAuthentication, async(request, response) => {
-    const [ results ] = await connection.query<any[]>('SELECT user_name, user_common_name, user_biography, user_created_at FROM user WHERE BIN_TO_UUID(user_id) = ?', [ request.authenticated?.uuid ]);
+    const viewSchema = z.object({ 
+        username: z.string().min(4).max(25).optional()
+    });
+
+    const { success } = viewSchema.safeParse(request.body);
+    if (!success) return response.sendStatus(400);
+
+    const { username } = request.body as z.infer<typeof viewSchema>;
+
+    // the question and answer changes depending on if the username is provided or not
+    const [ question, answer ] = username !== undefined ? [ 'user_name', username ] : [ 'BIN_TO_UUID(user_id)', request.authenticated?.uuid ];
+    const [ results ] = await connection.query<any[]>('SELECT user_name, user_common_name, user_biography, user_created_at FROM user WHERE ? = ?', [ question, answer ]);
     if ( results.length === 0 ) return response.sendStatus(404); // user does not exist
 
     const user = results[0];
@@ -126,18 +125,18 @@ router.post('/view', httpOnlyAuthentication, async(request, response) => {
  */
 router.post('/update', httpOnlyAuthentication, async(request, response) => {    
     // the schema for updating an account
-    const accountSchema = z.object({
+    const updateSchema = z.object({
         username: z.string().min(4).max(25), // by design username is permanent
         userCommonName: z.string().min(4).max(50).optional(),
         password: z.string().min(8).optional(),
         biography: z.string().max(200).optional()
     });
 
-    const { success } = accountSchema.safeParse(request.body);
+    const { success } = updateSchema.safeParse(request.body);
     if (!success) return response.sendStatus(400);  // information sent is incomplete
 
     const { uuid } = request.authenticated!;
-    const { username, userCommonName, biography, password } = request.body as z.infer<typeof accountSchema>;
+    const { username, userCommonName, biography, password } = request.body as z.infer<typeof updateSchema>;
 
     try {
         // there must be a better way to this.
