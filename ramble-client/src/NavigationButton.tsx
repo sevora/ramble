@@ -1,0 +1,46 @@
+import { FC } from 'react';
+
+interface NavigationButtonProps extends React.HTMLProps<HTMLDivElement> {
+    /**
+     * This is meant to have a component constructor (not the result rather the constructor)
+     * of icon that accepts className attribute.
+     */
+    InActiveIcon: any;
+
+    /**
+     * This is meant to have a component constructor (not the result rather the constructor)
+     * of icon that accepts className attribute.
+     */
+    ActiveIcon: any;
+
+    /**
+     * 
+     */
+    active?: boolean;
+
+    /**
+     * 
+     */
+    label?: string;
+}
+
+/**
+ * This is a reusable navigation button for the 
+ * purpose of decluttering the code I wrote.
+ */
+const NavigationButton: FC<NavigationButtonProps> = ({ InActiveIcon, ActiveIcon, active = false, label = '', className, ...otherProperties }) => {
+    return (
+        <div className={'flex items-center justify-center p-2 w-full hover:bg-neutral-100 cursor-pointer ' + className}  { ...otherProperties }>
+            <div className='mr-2'>
+                {
+                    active ? 
+                        <ActiveIcon className='text-xl'/> :
+                        <InActiveIcon className='text-xl' />
+                }
+            </div>
+            <div className='hidden sm:inline' style={{ fontWeight: active ? 600 : undefined }}>{label}</div>
+        </div>
+    )
+};
+
+export default NavigationButton;

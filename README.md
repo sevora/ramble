@@ -8,6 +8,8 @@ Ramble is a lightweight Twitter Clone that has the core features while being str
 - [TypeScript](https://www.typescriptlang.org) - better code tooling, analysis without having to run code.
 - [TailwindCSS](https://tailwindcss.com) - utility-first CSS framework.
 - [Zustand](https://github.com/pmndrs/zustand) - lightweight state management for React.
+- [React Router](https://reactrouter.com/en/main) - for managing client-side routes and components.
+- [react-icons](https://react-icons.github.io/react-icons/) - icons for React all in one place.
 - [react-mentions](https://github.com/signavio/react-mentions) - simplifies mentions in UIs.
 - [react-infinite-scroll-component](https://github.com/ankeetmaini/react-infinite-scroll-component) - simplifies infinite-scroll implementation.
 
@@ -16,8 +18,8 @@ Ramble is a lightweight Twitter Clone that has the core features while being str
 - [TypeScript](https://www.typescriptlang.org) - better code tooling, analysis without having to run code.
 - [MySQL](https://www.mysql.com) - a database management system.
 - [Zod](https://zod.dev) - object validation.
+- [node-mysql2](https://github.com/sidorares/node-mysql2) - fast MySQL driver for Node.js
 - [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) - for our authentication purposes.
-- [cookies](https://github.com/jshttp/cookie) - library to easily serialize http-only cookies.
 
 ## Overview
 Ramble allows the creation of user accounts, posting of "rambles", commenting, liking, and of course interactive views such as a home page, trending page, and a profile page. As this is a small project, user account creation is infinite and does not require any third-party identity verification. For production purposes, that must be revised. However, for development and as a university project, it focuses on providing a super efficient and smooth user experience whilst integrating these powerful web and database technologies.

@@ -2,7 +2,7 @@ import { Navigate, RouteObject } from 'react-router-dom';
 
 import DashBoard from './DashBoard';
 import Home from './Home';
-import Profile from './Profile';
+import ViewProfile from './ViewProfile';
 import ViewPost from './ViewPost';
 import Search from './Search';
 import Landing from './Landing';
@@ -25,7 +25,7 @@ const routes = ({ isLoggedIn }: RoutesParameters): RouteObject[] => [
         element: isLoggedIn ? <DashBoard /> : <Navigate to="/welcome" />,
         children: [
             { path: '/', element: <Home /> },
-            { path: '/profile/:username', element: <Profile /> },
+            { path: '/profile/:username', element: <ViewProfile /> },
             { path: '/post/:postId', element: <ViewPost /> },
             { path: '/search', element: <Search /> }
         ]

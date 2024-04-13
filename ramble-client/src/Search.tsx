@@ -5,7 +5,7 @@ import { FC } from 'react';
  * @returns 
  */
 const Search: FC = () => {
-    return <div>Please log-in</div>
+    return <div>Search</div>
 };
 
 export default Search;

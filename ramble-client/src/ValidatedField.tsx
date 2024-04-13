@@ -2,24 +2,24 @@ import React, { FC, FormEventHandler, useState } from 'react';
 
 interface ValidatedFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
     /**
-     * 
+     * Whether the element should express that its valid or invalid.
      */
     valid: boolean;
 
     /**
-     * 
+     * The message that appears when the field is valid.
      */
     successMessage?: string;
 
     /**
-     * 
+     * The message that appears when the field is invalid.
      */
     errorMessage?: string;
 }
 
 /**
- * 
- * @returns 
+ * This is a reusable component for validated fields, which show a success or error message upon meeting
+ * a set criteria according to the boolean valid field. It is an extension of an HTMLInputElement.
  */
 const ValidatedField: FC<ValidatedFieldProps> = ({ valid, successMessage, errorMessage, onInput, ...otherProperties }) => {
     const [ hasReceivedInput, setHasReceivedInput ] = useState(false);

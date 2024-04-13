@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { useRoutes } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate, useRoutes } from 'react-router-dom';
 import axios from 'axios';
 
 import routes from './routes'
@@ -11,6 +11,13 @@ import useAccount from './hooks/account';
  */
 function App() {
   const { isLoggedIn, setUsername, setUserCommonName, setIsLoggedIn } = useAccount();
+  
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // this is a fix to the issue where a logged-in user starts with a logged-out state, gets redirected to /welcome, /welcome redirects to /
+  // tldr; used to recover last path when log-in is confirmed
+  const [ lastPath ] = useState<string>(location.pathname);
   const route = useRoutes( routes({ isLoggedIn }) );
   
   useEffect(() => {
@@ -23,8 +30,9 @@ function App() {
         setUsername(data.username);
         setUserCommonName(data.userCommonName);
         setIsLoggedIn(true);
+        navigate(lastPath);
       } catch {
-        // nothing is to be done here ...
+        setIsLoggedIn(false);
       }
     }
 
