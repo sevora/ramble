@@ -21,8 +21,8 @@ CREATE TABLE `follower` (
   `follow_created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`follower_id`,`follows_id`),
   KEY `fk_user_follows` (`follows_id`),
-  CONSTRAINT `fk_user_follower` FOREIGN KEY (`follower_id`) REFERENCES `user` (`user_id`),
-  CONSTRAINT `fk_user_follows` FOREIGN KEY (`follows_id`) REFERENCES `user` (`user_id`)
+  CONSTRAINT `fk_user_follower` FOREIGN KEY (`follower_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_user_follows` FOREIGN KEY (`follows_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -40,9 +40,9 @@ CREATE TABLE `post` (
   KEY `fk_user_post` (`post_user_id`),
   KEY `fk_post_post` (`post_parent_id`),
   KEY `fk_post_repost` (`post_repost_id`),
-  CONSTRAINT `fk_post_post` FOREIGN KEY (`post_parent_id`) REFERENCES `post` (`post_id`),
-  CONSTRAINT `fk_post_repost` FOREIGN KEY (`post_repost_id`) REFERENCES `post` (`post_id`),
-  CONSTRAINT `fk_user_post` FOREIGN KEY (`post_user_id`) REFERENCES `user` (`user_id`)
+  CONSTRAINT `fk_post_post` FOREIGN KEY (`post_parent_id`) REFERENCES `post` (`post_id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_post_repost` FOREIGN KEY (`post_repost_id`) REFERENCES `post` (`post_id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_user_post` FOREIGN KEY (`post_user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -54,6 +54,6 @@ CREATE TABLE `like` (
   `like_created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`like_by_id`,`like_post_id`),
   KEY `fk_post_like` (`like_post_id`),
-  CONSTRAINT `fk_post_like` FOREIGN KEY (`like_post_id`) REFERENCES `post` (`post_id`),
-  CONSTRAINT `fk_user_like` FOREIGN KEY (`like_by_id`) REFERENCES `user` (`user_id`)
+  CONSTRAINT `fk_post_like` FOREIGN KEY (`like_post_id`) REFERENCES `post` (`post_id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_user_like` FOREIGN KEY (`like_by_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

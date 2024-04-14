@@ -4,6 +4,7 @@ import { sha256 } from "js-sha256";
 import jsonwebtoken from 'jsonwebtoken';
 
 import connection from "../mysql";
+import zodVerify from "./middlewares/zod-verify";
 import httpOnlyAuthentication from "./middlewares/http-only-authentication";
 
 const router = Router();
@@ -13,16 +14,14 @@ const router = Router();
  * jsonwebtoken as the value.
  */
 router.post('/login', async (request, response) => {
-    // the schema required for logging in
-    const loginSchema = z.object({
+    const parameters = zodVerify(z.object({
         username: z.string().min(4).max(25).regex(/[a-z0-9_]+/),
         password: z.string().min(8)
-    });
+    }), request);
 
-    const { success } = loginSchema.safeParse(request.body);
-    if (!success) return response.sendStatus(400); // information sent is incomplete
+    if (!parameters) return response.sendStatus(400); // information sent is incomplete
 
-    const { username, password } = request.body as z.infer<typeof loginSchema>;
+    const { username, password } = parameters;
     const [ results ] = await connection.query<any[]>('SELECT BIN_TO_UUID(user_id) AS uuid, user_common_name, user_name FROM user WHERE user_name = ? AND user_password = ?', [ username, sha256(password) ]);
     if ( results.length === 0 ) return response.sendStatus(400); // user does not exist or password is incorrect
 
@@ -63,20 +62,13 @@ router.post('/logout', httpOnlyAuthentication, async(_request, response) => {
  * otherwise this will fail.
  */
 router.post('/signup', async(request, response) => {
-     // the schema required for signing-up
-     const signupSchema = z.object({
+    const parameters = zodVerify(z.object({
         username: z.string().min(4).max(25),
         password: z.string().min(8),
-    });
-
-    const { success } = signupSchema.safeParse(request.body);
-    if (!success) return response.sendStatus(400);  // information sent is incomplete
-
-    const { username, password } = request.body as z.infer<typeof signupSchema>;
-
-    // doing this prevents failed inserts which still triggers auto increments
-    const [ result ] = await connection.query<any[]>('SELECT user_name FROM user WHERE user_name = ?', [ username ]);
-    if (result.length > 0) return response.sendStatus(400); // username is already taken
+    }), request);
+    
+    if (!parameters) return response.sendStatus(400);  // information sent is incomplete
+    const { username, password } = parameters;
 
     try {
         await connection.query(
@@ -85,23 +77,22 @@ router.post('/signup', async(request, response) => {
         )
         return response.sendStatus(200); // the signup is a success
     } catch {
-       return response.sendStatus(500); // must be some server error
+       return response.sendStatus(400); // username is already taken
     }
 });
+
 
 /**
  * Use this to view your profile or the profile of another user, requires being logged-in.
  * If username is provided in the request body use that, otherwise use the client's user_id.
  */
 router.post('/view', httpOnlyAuthentication, async(request, response) => {
-    const viewSchema = z.object({ 
+    const parameters = zodVerify(z.object({ 
         username: z.string().min(4).max(25).optional()
-    });
+    }), request);
 
-    const { success } = viewSchema.safeParse(request.body);
-    if (!success) return response.sendStatus(400);
-
-    const { username } = request.body as z.infer<typeof viewSchema>;
+    if (!parameters) return response.sendStatus(400);
+    const { username } = parameters;
 
     // the question and answer changes depending on if the username is provided or not,
     // we do not need to escape the question as it is hardcoded here, but the answer must be escaped for safety
@@ -125,19 +116,19 @@ router.post('/view', httpOnlyAuthentication, async(request, response) => {
  * username is actually taken from the cookie and not from the original body of the request.
  */
 router.post('/update', httpOnlyAuthentication, async(request, response) => {    
-    // the schema for updating an account
-    const updateSchema = z.object({
-        username: z.string().min(4).max(25), // by design username is permanent
-        userCommonName: z.string().min(4).max(50).optional(),
-        password: z.string().min(8).optional(),
-        biography: z.string().max(200).optional()
-    });
+    const parameters = zodVerify(
+        // the schema for updating an account
+        z.object({
+            username: z.string().min(4).max(25), // by design username is permanent
+            userCommonName: z.string().min(4).max(50).optional(),
+            password: z.string().min(8).optional(),
+            biography: z.string().max(200).optional()
+        }), 
+    request);
 
-    const { success } = updateSchema.safeParse(request.body);
-    if (!success) return response.sendStatus(400);  // information sent is incomplete
-
+    if (!parameters) return response.sendStatus(400);  // information sent is incomplete
     const { uuid } = request.authenticated!;
-    const { username, userCommonName, biography, password } = request.body as z.infer<typeof updateSchema>;
+    const { username, userCommonName, biography, password } = parameters;
 
     try {
         // there must be a better way to this
@@ -156,15 +147,14 @@ router.post('/update', httpOnlyAuthentication, async(request, response) => {
  * Since we used httpOnlyAuthentication here, tthe username field will be set automatically.
  */
 router.post('/delete', httpOnlyAuthentication, async(request, response) => {
-    const deleteSchema = z.object({
+    const parameters = zodVerify(z.object({
         password: z.string().min(8)
-    });
+    }), request);
 
-    const { success } = deleteSchema.safeParse(request.body);
-    if (!success) return response.sendStatus(400);  // information sent is incomplete
+    if (!parameters) return response.sendStatus(400);  // information sent is incomplete
 
     const { uuid } = request.authenticated!;
-    const { password } = request.body as z.infer<typeof deleteSchema>;
+    const { password } = parameters;
 
     try {
         await connection.query('DELETE FROM user WHERE BIN_TO_UUID(user_id) = ? AND user_password = ?', [ uuid, sha256(password) ]);
