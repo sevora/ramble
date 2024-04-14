@@ -62,7 +62,7 @@ router.post('/count', httpOnlyAuthentication, async (request, response) => {
 
     // if a username is provided, that takes precedence and so we count that person's data instead
     if (username) {
-        const [ userResult ] = await connection.query<any[]>(`SELECT BIN_TO_UUID(user_id) AS uuid FROM user WHERE user_name`, [ username ]);
+        const [ userResult ] = await connection.query<any[]>('SELECT BIN_TO_UUID(user_id) AS `uuid` FROM user WHERE user_name', [ username ]);
         if ( userResult.length === 0 ) return response.sendStatus(404); // user does not exist
         uuid = userResult[0].uuid;
     }
@@ -94,7 +94,7 @@ router.post('/list', httpOnlyAuthentication, async (request, response) => {
     const [ what, from ] = category === 'follower' ? [ 'follower_id', 'follows_id' ] : [ 'follows_id', 'follower_id' ];
 
     // take note of this query very essential for this kind of association
-    const [ results ] = await connection.query<any[]>(`SELECT user_name, user_common_name, user_biography FROM user, follower WHERE user_id = ${what} AND ${from} = ? ORDER BY follow_created_at DESC LIMIT ?, ?`, [ uuid, page * ROWS_PER_PAGE, ROWS_PER_PAGE ]);
+    const [ results ] = await connection.query<any[]>(`SELECT user_name, user_common_name, user_biography FROM user, follower WHERE user_id = ${what} AND BIN_TO_UUID(${from}) = ? ORDER BY follow_created_at DESC LIMIT ?, ?`, [ uuid, page * ROWS_PER_PAGE, ROWS_PER_PAGE ]);
     
     // we then rename these properties following the convention
     return response.json({ users: results.map(entry => 

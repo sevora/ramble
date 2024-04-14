@@ -47,7 +47,7 @@ CREATE TABLE `post` (
 -- ramble.`like` definition
 
 CREATE TABLE `like` (
-  `like_by_id` binary(16) NOT NULL,
+  `like_user_id` binary(16) NOT NULL,
   `like_post_id` binary(16) NOT NULL,
   `like_created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`like_by_id`,`like_post_id`),

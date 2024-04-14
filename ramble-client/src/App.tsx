@@ -26,7 +26,8 @@ function App() {
       try {
         const account = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/account/view`, {}, { withCredentials: true });
         const data = account.data as { username: string, userCommonName: string };
-        
+        const c = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/follower/list`, { category: "follower", page: 0 }, { withCredentials: true });
+        console.log(c.data)
         setUsername(data.username);
         setUserCommonName(data.userCommonName);
         setIsLoggedIn(true);
