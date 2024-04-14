@@ -9,7 +9,7 @@ const connection: mysql.Pool = mysql.createPool({
     user:       process.env.MYSQL_USER      || 'root',
     database:   process.env.MYSQL_DATABASE  || 'ramble',
     password:   process.env.MYSQL_PASSWORD  || '',
-    timezone:   'utc'     
+    timezone:   '+00:00'     
 });
 
 export default connection;

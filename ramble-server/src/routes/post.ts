@@ -155,24 +155,35 @@ router.post('/view', httpOnlyAuthentication, async (request, response) => {
 /**
  * Use this to list down multiple posts, the user must be logged in.
  * This only returns the postIds not the data in the post themselves.
+ * The API works as follows:
+ * - Setting category to trending means global posts, grouped by day, sorted by likes
+ * - Setting category to following means sorted by time of posting and limited to followed accounts
+ * - If username is provided, only posts of a specific user, sorted by time of posting is sent.
+ * - If parentId is supplied, only the child posts will be sent back (the comments).
+ * Only one of this will be followed at any time.
  */
 router.post('/list', httpOnlyAuthentication, async (request, response) => {
     const parameters = zodVerify(z.object({
         page: z.number().min(0),
+        username: z.string().min(4).max(25).optional(),
         parentId: z.string().uuid().optional(),
         category: z.enum(['trending', 'following']).optional()
     }), request);
 
     if (!parameters) return response.sendStatus(400);
     const { uuid } = request.authenticated!;
-    const { page, parentId, category } = parameters;
+    const { username, page, parentId, category } = parameters;
 
     const pagination = [page * ROWS_PER_PAGE, ROWS_PER_PAGE];
     let results: any[] = [];
 
+    // this whole if-else sequence looks like a beast
     if (parentId) {
         // this is get the comments to the post
         [results] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) AS `uuid` FROM post WHERE post_parent_id = ? ORDER BY post_created_at DESC LIMIT ?, ?', [parentId, ...pagination]);
+    } else if (username) {
+        const [userResult] = await connection.query<any[]>('SELECT BIN_TO_UUID(user_id) as `user_uuid` FROM `user` WHERE user_name = ?', [ username ]);
+        [results] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) AS `uuid` FROM post WHERE BIN_TO_UUID(post_user_id) = ? ORDER BY post_created_at DESC LIMIT ?, ?', [ userResult[0].user_uuid, ...pagination ]);
     } else if (category === 'trending') {
         [results] = await connection.query<any[]>(
             // this looks complicated but the point is to get the ids of the posts sorting them by the amount of likes and date

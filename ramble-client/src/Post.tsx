@@ -1,17 +1,21 @@
 import { FC, useEffect, useState } from 'react';
 import axios from 'axios';
 
-import { FaRegHeart, FaHeart } from "react-icons/fa";
 import useAccount from './hooks/account';
 import timeAgo from './helpers/time-ago';
 
 interface PostProps extends React.HTMLProps<HTMLDivElement> {
     /**
-     * 
+     * Provide only the postId and this should automatically 
+     * have all the functionality.
      */
     postId: string;
 }
 
+/**
+ * This describes the state of a post in a single object.
+ * You could infer what this means.
+ */
 interface PostState { 
     postId: string
     postContent: string
@@ -24,7 +28,7 @@ interface PostState {
 }
 
 /**
- * 
+ * A reusable component that is reliant on the backend to get the state.
  */
 const Post: FC<PostProps> = ({ postId, className='', ...otherProperties }) => {
     const account = useAccount(); // probably not the best organization but this works for me

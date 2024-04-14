@@ -56,7 +56,7 @@ const DashBoard: FC = () => {
                 <NavigationButton InActiveIcon={IoSearchOutline} ActiveIcon={IoSearch} label='Search' active={activeRoute === 'search'} onClick={() => navigate('/search')} />
                 <NavigationButton InActiveIcon={IoExitOutline} ActiveIcon={IoExit} label='Log-Out' onClick={logout} className='sm:mt-auto sm:mb-2' />
             </div>
-            <div className='bg-slate-100 overflow-auto observe-me'>
+            <div className='bg-slate-100 overflow-auto' id="dashboard-outlet">
                 <Outlet />
             </div>
         </div>
