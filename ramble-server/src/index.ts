@@ -5,6 +5,8 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
 import accountRouter from './routes/account';
+import followerRouter from './routes/follower';
+import postRouter from './routes/post';
 
 const application = express();
 const port = process.env.SERVER_PORT || 80;
@@ -28,6 +30,8 @@ application.use([
  * These are our custom routers.
  */
 application.use('/account', accountRouter);
+application.use('/follower', followerRouter);
+application.use('/post', postRouter);
 
 application.listen(port || 80, () => {
     console.log(`Server listening on port: ${port}`);

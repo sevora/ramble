@@ -1,4 +1,3 @@
--- use this to generate the tables for the application
 -- ramble.`user` definition
 
 CREATE TABLE `user` (
@@ -32,7 +31,6 @@ CREATE TABLE `post` (
   `post_id` binary(16) NOT NULL DEFAULT (uuid_to_bin(uuid())),
   `post_user_id` binary(16) NOT NULL,
   `post_content` text,
-  `post_media` json DEFAULT NULL,
   `post_parent_id` binary(16) DEFAULT NULL,
   `post_repost_id` binary(16) DEFAULT NULL,
   `post_created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,

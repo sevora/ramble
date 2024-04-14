@@ -15,8 +15,8 @@ const router = Router();
  */
 router.post('/login', async (request, response) => {
     const parameters = zodVerify(z.object({
-        username: z.string().min(4).max(25).regex(/[a-z0-9_]+/),
-        password: z.string().min(8)
+        username: z.string().trim().min(4).max(25).regex(/[a-z0-9_]+/),
+        password: z.string().trim().min(8)
     }), request);
 
     if (!parameters) return response.sendStatus(400); // information sent is incomplete
@@ -63,8 +63,8 @@ router.post('/logout', httpOnlyAuthentication, async(_request, response) => {
  */
 router.post('/signup', async(request, response) => {
     const parameters = zodVerify(z.object({
-        username: z.string().min(4).max(25),
-        password: z.string().min(8),
+        username: z.string().trim().min(4).max(25),
+        password: z.string().trim().min(8),
     }), request);
     
     if (!parameters) return response.sendStatus(400);  // information sent is incomplete
@@ -74,7 +74,7 @@ router.post('/signup', async(request, response) => {
         await connection.query(
             'INSERT INTO user (user_common_name, user_name, user_password) VALUES (?, ?, ?)', 
             [ username, username, sha256(password) ]
-        )
+        );
         return response.sendStatus(200); // the signup is a success
     } catch {
        return response.sendStatus(400); // username is already taken
@@ -92,22 +92,22 @@ router.post('/view', httpOnlyAuthentication, async(request, response) => {
     }), request);
 
     if (!parameters) return response.sendStatus(400);
+    const { uuid } = request.authenticated!;
     const { username } = parameters;
 
     // the question and answer changes depending on if the username is provided or not,
     // we do not need to escape the question as it is hardcoded here, but the answer must be escaped for safety
-    const [ question, answer ] = username !== undefined ? [ 'user_name', username ] : [ 'BIN_TO_UUID(user_id)', request.authenticated?.uuid ];
-    const [ results ] = await connection.query<any[]>(`SELECT user_name, user_common_name, user_biography, user_created_at FROM user WHERE ${question} = ?`, [ answer ]);
-    if ( results.length === 0 ) return response.sendStatus(404); // user does not exist
-
-    const user = results[0];
+    const [ question, answer ] = username !== undefined ? [ 'user_name', username ] : [ 'BIN_TO_UUID(user_id)', uuid ];
+    const [ userResult ] = await connection.query<any[]>(`SELECT user_id, user_name, user_common_name, user_biography, user_created_at FROM user WHERE ${question} = ?`, [ answer ]);
+    if ( userResult.length === 0 ) return response.sendStatus(404); // user does not exist
+    const user = userResult[0];
 
     // in this one, we actually want to send the details
     response.json({
         userCommonName: user.user_common_name,
-        username: user.user_name,
-        userBiography: user.user_biography,
-        userCreatedAt: user.user_created_at
+        username:       user.user_name,
+        userBiography:  user.user_biography,
+        userCreatedAt:  user.user_created_at
     });
 });
 
@@ -119,10 +119,10 @@ router.post('/update', httpOnlyAuthentication, async(request, response) => {
     const parameters = zodVerify(
         // the schema for updating an account
         z.object({
-            username: z.string().min(4).max(25), // by design username is permanent
-            userCommonName: z.string().min(4).max(50).optional(),
-            password: z.string().min(8).optional(),
-            biography: z.string().max(200).optional()
+            username: z.string().trim().min(4).max(25), // by design username is permanent
+            userCommonName: z.string().trim().min(4).max(50).optional(),
+            password: z.string().trim().min(8).optional(),
+            biography: z.string().trim().max(200).optional()
         }), 
     request);
 
@@ -130,16 +130,12 @@ router.post('/update', httpOnlyAuthentication, async(request, response) => {
     const { uuid } = request.authenticated!;
     const { username, userCommonName, biography, password } = parameters;
 
-    try {
-        // there must be a better way to this
-        if (username) await connection.query('UPDATE user SET user_name = ? WHERE BIN_TO_UUID(user_id) = ?', [ username, uuid ]);
-        if (userCommonName) await connection.query('UPDATE user SET user_common_name = ? WHERE BIN_TO_UUID(user_id) = ?', [ userCommonName, uuid ]);
-        if (biography) await connection.query('UPDATE user SET user_biography = ? WHERE BIN_TO_UUID(user_id) = ?', [ biography, uuid ]);
-        if (password) await connection.query('UPDATE user SET user_password = ? WHERE BIN_TO_UUID(user_id) = ?', [ sha256(password), uuid ]);
-        return response.sendStatus(200); // only send a 200 to signify success of operation
-    } catch {
-        return response.sendStatus(500); // only a server error would've reached here
-    }
+    // there must be a better way to this
+    if (username) await connection.query('UPDATE user SET user_name = ? WHERE BIN_TO_UUID(user_id) = ?', [ username, uuid ]);
+    if (userCommonName) await connection.query('UPDATE user SET user_common_name = ? WHERE BIN_TO_UUID(user_id) = ?', [ userCommonName, uuid ]);
+    if (biography) await connection.query('UPDATE user SET user_biography = ? WHERE BIN_TO_UUID(user_id) = ?', [ biography, uuid ]);
+    if (password) await connection.query('UPDATE user SET user_password = ? WHERE BIN_TO_UUID(user_id) = ?', [ sha256(password), uuid ]);
+    return response.sendStatus(200); // only send a 200 to signify success of operation
 });
 
 /**
@@ -148,7 +144,7 @@ router.post('/update', httpOnlyAuthentication, async(request, response) => {
  */
 router.post('/delete', httpOnlyAuthentication, async(request, response) => {
     const parameters = zodVerify(z.object({
-        password: z.string().min(8)
+        password: z.string().trim().min(8)
     }), request);
 
     if (!parameters) return response.sendStatus(400);  // information sent is incomplete
@@ -156,12 +152,8 @@ router.post('/delete', httpOnlyAuthentication, async(request, response) => {
     const { uuid } = request.authenticated!;
     const { password } = parameters;
 
-    try {
-        await connection.query('DELETE FROM user WHERE BIN_TO_UUID(user_id) = ? AND user_password = ?', [ uuid, sha256(password) ]);
-        return response.sendStatus(200); // only send to signify success of operation
-    } catch {
-        return response.sendStatus(400); // probably trying to delete a non-existing account
-    }
+    await connection.query('DELETE FROM user WHERE BIN_TO_UUID(user_id) = ? AND user_password = ?', [ uuid, sha256(password) ]);
+    return response.sendStatus(200); // only send to signify success of operation
 });
 
 export default router;

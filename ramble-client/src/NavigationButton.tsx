@@ -14,12 +14,12 @@ interface NavigationButtonProps extends React.HTMLProps<HTMLDivElement> {
     ActiveIcon: any;
 
     /**
-     * 
+     * Whether to show the active icon or not.
      */
     active?: boolean;
 
     /**
-     * 
+     * What the label is for the navigation icon
      */
     label?: string;
 }
