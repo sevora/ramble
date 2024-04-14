@@ -28,7 +28,7 @@ interface NavigationButtonProps extends React.HTMLProps<HTMLDivElement> {
  * This is a reusable navigation button for the 
  * purpose of decluttering the code I wrote.
  */
-const NavigationButton: FC<NavigationButtonProps> = ({ InActiveIcon, ActiveIcon, active = false, label = '', className, ...otherProperties }) => {
+const NavigationButton: FC<NavigationButtonProps> = ({ InActiveIcon, ActiveIcon, active = false, label = '', className='', ...otherProperties }) => {
     return (
         <div className={'flex items-center justify-center p-2 w-full hover:bg-neutral-100 cursor-pointer ' + className}  { ...otherProperties }>
             <div className='mr-2'>

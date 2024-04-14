@@ -15,21 +15,20 @@ const ROWS_PER_PAGE = 10;
 router.post('/new', httpOnlyAuthentication, async (request, response) => {
     const parameters = zodVerify(z.object({
         content: z.string().trim().min(1).max(200),
-        repostId: z.string().uuid().optional(), // for reposts
         parentId: z.string().uuid().optional()  // for replies
     }), request);
 
     if (!parameters) return response.sendStatus(400);
 
     const { uuid } = request.authenticated!;
-    const { content, repostId, parentId } = parameters;
+    const { content, parentId } = parameters;
 
     try {
         // could look more beautiful
         await connection.query(`
-            INSERT INTO post (post_user_id, post_content ${repostId ? ', post_repost_id' : ''}) ${parentId ? ', post_parent_id' : ''}
-            VALUES (UUID_TO_BIN(?), ? ${repostId ? ', UUID_TO_BIN(?)' : ''})  ${parentId ? ', UUID_TO_BIN(?)' : ''} `,
-            [uuid, content, repostId, parentId]);
+            INSERT INTO post (post_user_id, post_content ${parentId ? ', post_parent_id' : ''}
+            VALUES (UUID_TO_BIN(?), ? ${parentId ? ', UUID_TO_BIN(?)' : ''} `,
+            [uuid, content, parentId]);
         return response.sendStatus(200);
     } catch {
         return response.sendStatus(500);
@@ -66,10 +65,10 @@ router.post('/like', httpOnlyAuthentication, async (request, response) => {
     const { postId } = parameters;
 
     try {
-        await connection.query('INSERT INTO like (like_user_id, like_post_id) VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?))', [uuid, postId]);
+        await connection.query('INSERT INTO `like` (like_user_id, like_post_id) VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?))', [uuid, postId]);
         return response.sendStatus(200);
     } catch {
-        return response.sendStatus(400); // can't double like a post
+        return response.sendStatus(500); // can't double like a post
     }
 });
 
@@ -85,7 +84,7 @@ router.post('/dislike', httpOnlyAuthentication, async (request, response) => {
     const { uuid } = request.authenticated!;
     const { postId } = parameters;
 
-    await connection.query('DELETE FROM like WHERE BIN_TO_UUID(like_user_id) = ? AND BIN_TO_UUID(like_post_id) = ?', [uuid, postId]);
+    await connection.query('DELETE FROM `like` WHERE BIN_TO_UUID(like_user_id) = ? AND BIN_TO_UUID(like_post_id) = ?', [uuid, postId]);
     return response.sendStatus(200);
 });
 
@@ -126,13 +125,16 @@ router.post('/view', httpOnlyAuthentication, async (request, response) => {
     }), request);
 
     if (!parameters) return response.sendStatus(400);
+    const { uuid } = request.authenticated!;
     const { postId } = parameters;
 
     // we need to get all these related information, could be better
     const [ postResult ] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) as `post_uuid`, post_content, BIN_TO_UUID(post_user_id) as `user_uuid`, post_created_at FROM post WHERE BIN_TO_UUID(post_id) = ?', [ postId ]);
     const [ userResult ] = await connection.query<any[]>('SELECT user_name, user_common_name FROM `user` WHERE BIN_TO_UUID(user_id) = ?', [ postResult[0].user_uuid ])
     const [ likeResult ] = await connection.query<any[]>('SELECT COUNT(*) AS like_count FROM `like` WHERE BIN_TO_UUID(like_post_id) = ?', [ postId ]);
-    const [ repostResult ] = await connection.query<any[]>('SELECT COUNT(*) AS repost_count FROM post WHERE BIN_TO_UUID(post_repost_id) = ?', [ postId ]);
+    const [ commentResult ] = await connection.query<any[]>('SELECT COUNT(*) AS comment_count FROM post WHERE BIN_TO_UUID(post_parent_id) = ?', [ postId ]);
+    
+    const [ hasLiked ] = await connection.query<any[]>('SELECT * FROM `like` WHERE BIN_TO_UUID(like_user_id) = ? AND BIN_TO_UUID(like_post_id) = ?', [ uuid, postId ]);
     
     // then we send these information back
     response.json({
@@ -144,7 +146,9 @@ router.post('/view', httpOnlyAuthentication, async (request, response) => {
         username:       userResult[0].user_name,
 
         likeCount:      likeResult[0].like_count,
-        repostCount:    repostResult[0].repost_count
+        commentCount:   commentResult[0].comment_count,
+
+        hasLiked:       hasLiked.length > 0
     });
 });
 
@@ -188,7 +192,7 @@ router.post('/list', httpOnlyAuthentication, async (request, response) => {
             JOIN follower ON post_user_id = follows_id 
             WHERE BIN_TO_UUID(follower_id) = ? OR BIN_TO_UUID(post_user_id) = ?
             GROUP BY post_id 
-            ORDER BY EXTRACT(YEAR_MONTH FROM post_created_at) DESC, EXTRACT(DAY FROM post_created_at) DESC, like_count DESC
+            ORDER BY post_created_at DESC
             LIMIT ?, ?`
             , [uuid, uuid, ...pagination]);
     }

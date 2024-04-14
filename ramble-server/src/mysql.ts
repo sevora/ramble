@@ -8,7 +8,8 @@ const connection: mysql.Pool = mysql.createPool({
     host:       process.env.MYSQL_HOST      || 'localhost',
     user:       process.env.MYSQL_USER      || 'root',
     database:   process.env.MYSQL_DATABASE  || 'ramble',
-    password:   process.env.MYSQL_PASSWORD  || ''     
+    password:   process.env.MYSQL_PASSWORD  || '',
+    timezone:   'utc'     
 });
 
 export default connection;
