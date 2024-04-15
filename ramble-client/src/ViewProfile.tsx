@@ -61,14 +61,22 @@ const ViewProfile: FC = () => {
         const profile = { ...accountResponse.data, ...followerCountResponse.data, ...postCountResponse.data };
         setProfile(profile as ProfileState);
 
-        // reset the follow context
-        const followResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/follower/ask`, { username: viewUsername }, { withCredentials: true });
-        setFollow(followResponse.data as FollowContext);
+    
+        await getFollowContext();
 
         // reset the entire remaining state
         setPage(0);
         setPosts([]);
         setHasNextPage(true);
+    }
+
+    /**
+     * 
+     */
+    const getFollowContext = async () => {
+        // reset the follow context
+        const followResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/follower/ask`, { username: viewUsername }, { withCredentials: true });
+        setFollow(followResponse.data as FollowContext);
     }
 
     /**
@@ -98,6 +106,16 @@ const ViewProfile: FC = () => {
         }
     }
 
+    /**
+     * This is used to toggle the follow state of the profile being viewed
+     */
+    const toggleFollow = async () => {
+        if (follow === null) return;
+        const action = follow.isFollowing ? 'unfollow' : 'follow';
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/follower/${action}`, { username: viewUsername }, { withCredentials: true });
+        await getFollowContext();
+    }
+
     // we want to load the profile 
     useEffect(() => {
         loadProfileContextState();
@@ -115,7 +133,7 @@ const ViewProfile: FC = () => {
     return (
         <div>
             {/* This is the viewed user profile */}
-            <div className='p-5 px-20 bg-white border-b-2'>
+            <div className='p-5 sm:px-20 bg-white border-b-2'>
                 <div className='flex items-center'>
                     <div>
                         <div className='font-semibold flex-grow w-full'>{profile.userCommonName}</div>
@@ -127,7 +145,7 @@ const ViewProfile: FC = () => {
                     {follow.isFollower && <div className='text-xs rounded-lg bg-neutral-200 ml-2 px-2 py-1'>Follows you</div>}
 
                     {/* The setting also changes depending on who you are */}
-                    <button className='ml-auto bg-neutral-200 hover:bg-neutral-400 px-9 py-2 rounded-full'>
+                    <button className='ml-auto bg-neutral-200 hover:bg-neutral-400 px-9 py-2 rounded-full' onClick={() => isClient ? navigate(`/update`) : toggleFollow()}>
                         {/* Cursed ternary */}
                         {isClient ? 'Update' : follow.isFollowing ? 'Unfollow' : 'Follow'}
                     </button>

@@ -26,11 +26,12 @@ router.post('/new', httpOnlyAuthentication, async (request, response) => {
     try {
         // could look more beautiful
         await connection.query(`
-            INSERT INTO post (post_user_id, post_content ${parentId ? ', post_parent_id' : ''}
-            VALUES (UUID_TO_BIN(?), ? ${parentId ? ', UUID_TO_BIN(?)' : ''} `,
+        INSERT INTO post (post_user_id, post_content ${parentId ? ', post_parent_id' : ''}) 
+        VALUES (UUID_TO_BIN(?), ? ${parentId ? ', UUID_TO_BIN(?)' : ''})`,
             [uuid, content, parentId]);
         return response.sendStatus(200);
-    } catch {
+    } catch (error) {
+        console.log(error)
         return response.sendStatus(500);
     }
 });
@@ -131,6 +132,8 @@ router.post('/view', httpOnlyAuthentication, async (request, response) => {
     // we need to get all these related information, could be better, if this is possible in a single query that is '
     // more efficient then that's nice but if this is the ideal solution then so be it
     const [ postResult ] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) as `post_uuid`, post_content, BIN_TO_UUID(post_user_id) as `user_uuid`, post_created_at FROM post WHERE BIN_TO_UUID(post_id) = ?', [ postId ]);
+    if (postResult.length === 0) return response.sendStatus(404);
+
     const [ userResult ] = await connection.query<any[]>('SELECT user_name, user_common_name FROM `user` WHERE BIN_TO_UUID(user_id) = ?', [ postResult[0].user_uuid ])
     const [ likeResult ] = await connection.query<any[]>('SELECT COUNT(*) AS like_count FROM `like` WHERE BIN_TO_UUID(like_post_id) = ?', [ postId ]);
     const [ replyResult ] = await connection.query<any[]>('SELECT COUNT(*) AS comment_count FROM post WHERE BIN_TO_UUID(post_parent_id) = ?', [ postId ]);

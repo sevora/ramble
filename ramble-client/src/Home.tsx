@@ -8,6 +8,8 @@ import Post from './Post';
  * This is where the posts are, by following or trending.
  */
 const Home: FC = () => {
+    const [draft, setDraft] = useState<string>('');
+
     const [posts, setPosts] = useState<{ postId: string }[]>([]);
 
     const [category, setCategory] = useState<'following' | 'trending'>('following');
@@ -28,18 +30,14 @@ const Home: FC = () => {
     }
 
     /**
-     * Load category resets the page state.
-     * @param category 
+     * Load category resets the page state. Even if the category retains,
+     * this will still have a significant effect due to the useEffect of setHasNextPage.
      */
-    const loadCategory = async (category: 'following' | 'trending') => {
+    const loadCategory = (category: 'following' | 'trending') => {
         setCategory(category);
-
         setPage(0);
         setPosts([]);
         setHasNextPage(true);
-
-        // this becomes unnecessary due to the observer
-        // setPosts(await getPosts(category, 0)); 
     }
 
     /**
@@ -58,6 +56,18 @@ const Home: FC = () => {
         }
     }
 
+    /**
+     * 
+     */
+    const createPost = async () => {
+        // validate draft first
+        if (draft.length === 0 || draft.length > 200) return;
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/new`, { content: draft }, { withCredentials: true });
+        
+        setDraft('');
+        loadCategory(category);
+    }
+
     // when the next button is inView (initially it is) we load more posts
     useEffect(() => {
         if (inView) 
@@ -70,7 +80,13 @@ const Home: FC = () => {
                 <button className='px-5 py-3 me-2 rounded-t-lg hover:bg-neutral-200' style={{ backgroundColor: category === 'following' ? 'white' : undefined, fontWeight: category === 'following' ? 'bold' : undefined }} onClick={() => loadCategory('following')}>Following</button>
                 <button className='px-5 py-3 me-2 rounded-t-lg hover:bg-neutral-200' style={{ backgroundColor: category === 'trending' ? 'white' : undefined, fontWeight: category === 'trending' ? 'bold' : undefined }} onClick={() => loadCategory('trending')}>Trending</button>
             </div>
-            <div className='bg-white rounded-tl-none rounded-lg'>   
+            <div className='bg-white rounded-tl-none rounded-lg'>  
+                {/*  */}
+                <div className='p-3 border-b-2'>
+                    <textarea value={draft} onInput={event => setDraft((event.target as any).value)} rows={4} maxLength={200} minLength={1} className="block p-2.5 w-full text-sm rounded-lg border border-gray-300 focus:ring-neutral-100 " placeholder="Write your thoughts here..."></textarea>
+                    <button onClick={createPost} className='mt-2 w-full ml-auto bg-neutral-200 hover:bg-neutral-400 px-9 py-2 rounded-lg'>Post</button>
+                </div> 
+
                 {
                     posts.map(post => {
                         const { postId } = post;

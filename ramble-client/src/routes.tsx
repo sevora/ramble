@@ -10,6 +10,7 @@ import Landing from './Landing';
 import LogIn from './LogIn';
 import SignUp from './SignUp';
 import NotFound from './NotFound';
+import UpdateProfile from './UpdateProfile';
 
 interface RoutesParameters {
     isLoggedIn: boolean;
@@ -26,6 +27,7 @@ const routes = ({ isLoggedIn }: RoutesParameters): RouteObject[] => [
         element: isLoggedIn ? <DashBoard /> : <Navigate to="/welcome" />,
         children: [
             { path: '/', element: <Home /> },
+            { path: '/update', element: <UpdateProfile /> },
             { path: '/profile/:username', element: <ViewProfile /> },
             // this specific route should only accept either follower or following
             { path: '/profile/:username/:category', element: <ViewFollower /> },

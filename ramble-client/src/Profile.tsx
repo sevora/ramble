@@ -1,6 +1,8 @@
 import { FC, useEffect, useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+import useAccount from './hooks/account';
 
 interface ProfileProps {
     username: string
@@ -28,6 +30,8 @@ interface FollowContext {
  * Reusable component that renders a single profile.
  */
 const Profile: FC<ProfileProps> = ({ username }) => {
+    const { username: clientUsername } = useAccount();
+
     const [ account, setAccount ] = useState<AccountState | null>(null);
     const [ follow, setFollow ] = useState<FollowContext | null>(null);
     const navigate = useNavigate();
@@ -43,6 +47,16 @@ const Profile: FC<ProfileProps> = ({ username }) => {
     const getFollowContext = async() => {
         const follow = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/follower/ask`, { username }, { withCredentials: true });
         setFollow(follow.data as FollowContext);
+    }
+
+    /**
+     * This is used to toggle the follow state of the profile being viewed
+     */
+    const toggleFollow = async () => {
+        if (follow === null || account === null) return;
+        const action = follow.isFollowing ? 'unfollow' : 'follow';
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/follower/${action}`, { username: account.username }, { withCredentials: true });
+        await getFollowContext();
     }
 
     useEffect(() => {
@@ -63,10 +77,12 @@ const Profile: FC<ProfileProps> = ({ username }) => {
                 </div>
                 
                 {/* The setting also changes depending on who you are */}
-                <button className='ml-auto bg-neutral-200 hover:bg-neutral-400 py-2 px-5 rounded-full'>
+                {clientUsername !== account.username && 
+                    <button onClick={event => { event.stopPropagation(); toggleFollow() }} className='ml-auto bg-neutral-200 hover:bg-neutral-400 py-2 px-5 rounded-full'>
                         {/* Cursed ternary */}
                         {follow.isFollowing ? 'Unfollow' : 'Follow'}
-                </button>
+                    </button>
+                }
             </div>
 
             <div className='flex-grow w-full'>{account.userBiography}</div>

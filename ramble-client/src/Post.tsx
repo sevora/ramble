@@ -11,6 +11,12 @@ interface PostProps extends React.HTMLProps<HTMLDivElement> {
      * have all the functionality.
      */
     postId: string;
+
+    /**
+     * This gets called when fetching the 
+     * post fails.
+     */
+    onDelete?: () => void;
 }
 
 /**
@@ -31,23 +37,37 @@ interface PostState {
 /**
  * A reusable component that is reliant on the backend to get the state.
  */
-const Post: FC<PostProps> = ({ postId, className='', ...otherProperties }) => {
+const Post: FC<PostProps> = ({ postId, className='', onDelete, ...otherProperties }) => {
     const account = useAccount(); // probably not the best organization but this works for me
     const [ state, setState ] = useState<PostState | null>(null);
     const navigate = useNavigate();
 
+    /**
+     * 
+     */
     const getPost = async () => {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/view`, { postId }, { withCredentials: true });
         const data = response.data as PostState;
         setState(data);
     }
 
-    // either do a like or a dislike
+    /**
+     * 
+     */
     const toggleLike = async () => {
         if (state === null) return;
         const action = state.hasLiked ? 'dislike' : 'like';
         await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/${action}`, { postId }, { withCredentials: true });
         await getPost();
+    }
+
+    /**
+     * Delete the post, for whatever reason, setting state after 
+     * doesn't really work.
+     */
+    const deletePost = async () => {
+        setState(null);
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/delete`, { postId }, { withCredentials: true });
     }
     
     // we get this post everytime the id changes
@@ -75,7 +95,7 @@ const Post: FC<PostProps> = ({ postId, className='', ...otherProperties }) => {
             <div className='w-full flex items-center border-t-2 border-b-2 justify-around'>
                 <button className='grow p-2 text-md hover:bg-neutral-100' style={{ fontWeight: state.hasLiked ? 'bold' : undefined }} onClick={toggleLike}>{state.likeCount} likes</button>
                 <button className='grow p-2 text-md hover:bg-neutral-100'>{state.replyCount} replies</button>
-                <button className='grow p-2 text-md hover:bg-neutral-100' style={{ visibility: account.username !== state.username ? 'hidden' : undefined}}>Delete post</button>
+                <button className='grow p-2 text-md hover:bg-neutral-100' style={{ visibility: account.username !== state.username ? 'hidden' : undefined}} onClick={deletePost}>Delete post</button>
             </div>
         </div>
     );

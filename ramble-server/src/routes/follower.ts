@@ -44,6 +44,7 @@ router.post('/unfollow', httpOnlyAuthentication, async (request, response) => {
     const { username } = parameters;
     
     await connection.query('DELETE FROM follower WHERE BIN_TO_UUID(follower_id) = ? AND follows_id = (SELECT user_id FROM `user` WHERE user_name = ?)', [ uuid, username ]);
+    response.sendStatus(200);
 });
 
 /**
