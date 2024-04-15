@@ -119,7 +119,7 @@ router.post('/update', httpOnlyAuthentication, async(request, response) => {
     const parameters = zodVerify(
         // the schema for updating an account
         z.object({
-            userCommonName: z.string().trim().min(4).max(50).optional(),
+            userCommonName: z.string().trim().min(4).max(25).optional(),
             password: z.string().trim().min(8).optional(),
             biography: z.string().trim().max(200).optional()
         }), 

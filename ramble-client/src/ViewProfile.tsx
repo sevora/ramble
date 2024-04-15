@@ -14,16 +14,16 @@ import useAccount from './hooks/account';
 interface ProfileState {
     // these are from /account/view
     userCommonName: string,
-    username:       string,
-    userBiography:  string | null,
-    userCreatedAt:  string,
+    username: string,
+    userBiography: string | null,
+    userCreatedAt: string,
 
     // these are from /follower/count
-    followCount:    number,
-    followerCount:  number,
+    followCount: number,
+    followerCount: number,
 
     // this is from /post/count
-    postCount:      number
+    postCount: number
 }
 
 /**
@@ -79,10 +79,9 @@ const ViewProfile: FC = () => {
      */
     const getPosts = async (page: number) => {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/list`, { username: viewUsername, page }, { withCredentials: true });
-        console.log(response.data)
         return response.data.posts as { postId: string }[];
     }
-    
+
     /**
      * This is the logic to load more posts through
      * infinite scrolling. Had wasted time figuring out a lot of things here.
@@ -96,21 +95,19 @@ const ViewProfile: FC = () => {
             setPage(page + 1);
         } else {
             setHasNextPage(false);
-            
-        console.log('set to false')
         }
     }
-    
+
     // we want to load the profile 
     useEffect(() => {
         loadProfileContextState();
-    }, [ viewUsername ]);
+    }, [viewUsername]);
 
-     // when the next button is inView (initially it is) we load more posts
-     useEffect(() => {
-        if (inView) 
-             loadMorePosts();
-    }, [ inView, hasNextPage, posts.length ]);
+    // when the next button is inView (initially it is) we load more posts
+    useEffect(() => {
+        if (inView)
+            loadMorePosts();
+    }, [inView, hasNextPage, posts.length]);
 
     if (profile === null || follow === null)
         return <></>
@@ -118,44 +115,49 @@ const ViewProfile: FC = () => {
     return (
         <div>
             {/* This is the viewed user profile */}
-            <div className='p-5 bg-white flex items-center justify-around border-b-2'>
-                <div className='flex flex-wrap items-center w-3/4'>
-                    <div className='font-semibold flex-grow w-full'>{profile.userCommonName}</div>
-                    <div>@{profile.username}</div>
+            <div className='p-5 px-20 bg-white border-b-2'>
+                <div className='flex items-center'>
+                    <div>
+                        <div className='font-semibold flex-grow w-full'>{profile.userCommonName}</div>
+                        <div>@{profile.username}</div>
+                        
+                    </div>
 
                     {/* This badge appears next to username if they follow you */}
-                    { follow.isFollower && <div className='text-xs rounded-lg bg-neutral-200 ml-2 px-2 py-1'>Follows you</div>}
+                    {follow.isFollower && <div className='text-xs rounded-lg bg-neutral-200 ml-2 px-2 py-1'>Follows you</div>}
 
-                    {/* The bio has suggestions if you are the client */}
-                    <div className='text-neutral-600 flex-grow w-full'>
-                        {profile.userBiography}
-                        { isClient && !profile.userBiography && <div className='italic'>Update your account to add bio...</div>}
-                    </div>
+                    {/* The setting also changes depending on who you are */}
+                    <button className='ml-auto bg-neutral-200 hover:bg-neutral-400 px-9 py-2 rounded-full'>
+                        {/* Cursed ternary */}
+                        {isClient ? 'Update' : follow.isFollowing ? 'Unfollow' : 'Follow'}
+                    </button>
 
-                    <div className='flex-grow w-full text-neutral-900 pt-2'>Joined {new Date(profile.userCreatedAt).toISOString().replace('-', '/').split('T')[0].replace('-', '/')}</div>
-
-                    {/* These contain the follow count, clicking on one should redirect appropriately */}
-                    <div className='pb-2 flex gap-4'>
-                        <div className='hover:underline cursor-pointer' onClick={() => navigate(`/profile/${viewUsername}/following`)}>
-                            <span className='font-semibold mr-1'>{profile.followCount}</span>following
-                        </div>
-
-                        <div className='hover:underline cursor-pointer' onClick={() => navigate(`/profile/${viewUsername}/follower`)}>
-                            <span className='font-semibold mr-1'>{profile.followerCount}</span> followers
-                        </div>
-                    </div>
                 </div>
 
-                {/* The setting also changes depending on who you are */}
-                <button className='grow h-3/4 bg-neutral-200 hover:bg-neutral-400 py-2 px-4 rounded-full'>
-                    {/* Cursed ternary */}
-                    {isClient ? 'Update' : follow.isFollowing ? 'Unfollow' : 'Follow' }
-                </button>
+                {/* The bio has suggestions if you are the client */}
+                <div className='text-neutral-600 mt-2 flex-grow w-3/4'>
+                    {profile.userBiography}
+                    {isClient && !profile.userBiography && <div className='italic'>Update your account to add bio...</div>}
+                </div>
+
+
+                <div className='flex-grow w-full text-neutral-900 pt-2'>Joined {new Date(profile.userCreatedAt).toISOString().replace('-', '/').split('T')[0].replace('-', '/')}</div>
+
+                {/* These contain the follow count, clicking on one should redirect appropriately */}
+                <div className='pb-2 flex gap-4'>
+                    <div className='hover:underline cursor-pointer' onClick={() => navigate(`/profile/${viewUsername}/following`)}>
+                        <span className='font-semibold mr-1'>{profile.followCount}</span>following
+                    </div>
+
+                    <div className='hover:underline cursor-pointer' onClick={() => navigate(`/profile/${viewUsername}/follower`)}>
+                        <span className='font-semibold mr-1'>{profile.followerCount}</span> followers
+                    </div>
+                </div>
             </div>
 
             {/* These are the viewed user's posts */}
             <div className='sm:w-3/4 sm:mx-auto rounded-lg'>
-                <div className='bg-white rounded-tl-none rounded-lg'>   
+                <div className='bg-white rounded-tl-none rounded-lg'>
                     {
                         posts.map(post => {
                             const { postId } = post;
@@ -165,7 +167,7 @@ const ViewProfile: FC = () => {
                     <div className='w-full text-center p-5' ref={moreRef}>{hasNextPage ? 'Loading' : 'No more posts'}</div>
                 </div>
             </div>
-            
+
         </div>
     );
 }
