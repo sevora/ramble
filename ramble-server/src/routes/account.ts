@@ -119,7 +119,6 @@ router.post('/update', httpOnlyAuthentication, async(request, response) => {
     const parameters = zodVerify(
         // the schema for updating an account
         z.object({
-            username: z.string().trim().min(4).max(25), // by design username is permanent
             userCommonName: z.string().trim().min(4).max(50).optional(),
             password: z.string().trim().min(8).optional(),
             biography: z.string().trim().max(200).optional()
@@ -128,10 +127,9 @@ router.post('/update', httpOnlyAuthentication, async(request, response) => {
 
     if (!parameters) return response.sendStatus(400);  // information sent is incomplete
     const { uuid } = request.authenticated!;
-    const { username, userCommonName, biography, password } = parameters;
+    const { userCommonName, biography, password } = parameters;
 
     // there must be a better way to this
-    if (username) await connection.query('UPDATE `user` SET user_name = ? WHERE BIN_TO_UUID(user_id) = ?', [ username, uuid ]);
     if (userCommonName) await connection.query('UPDATE `user` SET user_common_name = ? WHERE BIN_TO_UUID(user_id) = ?', [ userCommonName, uuid ]);
     if (biography) await connection.query('UPDATE `user` SET user_biography = ? WHERE BIN_TO_UUID(user_id) = ?', [ biography, uuid ]);
     if (password) await connection.query('UPDATE `user` SET user_password = ? WHERE BIN_TO_UUID(user_id) = ?', [ sha256(password), uuid ]);
