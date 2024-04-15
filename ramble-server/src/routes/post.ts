@@ -6,7 +6,7 @@ import zodVerify from "./middlewares/zod-verify";
 import httpOnlyAuthentication from "./middlewares/http-only-authentication";
 
 const router = Router();
-const ROWS_PER_PAGE = 10;
+const ROWS_PER_PAGE = 1;
 
 /**
  * Use this to create a new post, or reply, or repost. This is done relative 
@@ -191,7 +191,7 @@ router.post('/list', httpOnlyAuthentication, async (request, response) => {
              FROM post
              LEFT JOIN \`like\` ON post_id = like_post_id
              GROUP BY post_id 
-             ORDER BY EXTRACT(YEAR_MONTH FROM post_created_at) DESC, EXTRACT(DAY FROM post_created_at) DESC, like_count DESC
+             ORDER BY post_created_at DESC
              LIMIT ?, ?`
             , pagination);
     } else if (category === 'following') {

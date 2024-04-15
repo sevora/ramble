@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { FC, useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import Post from './Post';
 import useAccount from './hooks/account';
@@ -16,7 +16,11 @@ interface ProfileState {
     userCommonName: string,
     username:       string,
     userBiography:  string | null,
-    userCreatedAt:  Date,
+    userCreatedAt:  string,
+
+    // these are from /follower/count
+    followCount:    number,
+    followerCount:  number,
 
     // this is from /post/count
     postCount:      number
@@ -25,7 +29,7 @@ interface ProfileState {
 /**
  * 
  */
-interface FollowState {
+interface FollowContext {
     isFollowing: boolean,
     isFollower: boolean
 }
@@ -36,14 +40,15 @@ const ViewProfile: FC = () => {
     const isClient = viewUsername === clientUsername;
 
     const [profile, setProfile] = useState<ProfileState | null>(null);
-    const [follow, setFollow] = useState<FollowState | null>(null);
+    const [follow, setFollow] = useState<FollowContext | null>(null);
     const [posts, setPosts] = useState<{ postId: string }[]>([]);
 
     const [page, setPage] = useState<number>(0);
     const [hasNextPage, setHasNextPage] = useState<boolean>(true);
 
-    const [moreButtonReference, inView] = useInView({ root: document.querySelector('#dashboard-outlet'), threshold: 1.0 });
+    const navigate = useNavigate();
 
+    const [moreElementRef, inView] = useInView({ root: document.querySelector('#dashboard-outlet'), threshold: 1.0 });
 
     /**
      * Loads the profile and the context related to it
@@ -52,13 +57,14 @@ const ViewProfile: FC = () => {
     const loadProfileContextState = async () => {
         // reset the profile
         const accountResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/account/view`, { username: viewUsername }, { withCredentials: true });
+        const followerCountResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/follower/count`, { username: viewUsername }, { withCredentials: true });
         const postCountResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/count`, { username: viewUsername }, { withCredentials: true });
-        const profile = { ...accountResponse.data, ...postCountResponse.data };
+        const profile = { ...accountResponse.data, ...followerCountResponse.data, ...postCountResponse.data };
         setProfile(profile as ProfileState);
 
         // reset the follow context
         const followResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/follower/ask`, { username: viewUsername }, { withCredentials: true });
-        setFollow(followResponse.data as FollowState);
+        setFollow(followResponse.data as FollowContext);
 
         // reset the entire remaining state
         setPage(0);
@@ -102,8 +108,8 @@ const ViewProfile: FC = () => {
      // when the next button is inView (initially it is) we load more posts
      useEffect(() => {
         if (inView) 
-            loadMorePosts();
-    }, [ inView ]);
+             loadMorePosts();
+    }, [ inView, posts.length ]);
 
     if (profile === null || follow === null)
         return <></>
@@ -111,8 +117,8 @@ const ViewProfile: FC = () => {
     return (
         <div>
             {/* This is the viewed user profile */}
-            <div className='p-3 bg-white flex items-center justify-around border-b-2'>
-                <div className='flex flex-wrap items-center'>
+            <div className='p-5 bg-white flex items-center justify-around border-b-2'>
+                <div className='flex flex-wrap items-center w-3/4'>
                     <div className='font-semibold flex-grow w-full'>{profile.userCommonName}</div>
                     <div>@{profile.username}</div>
 
@@ -124,12 +130,25 @@ const ViewProfile: FC = () => {
                         {profile.userBiography}
                         { isClient && !profile.userBiography && <div className='italic'>Update your account to add bio...</div>}
                     </div>
+
+                    <div className='flex-grow w-full text-neutral-900 pt-2'>Joined {new Date(profile.userCreatedAt).toISOString().replace('-', '/').split('T')[0].replace('-', '/')}</div>
+
+                    {/* These contain the follow count, clicking on one should redirect appropriately */}
+                    <div className='pb-2 flex gap-4'>
+                        <div className='hover:underline cursor-pointer' onClick={() => navigate(`/profile/${viewUsername}/following`)}>
+                            <span className='font-semibold mr-1'>{profile.followCount}</span>following
+                        </div>
+
+                        <div className='hover:underline cursor-pointer' onClick={() => navigate(`/profile/${viewUsername}/follower`)}>
+                            <span className='font-semibold mr-1'>{profile.followerCount}</span> followers
+                        </div>
+                    </div>
                 </div>
 
                 {/* The setting also changes depending on who you are */}
-                <button className='h-3/4 bg-neutral-200 hover:bg-neutral-400 py-2 px-4 rounded-full'>
+                <button className='grow h-3/4 bg-neutral-200 hover:bg-neutral-400 py-2 px-4 rounded-full'>
                     {/* Cursed ternary */}
-                    {isClient ? 'Update Account' : follow.isFollowing ? 'Unfollow' : 'Follow' }
+                    {isClient ? 'Update' : follow.isFollowing ? 'Unfollow' : 'Follow' }
                 </button>
             </div>
 
@@ -142,7 +161,7 @@ const ViewProfile: FC = () => {
                             return <Post key={postId} postId={postId} className='hover:bg-neutral-100' />
                         })
                     }
-                    <div className='w-full text-center p-5 hover:bg-neutral-200' ref={moreButtonReference}>{!hasNextPage ? 'Loading' : 'No more posts'}</div>
+                    <div className='w-full text-center p-5' ref={moreElementRef}>{!hasNextPage ? 'Loading' : 'No more posts'}</div>
                 </div>
             </div>
             

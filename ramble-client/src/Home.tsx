@@ -14,7 +14,7 @@ const Home: FC = () => {
     const [page, setPage] = useState<number>(0);
     const [hasNextPage, setHasNextPage] = useState<boolean>(true);
 
-    const [moreButtonReference, inView ] = useInView({ root: document.querySelector('#dashboard-outlet'), threshold: 1.0 });
+    const [moreRef, inView ] = useInView({ root: document.querySelector('#dashboard-outlet'), threshold: 1.0 });
 
     /**
      * Use this to get the posts at category and page
@@ -48,7 +48,6 @@ const Home: FC = () => {
      */
     const loadMorePosts = async () => {
         if (!hasNextPage) return;
-
         const more = await getPosts(category, page);
     
         if (more.length > 0) {
@@ -63,7 +62,7 @@ const Home: FC = () => {
     useEffect(() => {
         if (inView) 
             loadMorePosts();
-    }, [ category, inView ]);
+    }, [ category, posts.length, inView ]);
 
     return (
         <div className='sm:p-2 sm:w-3/4 sm:mx-auto rounded-lg'>
@@ -78,7 +77,7 @@ const Home: FC = () => {
                         return <Post key={postId} postId={postId} className='hover:bg-neutral-100' />
                     })
                 }
-                <div className='w-full text-center p-5 hover:bg-neutral-200' ref={moreButtonReference}>{hasNextPage ? 'Loading' : 'No more posts'}</div>
+                <div className='w-full text-center p-5' ref={moreRef}>{hasNextPage ? 'Loading' : 'No more posts'}</div>
             </div>
         </div>
     )

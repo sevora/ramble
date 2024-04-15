@@ -110,13 +110,22 @@ router.post('/count', httpOnlyAuthentication, async (request, response) => {
  */
 router.post('/list', httpOnlyAuthentication, async (request, response) => {
     const parameters = zodVerify(z.object({ 
+        username: z.string().min(4).max(25).optional(),
         category: z.enum([ 'following', 'follower' ]),
         page: z.number().min(0)
     }), request);
 
     if (!parameters) return response.sendStatus(400);
-    const { uuid } = request.authenticated!;
-    const { category, page } = parameters;
+    let { uuid } = request.authenticated!;
+    const { username, category, page } = parameters;
+
+    // if a username is provided we want to get that one's result instead
+    if (username) {
+        const [ userResult ] = await connection.query<any[]>('SELECT BIN_TO_UUID(user_id) AS `uuid` FROM `user` WHERE user_name = ?', [ username ]);
+        if ( userResult.length === 0 ) return response.sendStatus(404); // user does not exist
+        uuid = userResult[0].uuid;
+    }
+
     const [ what, from ] = category === 'follower' ? [ 'follower_id', 'follows_id' ] : [ 'follows_id', 'follower_id' ];
 
     // take note of this query very essential for this kind of association

@@ -3,6 +3,7 @@ import { Navigate, RouteObject } from 'react-router-dom';
 import DashBoard from './DashBoard';
 import Home from './Home';
 import ViewProfile from './ViewProfile';
+import ViewFollower from './ViewFollower';
 import ViewPost from './ViewPost';
 import Search from './Search';
 import Landing from './Landing';
@@ -26,6 +27,8 @@ const routes = ({ isLoggedIn }: RoutesParameters): RouteObject[] => [
         children: [
             { path: '/', element: <Home /> },
             { path: '/profile/:username', element: <ViewProfile /> },
+            // this specific route should only accept either follower or following
+            { path: '/profile/:username/:category', element: <ViewFollower /> },
             { path: '/post/:postId', element: <ViewPost /> },
             { path: '/search', element: <Search /> }
         ]

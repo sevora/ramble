@@ -1,4 +1,5 @@
 import { FC, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 import useAccount from './hooks/account';
@@ -19,7 +20,7 @@ interface PostProps extends React.HTMLProps<HTMLDivElement> {
 interface PostState { 
     postId:         string
     postContent:    string
-    postCreatedAt:  Date
+    postCreatedAt:  string
     userCommonName: string
     username:       string
     likeCount:      number
@@ -33,6 +34,7 @@ interface PostState {
 const Post: FC<PostProps> = ({ postId, className='', ...otherProperties }) => {
     const account = useAccount(); // probably not the best organization but this works for me
     const [ state, setState ] = useState<PostState | null>(null);
+    const navigate = useNavigate();
 
     const getPost = async () => {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/view`, { postId }, { withCredentials: true });
@@ -62,7 +64,7 @@ const Post: FC<PostProps> = ({ postId, className='', ...otherProperties }) => {
             <div className='px-5 py-3 hover:bg-neutral-100 cursor-pointer'>
                 <div className='flex items-center gap-2 whitespace-nowrap'>
                     <div className='font-semibold'>{state.userCommonName}</div>
-                    <div>@{state.username}</div>
+                    <div className='hover:underline cursor-pointer' onClick={() => navigate(`/profile/${state.username}`)}>@{state.username}</div>
                     <div className='text-slate-400'>• {timeAgo(state.postCreatedAt)}</div>
                 </div>
                 <div className='w-full text-lg'>
