@@ -1,7 +1,7 @@
-import axios from 'axios';
 import { FC, useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 
 import Post from './Post';
 import useAccount from './hooks/account';
@@ -47,8 +47,7 @@ const ViewProfile: FC = () => {
     const [hasNextPage, setHasNextPage] = useState<boolean>(true);
 
     const navigate = useNavigate();
-
-    const [moreElementRef, inView] = useInView({ root: document.querySelector('#dashboard-outlet'), threshold: 1.0 });
+    const [moreRef, inView] = useInView({ root: document.querySelector('#dashboard-outlet'), threshold: 1.0 });
 
     /**
      * Loads the profile and the context related to it
@@ -80,6 +79,7 @@ const ViewProfile: FC = () => {
      */
     const getPosts = async (page: number) => {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/list`, { username: viewUsername, page }, { withCredentials: true });
+        console.log(response.data)
         return response.data.posts as { postId: string }[];
     }
     
@@ -91,12 +91,13 @@ const ViewProfile: FC = () => {
         if (!hasNextPage) return;
 
         const more = await getPosts(page);
-
         if (more.length > 0) {
             setPosts([...posts, ...more]);
             setPage(page + 1);
         } else {
             setHasNextPage(false);
+            
+        console.log('set to false')
         }
     }
     
@@ -109,7 +110,7 @@ const ViewProfile: FC = () => {
      useEffect(() => {
         if (inView) 
              loadMorePosts();
-    }, [ inView, posts.length ]);
+    }, [ inView, hasNextPage, posts.length ]);
 
     if (profile === null || follow === null)
         return <></>
@@ -161,7 +162,7 @@ const ViewProfile: FC = () => {
                             return <Post key={postId} postId={postId} className='hover:bg-neutral-100' />
                         })
                     }
-                    <div className='w-full text-center p-5' ref={moreElementRef}>{!hasNextPage ? 'Loading' : 'No more posts'}</div>
+                    <div className='w-full text-center p-5' ref={moreRef}>{hasNextPage ? 'Loading' : 'No more posts'}</div>
                 </div>
             </div>
             

@@ -62,7 +62,7 @@ const Home: FC = () => {
     useEffect(() => {
         if (inView) 
             loadMorePosts();
-    }, [ category, posts.length, inView ]);
+    }, [ inView, hasNextPage, posts.length ]);
 
     return (
         <div className='sm:p-2 sm:w-3/4 sm:mx-auto rounded-lg'>

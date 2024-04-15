@@ -1,8 +1,12 @@
-import axios from 'axios';
 import { FC, useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 
+// this is used to render a single follower/following account, just provide their username
+import Profile from './Profile';
+
+// this is used for the currently viewed account and not for the following/follower profiles
 interface ProfileState {
     // these are from /account/view
     userCommonName: string,
@@ -13,6 +17,9 @@ interface ProfileState {
     followerCount:  number,
 }
 
+/**
+ * 
+ */
 const ViewFollower: FC = () => {
     const { username: viewUsername, category } = useParams<{ username: string, category: string }>();
     const navigate = useNavigate();
@@ -77,7 +84,7 @@ const ViewFollower: FC = () => {
      useEffect(() => {
         if (inView) 
             loadMoreAccounts();
-    }, [ inView, accounts.length ]);
+    }, [ inView, hasNextPage, accounts.length ]);
 
     if (profile === null || accounts === null) 
         return <></>
@@ -86,7 +93,7 @@ const ViewFollower: FC = () => {
     <div>
         <div className='bg-white p-5'>
             <div className='font-semibold'>{profile.userCommonName}</div>
-            <div>@{ profile.username }</div>
+            <div>@{profile.username}</div>
         </div>
 
         <div className='sm:px-2 sm:w-3/4 sm:mx-auto rounded-lg'>
@@ -99,7 +106,7 @@ const ViewFollower: FC = () => {
             <div>
                 {
                     accounts.map((account) => {
-                        return (<div key={account.username}>{account.username}</div>)
+                        return ( (<Profile key={account.username} username={account.username} />))
                     })
                 }
                 <div className='w-full text-center p-5 bg-white' ref={moreElementRef}>{hasNextPage ? 'Loading' : 'No more profiles'}</div>
