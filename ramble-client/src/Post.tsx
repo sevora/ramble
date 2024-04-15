@@ -17,14 +17,14 @@ interface PostProps extends React.HTMLProps<HTMLDivElement> {
  * You could infer what this means.
  */
 interface PostState { 
-    postId: string
-    postContent: string
-    postCreatedAt: Date
+    postId:         string
+    postContent:    string
+    postCreatedAt:  Date
     userCommonName: string
-    username: string
-    likeCount: number
-    commentCount: number 
-    hasLiked: boolean
+    username:       string
+    likeCount:      number
+    replyCount:     number 
+    hasLiked:       boolean
 }
 
 /**
@@ -39,10 +39,6 @@ const Post: FC<PostProps> = ({ postId, className='', ...otherProperties }) => {
         const data = response.data as PostState;
         setState(data);
     }
-    // we get this post everytime the id changes
-    useEffect(() => {
-        getPost();
-    }, [ postId ]);
 
     // either do a like or a dislike
     const toggleLike = async () => {
@@ -51,6 +47,11 @@ const Post: FC<PostProps> = ({ postId, className='', ...otherProperties }) => {
         await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/${action}`, { postId }, { withCredentials: true });
         await getPost();
     }
+    
+    // we get this post everytime the id changes
+    useEffect(() => {
+        getPost();
+    }, [ postId ]);
 
     // do not render anything if the state hasn't been fetched yet
     if (state === null) 
@@ -59,7 +60,7 @@ const Post: FC<PostProps> = ({ postId, className='', ...otherProperties }) => {
     return (
         <div className={'border-b-2' + className} { ...otherProperties }>
             <div className='px-5 py-3 hover:bg-neutral-100 cursor-pointer'>
-                <div className='flex items-center gap-2'>
+                <div className='flex items-center gap-2 whitespace-nowrap'>
                     <div className='font-semibold'>{state.userCommonName}</div>
                     <div>@{state.username}</div>
                     <div className='text-slate-400'>• {timeAgo(state.postCreatedAt)}</div>
@@ -71,7 +72,7 @@ const Post: FC<PostProps> = ({ postId, className='', ...otherProperties }) => {
 
             <div className='w-full flex items-center border-t-2 border-b-2 justify-around'>
                 <button className='grow p-2 text-md hover:bg-neutral-100' style={{ fontWeight: state.hasLiked ? 'bold' : undefined }} onClick={toggleLike}>{state.likeCount} likes</button>
-                <button className='grow p-2 text-md hover:bg-neutral-100'>{state.commentCount} comments</button>
+                <button className='grow p-2 text-md hover:bg-neutral-100'>{state.replyCount} replies</button>
                 <button className='grow p-2 text-md hover:bg-neutral-100' style={{ visibility: account.username !== state.username ? 'hidden' : undefined}}>Delete post</button>
             </div>
         </div>

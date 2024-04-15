@@ -128,12 +128,12 @@ router.post('/view', httpOnlyAuthentication, async (request, response) => {
     const { uuid } = request.authenticated!;
     const { postId } = parameters;
 
-    // we need to get all these related information, could be better
+    // we need to get all these related information, could be better, if this is possible in a single query that is '
+    // more efficient then that's nice but if this is the ideal solution then so be it
     const [ postResult ] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) as `post_uuid`, post_content, BIN_TO_UUID(post_user_id) as `user_uuid`, post_created_at FROM post WHERE BIN_TO_UUID(post_id) = ?', [ postId ]);
     const [ userResult ] = await connection.query<any[]>('SELECT user_name, user_common_name FROM `user` WHERE BIN_TO_UUID(user_id) = ?', [ postResult[0].user_uuid ])
     const [ likeResult ] = await connection.query<any[]>('SELECT COUNT(*) AS like_count FROM `like` WHERE BIN_TO_UUID(like_post_id) = ?', [ postId ]);
-    const [ commentResult ] = await connection.query<any[]>('SELECT COUNT(*) AS comment_count FROM post WHERE BIN_TO_UUID(post_parent_id) = ?', [ postId ]);
-    
+    const [ replyResult ] = await connection.query<any[]>('SELECT COUNT(*) AS comment_count FROM post WHERE BIN_TO_UUID(post_parent_id) = ?', [ postId ]);
     const [ hasLiked ] = await connection.query<any[]>('SELECT * FROM `like` WHERE BIN_TO_UUID(like_user_id) = ? AND BIN_TO_UUID(like_post_id) = ?', [ uuid, postId ]);
     
     // then we send these information back
@@ -146,7 +146,7 @@ router.post('/view', httpOnlyAuthentication, async (request, response) => {
         username:       userResult[0].user_name,
 
         likeCount:      likeResult[0].like_count,
-        commentCount:   commentResult[0].comment_count,
+        replyCount:     replyResult[0].comment_count,
 
         hasLiked:       hasLiked.length > 0
     });

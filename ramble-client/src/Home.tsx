@@ -14,7 +14,7 @@ const Home: FC = () => {
     const [page, setPage] = useState<number>(0);
     const [hasNextPage, setHasNextPage] = useState<boolean>(true);
 
-    const [moreButtonReference, inView ] = useInView({ root: document.querySelector('#dashboard-outlet'), initialInView: true, delay: 1000, threshold: 1.0 });
+    const [moreButtonReference, inView ] = useInView({ root: document.querySelector('#dashboard-outlet'), threshold: 1.0 });
 
     /**
      * Use this to get the posts at category and page
@@ -32,11 +32,14 @@ const Home: FC = () => {
      * @param category 
      */
     const loadCategory = async (category: 'following' | 'trending') => {
-        setPage(0);
         setCategory(category);
-        setHasNextPage(true);
+
+        setPage(0);
         setPosts([]);
-        // setPosts(await getPosts(category, 0)); // this becomes unnecessary due to the observer
+        setHasNextPage(true);
+
+        // this becomes unnecessary due to the observer
+        // setPosts(await getPosts(category, 0)); 
     }
 
     /**
@@ -60,7 +63,7 @@ const Home: FC = () => {
     useEffect(() => {
         if (inView) 
             loadMorePosts();
-    }, [ category, page, inView ]);
+    }, [ category, inView ]);
 
     return (
         <div className='sm:p-2 sm:w-3/4 sm:mx-auto rounded-lg'>

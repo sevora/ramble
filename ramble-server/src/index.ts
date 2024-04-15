@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import accountRouter from './routes/account';
 import followerRouter from './routes/follower';
 import postRouter from './routes/post';
+import searchRouter from './routes/search';
 
 const application = express();
 const port = process.env.SERVER_PORT || 80;
@@ -32,6 +33,7 @@ application.use([
 application.use('/account', accountRouter);
 application.use('/follower', followerRouter);
 application.use('/post', postRouter);
+application.use('/search', searchRouter);
 
 application.listen(port || 80, () => {
     console.log(`Server listening on port: ${port}`);

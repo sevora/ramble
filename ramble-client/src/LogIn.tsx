@@ -52,7 +52,7 @@ const LogIn: FC = () => {
             </div>
             <div className="mb-4">
                 <label className="block text-sm mb-2" htmlFor="password">Password</label>
-                <input value={password} onInput={onInputPassword} className="shadow border rounded w-full py-2 px-3 mb-3" type="password" autoComplete="current-password" placeholder="Password" />
+                <input value={password} onInput={onInputPassword} onKeyDown={event => event.key === 'Enter' && login()} className="shadow border rounded w-full py-2 px-3 mb-3" type="password" autoComplete="current-password" placeholder="Password" />
                 <p className="text-red-500 text-xs italic">{error}</p>
             </div>
             <div className="flex items-center justify-between">
