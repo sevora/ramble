@@ -12,6 +12,12 @@ interface PostProps extends React.HTMLProps<HTMLDivElement> {
      */
     postId: string;
 
+    showParent?: boolean;
+
+    hideReplyButton?: boolean;
+
+    hideControls?: boolean;
+
     /**
      * This gets called when fetching the 
      * post fails.
@@ -25,6 +31,7 @@ interface PostProps extends React.HTMLProps<HTMLDivElement> {
  */
 interface PostState { 
     postId:         string
+    postParentId:   string | null
     postContent:    string
     postCreatedAt:  string
     userCommonName: string
@@ -37,7 +44,7 @@ interface PostState {
 /**
  * A reusable component that is reliant on the backend to get the state.
  */
-const Post: FC<PostProps> = ({ postId, className='', onFail, ...otherProperties }) => {
+const Post: FC<PostProps> = ({ postId, className='', showParent=false, hideReplyButton=false, hideControls=false, onFail, ...otherProperties }) => {
     const account = useAccount(); // probably not the best organization but this works for me
     const [ state, setState ] = useState<PostState | null>(null);
     const navigate = useNavigate();
@@ -83,11 +90,18 @@ const Post: FC<PostProps> = ({ postId, className='', onFail, ...otherProperties 
         return <></>;
 
     return (
-        <div className={'border-b-2' + className} onClick={() => navigate(`/post/${state.postId}`)} { ...otherProperties }>
-            <div className='px-5 py-3 hover:bg-neutral-100 cursor-pointer'>
+        <div className={'bg-white border-b-2' + className} onClick={event => { event.stopPropagation(); navigate(`/post/${state.postId}`)}} { ...otherProperties }>
+         
+            <div className='px-5 py-3 cursor-pointer'>
+                { showParent && state.postParentId && 
+                    <div className='border border-2 border-neutral-300 p-1 mb-2 rounded-lg'>
+                        <Post className='border-none' postId={state.postParentId} hideControls={true} />
+                    </div>
+                   
+                }
                 <div className='flex items-center gap-2 whitespace-nowrap' onClick={event => { event.stopPropagation(); navigate(`/profile/${state.username}`) }}>
                     <div className='hover:underline cursor-pointer font-semibold whitespace-nowrap text-ellipsis truncate'>{state.userCommonName}</div>
-                    <div className='hover:underline cursor-pointer whitespace-nowrap text-ellipsis'>@{state.username}</div>
+                    <div className='hover:underline cursor-pointer whitespace-nowrap text-ellipsis truncate'>@{state.username}</div>
                     <div className='text-slate-400'>• {timeAgo(state.postCreatedAt)}</div>
                 </div>
                 <div className='w-full text-lg'>
@@ -95,9 +109,9 @@ const Post: FC<PostProps> = ({ postId, className='', onFail, ...otherProperties 
                 </div>
             </div>
 
-            <div className='w-full flex items-center border-t-2 border-b-2 justify-around'>
+            <div className='w-full flex items-center border-t-2 border-b-2 justify-around' style={{ display: hideControls ? 'none' : undefined }}>
                 <button className='grow p-2 text-md hover:bg-neutral-100' style={{ fontWeight: state.hasLiked ? 'bold' : undefined }} onClick={toggleLike}>{state.likeCount} likes</button>
-                <button className='grow p-2 text-md hover:bg-neutral-100'>{state.replyCount} replies</button>
+                { !hideReplyButton && <button className='grow p-2 text-md hover:bg-neutral-100'>{state.replyCount} replies</button> }
                 <button className='grow p-2 text-md hover:bg-neutral-100' style={{ visibility: account.username !== state.username ? 'hidden' : undefined}} onClick={deletePost}>Delete post</button>
             </div>
         </div>

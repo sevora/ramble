@@ -134,6 +134,7 @@ router.post('/view', httpOnlyAuthentication, async (request, response) => {
         SELECT 
             -- these are the post properties
             BIN_TO_UUID(post_id) as post_uuid,
+            BIN_TO_UUID(post_parent_id) as post_parent_uuid,
             post_content,
             post_created_at,
             
@@ -161,6 +162,7 @@ router.post('/view', httpOnlyAuthentication, async (request, response) => {
 
     response.json({
         postId: post.post_uuid,
+        postParentId: post.post_parent_uuid,
         postContent: post.post_content,
         postCreatedAt: post.post_created_at,
         userCommonName: post.user_common_name,
@@ -198,11 +200,11 @@ router.post('/list', httpOnlyAuthentication, async (request, response) => {
 
     // query intended to get the replies to a post
     if (parentId)
-        [results] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) AS `uuid` FROM post WHERE post_parent_id = ? ORDER BY post_created_at DESC LIMIT ?, ?', [parentId, ...pagination]);
+        [results] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) AS `uuid` FROM post WHERE BIN_TO_UUID(post_parent_id) = ? ORDER BY post_created_at DESC, BIN_TO_UUID(post_id) DESC LIMIT ?, ?', [parentId, ...pagination]);
 
     // query to get the posts of a user
     else if (username)
-        [results] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) AS `uuid` FROM post JOIN user ON post_user_id = user_id WHERE user_name = ? ORDER BY post_created_at DESC LIMIT ?, ?', [username, ...pagination]);
+        [results] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) AS `uuid` FROM post JOIN user ON post_user_id = user_id WHERE user_name = ? ORDER BY post_created_at DESC, BIN_TO_UUID(post_id) DESC LIMIT ?, ?', [username, ...pagination]);
 
     // this query was intended to be for trending posts, but because of issues when paginating and duplicates, we do global instead
     else if (category === 'trending')

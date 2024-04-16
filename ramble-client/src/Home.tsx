@@ -89,7 +89,7 @@ const Home: FC = () => {
                 {/* This is where the posts are rendered */}
                 { posts.map(post => {
                     const { postId } = post;
-                    return <Post key={postId} onFail={id => setPosts(posts.filter(p => p.postId !== id))} postId={postId} className='hover:bg-neutral-100' />
+                    return <Post key={postId} showParent onFail={id => setPosts(posts.filter(p => p.postId !== id))} postId={postId} className='hover:bg-neutral-100' />
                 }) }
                 <div className='w-full text-center p-5' ref={moreRef}>{hasNextPage ? 'Loading' : 'No more posts'}</div>
             </div>

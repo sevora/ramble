@@ -179,7 +179,7 @@ const ViewProfile: FC = () => {
                     {
                         posts.map(post => {
                             const { postId } = post;
-                            return <Post key={postId} postId={postId} onFail={id => setPosts(posts.filter(p => p.postId !== id))} className='hover:bg-neutral-100' />
+                            return <Post key={postId} postId={postId} onFail={id => setPosts(posts.filter(p => p.postId !== id))} showParent className='hover:bg-neutral-100' />
                         })
                     }
                     <div className='w-full text-center p-5' ref={moreRef}>{hasNextPage ? 'Loading' : 'No more posts'}</div>

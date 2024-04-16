@@ -48,7 +48,7 @@ const LogIn: FC = () => {
         <form>
             <div className="mb-4">
                 <label className="block text-sm mb-2" htmlFor="username">Username</label>
-                <input value={username} onInput={onInputUsername} className="shadow border rounded w-full py-2 px-3" type="text" autoComplete="username" placeholder="Username" />
+                <input value={username} onInput={onInputUsername} className="shadow border rounded-md w-full py-2 px-3" type="text" autoComplete="username" placeholder="Username" />
             </div>
             <div className="mb-4">
                 <label className="block text-sm mb-2" htmlFor="password">Password</label>
