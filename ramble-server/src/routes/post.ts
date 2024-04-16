@@ -212,7 +212,7 @@ router.post('/list', httpOnlyAuthentication, async (request, response) => {
 
     // query to get the posts but only when following the user
     else if (category === 'following')
-        [results] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) AS `uuid` FROM post JOIN follower ON post_user_id = follows_id WHERE BIN_TO_UUID(follower_id) = ? OR BIN_TO_UUID(post_user_id) = ? GROUP BY post_id ORDER BY post_created_at DESC, BIN_TO_UUID(post_id) LIMIT ?, ?', [uuid, uuid, ...pagination]);
+        [results] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) AS `uuid` FROM post JOIN follower ON post_user_id = follows_id AND BIN_TO_UUID(follower_id) = ? OR BIN_TO_UUID(post_user_id) = ? GROUP BY post_id ORDER BY post_created_at DESC, BIN_TO_UUID(post_id) LIMIT ?, ?', [uuid, uuid, ...pagination]);
 
     // postIds are only sent back, not all the details
     response.json({
