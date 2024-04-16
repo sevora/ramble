@@ -45,7 +45,6 @@ const Home: FC = () => {
      * infinite scrolling. Had wasted time figuring out a lot of things here.
      */
     const loadMorePosts = async () => {
-        if (!hasNextPage) return;
         const more = await getPosts(category, page);
     
         if (more.length > 0) {
@@ -70,26 +69,26 @@ const Home: FC = () => {
 
     // when the next button is inView (initially it is) we load more posts
     useEffect(() => {
-        if (inView) 
+        if (inView && hasNextPage) 
             loadMorePosts();
     }, [ inView, hasNextPage, posts.length ]);
 
     return (
         <div className='sm:p-2 sm:w-3/4 sm:mx-auto rounded-lg'>
             <div className='flex'>
-                <button className='px-5 py-3 me-2 rounded-t-lg hover:bg-neutral-200' style={{ backgroundColor: category === 'following' ? 'white' : undefined, fontWeight: category === 'following' ? 'bold' : undefined }} onClick={() => loadCategory('following')}>Following</button>
-                <button className='px-5 py-3 me-2 rounded-t-lg hover:bg-neutral-200' style={{ backgroundColor: category === 'trending' ? 'white' : undefined, fontWeight: category === 'trending' ? 'bold' : undefined }} onClick={() => loadCategory('trending')}>Global</button>
+                <button className='px-5 py-3 me-2 rounded-t-lg hover:bg-slate-200' style={{ backgroundColor: category === 'following' ? 'white' : undefined, fontWeight: category === 'following' ? 'bold' : undefined }} onClick={() => loadCategory('following')}>Following</button>
+                <button className='px-5 py-3 me-2 rounded-t-lg hover:bg-slate-200' style={{ backgroundColor: category === 'trending' ? 'white' : undefined, fontWeight: category === 'trending' ? 'bold' : undefined }} onClick={() => loadCategory('trending')}>Global</button>
             </div>
             <div className='bg-white rounded-tl-none rounded-lg'>  
                 {/* This is where the area to create a post is */}
                 <div className='p-3 border-b-2'>
                     <textarea value={draft} onInput={event => setDraft((event.target as any).value)} rows={4} maxLength={200} minLength={1} className="block p-2.5 w-full rounded-lg border border-gray-300 focus:ring-neutral-100" placeholder="Write your thoughts here..."></textarea>
-                    <button onClick={createPost} className='mt-2 w-full ml-auto bg-neutral-200 hover:bg-neutral-400 px-9 py-2 rounded-full'>Post</button>
+                    <button onClick={createPost} className='mt-2 w-full ml-auto bg-slate-800 hover:bg-slate-950 text-white px-9 py-2 rounded-full'>Post</button>
                 </div> 
                 {/* This is where the posts are rendered */}
                 { posts.map(post => {
                     const { postId } = post;
-                    return <Post key={postId} showParent onFail={id => setPosts(posts.filter(p => p.postId !== id))} postId={postId} className='hover:bg-neutral-100' />
+                    return <Post key={postId} showParent onFail={id => setPosts(posts.filter(p => p.postId !== id))} postId={postId} className='hover:bg-slate-100' />
                 }) }
                 <div className='w-full text-center p-5' ref={moreRef}>{hasNextPage ? 'Loading' : 'No more posts'}</div>
             </div>

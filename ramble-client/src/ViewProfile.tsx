@@ -95,8 +95,6 @@ const ViewProfile: FC = () => {
      * infinite scrolling. Had wasted time figuring out a lot of things here.
      */
     const loadMorePosts = async () => {
-        if (!hasNextPage) return;
-
         const more = await getPosts(page);
         if (more.length > 0) {
             setPosts([...posts, ...more]);
@@ -123,7 +121,7 @@ const ViewProfile: FC = () => {
 
     // when the next button is inView (initially it is) we load more posts
     useEffect(() => {
-        if (inView)
+        if (inView && hasNextPage)
             loadMorePosts();
     }, [inView, hasNextPage, posts.length]);
 
@@ -142,10 +140,10 @@ const ViewProfile: FC = () => {
                     </div>
 
                     {/* This badge appears next to username if they follow you */}
-                    {follow.isFollower && <div className='text-xs rounded-lg bg-neutral-200 ml-2 px-2 py-1'>Follows you</div>}
+                    {follow.isFollower && <div className='text-xs rounded-lg bg-slate-200 ml-2 px-2 py-1'>Follows you</div>}
 
                     {/* The setting also changes depending on who you are */}
-                    <button className='ml-auto bg-neutral-200 hover:bg-neutral-400 px-9 py-2 rounded-full' onClick={() => isClient ? navigate(`/update`) : toggleFollow()}>
+                    <button className='ml-auto bg-slate-800 hover:bg-slate-950 text-white px-9 py-2 rounded-full' onClick={() => isClient ? navigate(`/update`) : toggleFollow()}>
                         {/* Cursed ternary */}
                         {isClient ? 'Update' : follow.isFollowing ? 'Unfollow' : 'Follow'}
                     </button>
@@ -179,7 +177,7 @@ const ViewProfile: FC = () => {
                     {
                         posts.map(post => {
                             const { postId } = post;
-                            return <Post key={postId} postId={postId} onFail={id => setPosts(posts.filter(p => p.postId !== id))} showParent className='hover:bg-neutral-100' />
+                            return <Post key={postId} postId={postId} onFail={id => setPosts(posts.filter(p => p.postId !== id))} showParent className='hover:bg-slate-100' />
                         })
                     }
                     <div className='w-full text-center p-5' ref={moreRef}>{hasNextPage ? 'Loading' : 'No more posts'}</div>

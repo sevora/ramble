@@ -35,7 +35,6 @@ const ViewPost: FC = () => {
      * @returns 
      */
     const loadMorePosts = async () => {
-        if (!hasNextPage) return;
         const more = await getPosts(page);
 
         if (more.length > 0) {
@@ -74,7 +73,7 @@ const ViewPost: FC = () => {
 
     // when the next button is inView (initially it is) we load more posts
     useEffect(() => {
-        if (inView)
+        if (inView && hasNextPage)
             loadMorePosts();
     }, [inView, hasNextPage, posts.length]);
 
@@ -90,7 +89,7 @@ const ViewPost: FC = () => {
                 {/*  */}
                 <div className='p-3 border-b-2 bg-white'>
                     <textarea value={draft} onInput={event => setDraft((event.target as any).value)} rows={4} maxLength={200} minLength={1} className="block p-2.5 w-full rounded-lg border border-gray-300 focus:ring-neutral-100" placeholder="Write your reply here..."></textarea>
-                    <button onClick={createPost} className='mt-2 w-full ml-auto bg-neutral-200 hover:bg-neutral-400 px-9 py-2 rounded-full'>Post</button>
+                    <button onClick={createPost} className='mt-2 w-full ml-auto bg-slate-800 hover:bg-slate-950 text-white px-9 py-2 rounded-full'>Post</button>
                 </div>
 
                 {/*  */}

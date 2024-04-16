@@ -30,7 +30,7 @@ interface NavigationButtonProps extends React.HTMLProps<HTMLDivElement> {
  */
 const NavigationButton: FC<NavigationButtonProps> = ({ InActiveIcon, ActiveIcon, active = false, label = '', className='', ...otherProperties }) => {
     return (
-        <div className={'flex items-center justify-center p-2 w-full hover:bg-neutral-100 cursor-pointer ' + className}  { ...otherProperties }>
+        <div className={'flex items-center justify-center p-2 w-full hover:bg-slate-100 cursor-pointer ' + className}  { ...otherProperties }>
             <div className='mr-2'>
                 {
                     active ? 

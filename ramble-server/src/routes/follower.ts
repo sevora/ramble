@@ -130,14 +130,12 @@ router.post('/list', httpOnlyAuthentication, async (request, response) => {
     const [ what, from ] = category === 'follower' ? [ 'follower_id', 'follows_id' ] : [ 'follows_id', 'follower_id' ];
 
     // take note of this query very essential for this kind of association
-    const [ results ] = await connection.query<any[]>(`SELECT user_name, user_common_name, user_biography FROM user, follower WHERE user_id = ${what} AND BIN_TO_UUID(${from}) = ? ORDER BY follow_created_at DESC LIMIT ?, ?`, [ uuid, page * ROWS_PER_PAGE, ROWS_PER_PAGE ]);
+    const [ results ] = await connection.query<any[]>(`SELECT user_name FROM user, follower WHERE user_id = ${what} AND BIN_TO_UUID(${from}) = ? ORDER BY follow_created_at DESC, BIN_TO_UUID(user_id) LIMIT ?, ?`, [ uuid, page * ROWS_PER_PAGE, ROWS_PER_PAGE ]);
     
     // we then rename these properties following the convention
     return response.json({ users: results.map(entry => 
             ({ 
-                username:       entry.user_name, 
-                userCommonName: entry.user_common_name, 
-                biography:      entry.user_biography 
+                username: entry.user_name
             })
         )
     });

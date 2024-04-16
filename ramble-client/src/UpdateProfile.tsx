@@ -82,11 +82,11 @@ const UpdateProfile: FC = () => {
 
                 <div style={{ visibility: updateAccountError ? 'visible' : 'hidden' }} className='flex-grow w-1/5 mr-2 text-red-600 text-xs italic'>Account update failed!</div>
                 
-                <button onClick={updateAccount} className='ml-auto mr-2 text-neutral-600 bg-neutral-200 hover:bg-neutral-400 px-9 py-2 rounded-full' type='button'>
+                <button onClick={updateAccount} className='ml-auto mr-2 text-neutral-600 bg-slate-800 hover:bg-slate-950 text-white px-9 py-2 rounded-full' type='button'>
                     Save
                 </button>
 
-                <button onClick={() => navigate(`/profile/${username}`)} className='ml-auto text-neutral-600 bg-neutral-200 hover:bg-neutral-400 px-9 py-2 rounded-full' type='button'>
+                <button onClick={() => navigate(`/profile/${username}`)} className='ml-auto text-neutral-600 bg-slate-200 hover:bg-slate-300 px-9 py-2 rounded-full' type='button'>
                     Cancel
                 </button>
 

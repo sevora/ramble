@@ -110,9 +110,9 @@ const Post: FC<PostProps> = ({ postId, className='', showParent=false, hideReply
             </div>
 
             <div className='w-full flex items-center border-t-2 border-b-2 justify-around' style={{ display: hideControls ? 'none' : undefined }}>
-                <button className='grow p-2 text-md hover:bg-neutral-100' style={{ fontWeight: state.hasLiked ? 'bold' : undefined }} onClick={toggleLike}>{state.likeCount} likes</button>
-                { !hideReplyButton && <button className='grow p-2 text-md hover:bg-neutral-100'>{state.replyCount} replies</button> }
-                <button className='grow p-2 text-md hover:bg-neutral-100' style={{ visibility: account.username !== state.username ? 'hidden' : undefined}} onClick={deletePost}>Delete post</button>
+                <button className='grow p-2 text-md hover:bg-slate-100' style={{ fontWeight: state.hasLiked ? 'bold' : undefined }} onClick={toggleLike}>{state.likeCount} likes</button>
+                { !hideReplyButton && <button className='grow p-2 text-md hover:bg-slate-100'>{state.replyCount} replies</button> }
+                <button className='grow p-2 text-md hover:bg-slate-100' style={{ visibility: account.username !== state.username ? 'hidden' : undefined}} onClick={deletePost}>Delete post</button>
             </div>
         </div>
     );

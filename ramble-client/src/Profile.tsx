@@ -68,7 +68,7 @@ const Profile: FC<ProfileProps> = ({ username }) => {
         return <></>
 
     return (
-        <div className='flex flex-wrap bg-white px-5 py-3 border-b-2 w-full hover:bg-neutral-100' onClick={() => navigate(`/profile/${account.username}`)}>
+        <div className='flex flex-wrap bg-white px-5 py-3 border-b-2 w-full hover:bg-slate-100' onClick={() => navigate(`/profile/${account.username}`)}>
 
             <div className='flex w-full items-center'>
                 <div className='flex gap-2 w-3/5'>
@@ -78,7 +78,7 @@ const Profile: FC<ProfileProps> = ({ username }) => {
                 
                 {/* The setting also changes depending on who you are */}
                 {clientUsername !== account.username && 
-                    <button onClick={event => { event.stopPropagation(); toggleFollow() }} className='ml-auto bg-neutral-200 hover:bg-neutral-400 py-2 px-5 rounded-full'>
+                    <button onClick={event => { event.stopPropagation(); toggleFollow() }} className='ml-auto bg-slate-200 hover:bg-slate-400 py-2 px-5 rounded-full'>
                         {/* Cursed ternary */}
                         {follow.isFollowing ? 'Unfollow' : 'Follow'}
                     </button>

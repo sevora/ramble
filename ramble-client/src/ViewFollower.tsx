@@ -26,7 +26,7 @@ const ViewFollower: FC = () => {
 
     const [profile, setProfile] = useState<ProfileState | null>(null);
 
-    const [accounts, setAccounts] = useState<{ username: string, userCommonName: string, biography: string }[]>([]);
+    const [accounts, setAccounts] = useState<{ username: string }[]>([]);
     const [page, setPage] = useState<number>(0);
     const [hasNextPage, setHasNextPage] = useState<boolean>(true);
     
@@ -50,7 +50,7 @@ const ViewFollower: FC = () => {
      */
     const getAccounts = async (category: 'follower' | 'following', page: number) => {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/follower/list`, { username: viewUsername, page, category }, { withCredentials: true });
-        return response.data.users as { username: string, userCommonName: string, biography: string }[];
+        return response.data.users as { username: string }[];
     }
 
     /**
@@ -58,7 +58,6 @@ const ViewFollower: FC = () => {
      * @returns 
      */
     const loadMoreAccounts = async () => {
-        if (!hasNextPage) return;
         const more = await getAccounts(category as any, page);
 
         if (more.length > 0) {
@@ -82,7 +81,7 @@ const ViewFollower: FC = () => {
 
      // when the next button is inView (initially it is) we load more posts
      useEffect(() => {
-        if (inView) 
+        if (inView && hasNextPage) 
             loadMoreAccounts();
     }, [ inView, hasNextPage, accounts.length ]);
 
@@ -98,15 +97,15 @@ const ViewFollower: FC = () => {
 
         <div className='sm:px-2 sm:w-3/4 sm:mx-auto rounded-lg'>
             <div className='flex'>
-                <button className='px-5 py-3 hover:bg-neutral-200' style={{ backgroundColor: category === 'following' ? 'white' : undefined, fontWeight: category === 'following' ? 'bold' : undefined }} onClick={() => navigate(`/profile/${viewUsername}/following`)}>{profile.followCount} Following</button>
-                <button className='px-5 py-3 hover:bg-neutral-200' style={{ backgroundColor: category === 'follower' ? 'white' : undefined, fontWeight: category === 'follower' ? 'bold' : undefined }} onClick={() => navigate(`/profile/${viewUsername}/follower`)}>{profile.followerCount} Followers</button>
+                <button className='px-5 py-3 hover:bg-slate-200' style={{ backgroundColor: category === 'following' ? 'white' : undefined, fontWeight: category === 'following' ? 'bold' : undefined }} onClick={() => navigate(`/profile/${viewUsername}/following`)}>{profile.followCount} Following</button>
+                <button className='px-5 py-3 hover:bg-slate-200' style={{ backgroundColor: category === 'follower' ? 'white' : undefined, fontWeight: category === 'follower' ? 'bold' : undefined }} onClick={() => navigate(`/profile/${viewUsername}/follower`)}>{profile.followerCount} Followers</button>
             </div>
 
             {/* List of accounts being followed or getting followed by */}
             <div>
                 {
                     accounts.map((account) => {
-                        return ( (<Profile key={account.username} username={account.username} />))
+                        return (<Profile key={account.username} username={account.username} />)
                     })
                 }
                 <div className='w-full text-center p-5 bg-white' ref={moreElementRef}>{hasNextPage ? 'Loading' : 'No more profiles'}</div>
