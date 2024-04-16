@@ -13,9 +13,9 @@ interface ProfileProps {
  */
 interface AccountState {
     userCommonName: string,
-    username:       string,
-    userBiography:  string,
-    userCreatedAt:  string
+    username: string,
+    userBiography: string,
+    userCreatedAt: string
 }
 
 /**
@@ -32,8 +32,8 @@ interface FollowContext {
 const Profile: FC<ProfileProps> = ({ username }) => {
     const { username: clientUsername } = useAccount();
 
-    const [ account, setAccount ] = useState<AccountState | null>(null);
-    const [ follow, setFollow ] = useState<FollowContext | null>(null);
+    const [account, setAccount] = useState<AccountState | null>(null);
+    const [follow, setFollow] = useState<FollowContext | null>(null);
     const navigate = useNavigate();
 
     /**
@@ -44,7 +44,7 @@ const Profile: FC<ProfileProps> = ({ username }) => {
         setAccount(account.data as AccountState);
     }
 
-    const getFollowContext = async() => {
+    const getFollowContext = async () => {
         const follow = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/follower/ask`, { username }, { withCredentials: true });
         setFollow(follow.data as FollowContext);
     }
@@ -64,7 +64,7 @@ const Profile: FC<ProfileProps> = ({ username }) => {
         getFollowContext();
     }, []);
 
-    if (account === null || follow === null) 
+    if (account === null || follow === null)
         return <></>
 
     return (
@@ -72,16 +72,23 @@ const Profile: FC<ProfileProps> = ({ username }) => {
 
             <div className='flex w-full items-center'>
                 <div className='flex gap-2 w-3/5'>
-                    <div className='hover:underline cursor-pointer font-semibold whitespace-nowrap text-ellipsis truncate'>{account.userCommonName}</div>              
+                    <div className='hover:underline cursor-pointer font-semibold whitespace-nowrap text-ellipsis truncate'>{account.userCommonName}</div>
                     <div className='hover:underline cursor-pointer whitespace-nowrap text-ellipsis truncate'>@{account.username}</div>
                 </div>
-                
+
                 {/* The setting also changes depending on who you are */}
-                {clientUsername !== account.username && 
-                    <button onClick={event => { event.stopPropagation(); toggleFollow() }} className='ml-auto bg-slate-200 hover:bg-slate-400 py-2 px-5 rounded-full'>
-                        {/* Cursed ternary */}
-                        {follow.isFollowing ? 'Unfollow' : 'Follow'}
-                    </button>
+                {clientUsername !== account.username &&
+                
+                    (<>
+                        {/* This is quite the solution because Tailwind won't guarantee adding the styles */}
+                        {follow.isFollowing && <button onClick={event => { event.stopPropagation(); toggleFollow() }} className='ml-auto bg-slate-200 hover:bg-slate-300 py-2 px-5 rounded-full'>
+                            Unfollow
+                        </button>}
+
+                        {!follow.isFollowing && <button onClick={event => { event.stopPropagation(); toggleFollow() }} className='ml-auto bg-slate-800 hover:bg-slate-950 text-white py-2 px-5 rounded-full'>
+                            Follow
+                        </button>}
+                    </>)
                 }
             </div>
 
