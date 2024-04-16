@@ -63,7 +63,8 @@ const Post: FC<PostProps> = ({ postId, className='', showParent=false, hideReply
     /**
      * 
      */
-    const toggleLike = async () => {
+    const toggleLike: MouseEventHandler = async (event) => {
+        event.stopPropagation();
         if (state === null) return;
         const action = state.hasLiked ? 'dislike' : 'like';
         await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/${action}`, { postId }, { withCredentials: true });
