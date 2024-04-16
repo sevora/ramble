@@ -94,12 +94,6 @@ const Post: FC<PostProps> = ({ postId, className='', showParent=false, hideReply
         <div className={'bg-white border-b-2' + className} onClick={event => { event.stopPropagation(); navigate(`/post/${state.postId}`)}} { ...otherProperties }>
          
             <div className='px-5 py-3 cursor-pointer'>
-                { showParent && state.postParentId && 
-                    <div className='border border-2 border-neutral-300 p-1 mb-2 rounded-lg'>
-                        <Post className='border-none' postId={state.postParentId} hideControls={true} />
-                    </div>
-                   
-                }
                 <div className='flex items-center gap-2 whitespace-nowrap' onClick={event => { event.stopPropagation(); navigate(`/profile/${state.username}`) }}>
                     <div className='hover:underline cursor-pointer font-semibold whitespace-nowrap text-ellipsis truncate'>{state.userCommonName}</div>
                     <div className='hover:underline cursor-pointer whitespace-nowrap text-ellipsis truncate'>@{state.username}</div>
@@ -108,6 +102,13 @@ const Post: FC<PostProps> = ({ postId, className='', showParent=false, hideReply
                 <div className='w-full text-lg'>
                     {state.postContent}
                 </div>
+                
+                { showParent && state.postParentId && 
+                    <div className='border border-2 border-neutral-300 p-1 mt-2 rounded-lg'>
+                        <Post className='border-none' postId={state.postParentId} hideControls={true} />
+                    </div>
+                }
+
             </div>
 
             <div className='w-full flex items-center border-t-2 border-b-2 justify-around' style={{ display: hideControls ? 'none' : undefined }}>
