@@ -80,7 +80,7 @@ const Search: FC = () => {
 
     const search = () => {
         const trimmed = searchContent.trim();
-        if (trimmed.length === 0) return;
+        if (trimmed.length === 0 || searchActive) return;
         setSearchContent(trimmed);
         setCategory(category);
         setPage(0);
