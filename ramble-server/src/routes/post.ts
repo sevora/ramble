@@ -110,7 +110,7 @@ router.post('/count', httpOnlyAuthentication, async (request, response) => {
         uuid = userResult[0].uuid;
     }
 
-    const [result] = await connection.query<any[]>(`SELECT COUNT(*) as post_count FROM post WHERE BIN_TO_UUID(post_user_id) = ?`, [ uuid ]);
+    const [result] = await connection.query<any[]>(`SELECT COUNT(*) as post_count FROM post WHERE BIN_TO_UUID(post_user_id) = ?`, [uuid]);
     response.json({
         postCount: result[0].post_count
     });
@@ -129,29 +129,45 @@ router.post('/view', httpOnlyAuthentication, async (request, response) => {
     const { uuid } = request.authenticated!;
     const { postId } = parameters;
 
-    // we need to get all these related information, could be better, if this is possible in a single query that is '
-    // more efficient then that's nice but if this is the ideal solution then so be it
-    const [ postResult ] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) as `post_uuid`, post_content, BIN_TO_UUID(post_user_id) as `user_uuid`, post_created_at FROM post WHERE BIN_TO_UUID(post_id) = ?', [ postId ]);
-    if (postResult.length === 0) return response.sendStatus(404);
+    // this is a single large query to view a post
+    const [result] = await connection.query<any[]>(`
+        SELECT 
+            -- these are the post properties
+            BIN_TO_UUID(post_id) as post_uuid,
+            post_content,
+            post_created_at,
+            
+            -- these are the user properties
+            BIN_TO_UUID(user_id) as user_uuid,
+            user_name,
+            user_common_name,
 
-    const [ userResult ] = await connection.query<any[]>('SELECT user_name, user_common_name FROM `user` WHERE BIN_TO_UUID(user_id) = ?', [ postResult[0].user_uuid ])
-    const [ likeResult ] = await connection.query<any[]>('SELECT COUNT(*) AS like_count FROM `like` WHERE BIN_TO_UUID(like_post_id) = ?', [ postId ]);
-    const [ replyResult ] = await connection.query<any[]>('SELECT COUNT(*) AS comment_count FROM post WHERE BIN_TO_UUID(post_parent_id) = ?', [ postId ]);
-    const [ hasLiked ] = await connection.query<any[]>('SELECT * FROM `like` WHERE BIN_TO_UUID(like_user_id) = ? AND BIN_TO_UUID(like_post_id) = ?', [ uuid, postId ]);
-    
-    // then we send these information back
+            -- these are properties that are counted in the other tables
+            (SELECT COUNT(*) FROM \`like\` WHERE like_post_id = post_id) AS like_count,
+            (SELECT COUNT(*) FROM post WHERE post_parent_id = source_post.post_id) AS comment_count,
+            (SELECT COUNT(*) FROM \`like\` WHERE BIN_TO_UUID(like_user_id) = ? AND like_post_id = post_id) > 0 AS hasLiked
+        -- we give it an alias to be able to reference it inside inner queries
+        FROM 
+            post source_post
+        -- some properties are needed from the user table
+        LEFT JOIN 
+            \`user\` u ON BIN_TO_UUID(user_id) = BIN_TO_UUID(post_user_id)
+        -- we find the post with the same postId
+        WHERE 
+            BIN_TO_UUID(post_id) = ?`, [ uuid, postId ]);
+
+    if (result.length === 0) return response.sendStatus(404);
+    const post = result[0];
+
     response.json({
-        postId:         postResult[0].post_uuid,
-        postContent:    postResult[0].post_content,
-        postCreatedAt:  postResult[0].post_created_at,
-        
-        userCommonName: userResult[0].user_common_name,
-        username:       userResult[0].user_name,
-
-        likeCount:      likeResult[0].like_count,
-        replyCount:     replyResult[0].comment_count,
-
-        hasLiked:       hasLiked.length > 0
+        postId: post.post_uuid,
+        postContent: post.post_content,
+        postCreatedAt: post.post_created_at,
+        userCommonName: post.user_common_name,
+        username: post.user_name,
+        likeCount: post.like_count,
+        replyCount: post.comment_count,
+        hasLiked: post.hasLiked
     });
 });
 
@@ -180,36 +196,22 @@ router.post('/list', httpOnlyAuthentication, async (request, response) => {
     const pagination = [page * ROWS_PER_PAGE, ROWS_PER_PAGE];
     let results: any[] = [];
 
-    // this whole if-else sequence looks like a beast
-    if (parentId) {
-        // this is get the comments to the post
+    // query intended to get the replies to a post
+    if (parentId)
         [results] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) AS `uuid` FROM post WHERE post_parent_id = ? ORDER BY post_created_at DESC LIMIT ?, ?', [parentId, ...pagination]);
-    } else if (username) {
-        const [userResult] = await connection.query<any[]>('SELECT BIN_TO_UUID(user_id) as `user_uuid` FROM `user` WHERE user_name = ?', [ username ]);
-        [results] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) AS `uuid` FROM post WHERE BIN_TO_UUID(post_user_id) = ? ORDER BY post_created_at DESC LIMIT ?, ?', [ userResult[0].user_uuid, ...pagination ]);
-    } else if (category === 'trending') {
-        [results] = await connection.query<any[]>(
-            // this looks complicated but the point is to get the ids of the posts sorting them by the amount of likes and date
-            `SELECT BIN_TO_UUID(post_id) AS \`uuid\`, COUNT(like_post_id) AS like_count
-             FROM post
-             LEFT JOIN \`like\` ON post_id = like_post_id
-             GROUP BY post_id 
-             ORDER BY post_created_at DESC
-             LIMIT ?, ?`
-            , pagination);
-    } else if (category === 'following') {
-        // this looks complicated but the point is to get the ids of the posts from users being followed, sorting them by the amount of likes and date
-        [results] = await connection.query<any[]>(
-            `SELECT BIN_TO_UUID(post_id) AS \`uuid\`, COUNT(like_post_id) AS like_count
-            FROM post
-            LEFT JOIN \`like\` ON post_id = like_post_id
-            JOIN follower ON post_user_id = follows_id 
-            WHERE BIN_TO_UUID(follower_id) = ? OR BIN_TO_UUID(post_user_id) = ?
-            GROUP BY post_id 
-            ORDER BY post_created_at DESC
-            LIMIT ?, ?`
-            , [uuid, uuid, ...pagination]);
-    }
+
+    // query to get the posts of a user
+    else if (username)
+        [results] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) AS `uuid` FROM post JOIN user ON post_user_id = user_id WHERE user_name = ? ORDER BY post_created_at DESC LIMIT ?, ?', [username, ...pagination]);
+
+    // this query was intended to be for trending posts, but because of issues when paginating and duplicates, we do global instead
+    else if (category === 'trending')
+        [results] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) AS `uuid` FROM post ORDER BY post_created_at DESC, BIN_TO_UUID(post_id) DESC LIMIT ?, ?', pagination);
+
+    // query to get the posts but only when following the user
+    else if (category === 'following')
+        [results] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) AS `uuid` FROM post JOIN follower ON post_user_id = follows_id WHERE BIN_TO_UUID(follower_id) = ? OR BIN_TO_UUID(post_user_id) = ? GROUP BY post_id ORDER BY post_created_at DESC, BIN_TO_UUID(post_id) DESC LIMIT ?, ?', [uuid, uuid, ...pagination]);
+
 
     // postIds are only sent back, not all the details
     response.json({
