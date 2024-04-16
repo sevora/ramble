@@ -126,7 +126,7 @@ const Search: FC = () => {
                     })
                 }
                 <div className='w-full text-center p-5 bg-white' ref={moreRef}>
-                    {!searchActive ? <span className='italic'>Please hit search with at least one character in the field.</span> : hasNextPage ? 'Loading' : 'No more'}
+                    {!searchActive ? <span className='italic'>Please hit search with at least one character in the field.</span> : hasNextPage ? 'Loading' : 'No more results'}
                 </div>
             </div>
         </div>
