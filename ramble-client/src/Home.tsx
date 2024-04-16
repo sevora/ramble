@@ -78,21 +78,19 @@ const Home: FC = () => {
         <div className='sm:p-2 sm:w-3/4 sm:mx-auto rounded-lg'>
             <div className='flex'>
                 <button className='px-5 py-3 me-2 rounded-t-lg hover:bg-neutral-200' style={{ backgroundColor: category === 'following' ? 'white' : undefined, fontWeight: category === 'following' ? 'bold' : undefined }} onClick={() => loadCategory('following')}>Following</button>
-                <button className='px-5 py-3 me-2 rounded-t-lg hover:bg-neutral-200' style={{ backgroundColor: category === 'trending' ? 'white' : undefined, fontWeight: category === 'trending' ? 'bold' : undefined }} onClick={() => loadCategory('trending')}>Trending</button>
+                <button className='px-5 py-3 me-2 rounded-t-lg hover:bg-neutral-200' style={{ backgroundColor: category === 'trending' ? 'white' : undefined, fontWeight: category === 'trending' ? 'bold' : undefined }} onClick={() => loadCategory('trending')}>Global</button>
             </div>
             <div className='bg-white rounded-tl-none rounded-lg'>  
-                {/*  */}
+                {/* This is where the area to create a post is */}
                 <div className='p-3 border-b-2'>
-                    <textarea value={draft} onInput={event => setDraft((event.target as any).value)} rows={4} maxLength={200} minLength={1} className="block p-2.5 w-full text-sm rounded-lg border border-gray-300 focus:ring-neutral-100 " placeholder="Write your thoughts here..."></textarea>
-                    <button onClick={createPost} className='mt-2 w-full ml-auto bg-neutral-200 hover:bg-neutral-400 px-9 py-2 rounded-lg'>Post</button>
+                    <textarea value={draft} onInput={event => setDraft((event.target as any).value)} rows={4} maxLength={200} minLength={1} className="block p-2.5 w-full rounded-lg border border-gray-300 focus:ring-neutral-100" placeholder="Write your thoughts here..."></textarea>
+                    <button onClick={createPost} className='mt-2 w-full ml-auto bg-neutral-200 hover:bg-neutral-400 px-9 py-2 rounded-full'>Post</button>
                 </div> 
-
-                {
-                    posts.map(post => {
-                        const { postId } = post;
-                        return <Post key={postId} postId={postId} className='hover:bg-neutral-100' />
-                    })
-                }
+                {/* This is where the posts are rendered */}
+                { posts.map(post => {
+                    const { postId } = post;
+                    return <Post key={postId} onFail={id => setPosts(posts.filter(p => p.postId !== id))} postId={postId} className='hover:bg-neutral-100' />
+                }) }
                 <div className='w-full text-center p-5' ref={moreRef}>{hasNextPage ? 'Loading' : 'No more posts'}</div>
             </div>
         </div>

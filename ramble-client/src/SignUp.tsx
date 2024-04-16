@@ -69,19 +69,19 @@ const SignUp: FC = () => {
     }
 
     return (
-        <form>
+        <form onSubmit={event => event.preventDefault()}>
             <div className="mb-2">
-                <label className="block text-sm mb-2" htmlFor="username">Create your username</label>
-                <ValidatedField valid={usernameValid} onInput={onInputUsername} value={username} autoComplete="off" errorMessage='Username must be lowercase, 4-25 characters, no spaces in between, underscore is the only special character allowed.' placeholder='Username' />
+                <label className="block text-sm mb-2">Create your username</label>
+                <ValidatedField valid={usernameValid} onInput={onInputUsername} value={username} autoComplete="off" errorMessage='Username must be lowercase, 4-25 characters, no spaces in between, underscore is the only special character allowed.' successMessage='This is permanent. Choose wisely.' placeholder='Username' />
                 <p className='text-xs text-red-500 italic'>{signUpError}</p>
             </div>
             <div className="mb-2">
-                <label className="block text-sm mb-2" htmlFor="password">Choose your password</label>
+                <label className="block text-sm mb-2">Choose your password</label>
                 <ValidatedField valid={passwordValid} onInput={onInputPassword} value={password} autoComplete="off" type="password" errorMessage='Password must be a minimum of 8 characters.' successMessage='Alright!' placeholder='Password' />
             </div>
             <div className="mb-2">
-                <label className="block text-sm mb-2" htmlFor="password">Verify your password</label>
-                <ValidatedField valid={verifyPasswordValid} onInput={onInputVerifyPassword} autoComplete="off" type="password" value={verifyPassword} errorMessage='Your password verification does not match' successMessage='Your passwords match!' placeholder='Verify Password' />
+                <label className="block text-sm mb-2">Verify your password</label>
+                <ValidatedField valid={verifyPasswordValid} onInput={onInputVerifyPassword} value={verifyPassword} autoComplete="off" type="password"  errorMessage='Your password verification does not match' successMessage='Your passwords match!' placeholder='Verify Password' />
             </div>
             <div className="flex items-center justify-between">
                 <a onClick={gotoLogIn} className="inline-block align-baseline text-sm text-slate-600 hover:text-slate-950 cursor-pointer underline">Already have an account?</a>

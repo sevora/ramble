@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, MouseEventHandler, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -16,7 +16,7 @@ interface PostProps extends React.HTMLProps<HTMLDivElement> {
      * This gets called when fetching the 
      * post fails.
      */
-    onDelete?: () => void;
+    onFail?: (postId: string) => void;
 }
 
 /**
@@ -37,7 +37,7 @@ interface PostState {
 /**
  * A reusable component that is reliant on the backend to get the state.
  */
-const Post: FC<PostProps> = ({ postId, className='', onDelete, ...otherProperties }) => {
+const Post: FC<PostProps> = ({ postId, className='', onFail, ...otherProperties }) => {
     const account = useAccount(); // probably not the best organization but this works for me
     const [ state, setState ] = useState<PostState | null>(null);
     const navigate = useNavigate();
@@ -46,9 +46,11 @@ const Post: FC<PostProps> = ({ postId, className='', onDelete, ...otherPropertie
      * 
      */
     const getPost = async () => {
-        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/view`, { postId }, { withCredentials: true });
-        const data = response.data as PostState;
-        setState(data);
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/view`, { postId }, { withCredentials: true });
+            const data = response.data as PostState;
+            setState(data);
+        } catch { onFail && onFail(postId); }
     }
 
     /**
@@ -62,12 +64,13 @@ const Post: FC<PostProps> = ({ postId, className='', onDelete, ...otherPropertie
     }
 
     /**
-     * Delete the post, for whatever reason, setting state after 
-     * doesn't really work.
+     * Delete the post, if deleting it is successful, then 
+     * call the onDelete callback
      */
-    const deletePost = async () => {
-        setState(null);
+    const deletePost: MouseEventHandler = async (event) => {
+        event.stopPropagation();
         await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/delete`, { postId }, { withCredentials: true });
+        setState(null);
     }
     
     // we get this post everytime the id changes
@@ -80,11 +83,11 @@ const Post: FC<PostProps> = ({ postId, className='', onDelete, ...otherPropertie
         return <></>;
 
     return (
-        <div className={'border-b-2' + className} { ...otherProperties }>
+        <div className={'border-b-2' + className} onClick={() => navigate(`/post/${state.postId}`)} { ...otherProperties }>
             <div className='px-5 py-3 hover:bg-neutral-100 cursor-pointer'>
-                <div className='flex items-center gap-2 whitespace-nowrap'>
-                    <div className='font-semibold'>{state.userCommonName}</div>
-                    <div className='hover:underline cursor-pointer' onClick={() => navigate(`/profile/${state.username}`)}>@{state.username}</div>
+                <div className='flex items-center gap-2 whitespace-nowrap' onClick={event => { event.stopPropagation(); navigate(`/profile/${state.username}`) }}>
+                    <div className='hover:underline cursor-pointer font-semibold whitespace-nowrap text-ellipsis truncate'>{state.userCommonName}</div>
+                    <div className='hover:underline cursor-pointer whitespace-nowrap text-ellipsis'>@{state.username}</div>
                     <div className='text-slate-400'>• {timeAgo(state.postCreatedAt)}</div>
                 </div>
                 <div className='w-full text-lg'>

@@ -164,7 +164,7 @@ const ViewProfile: FC = () => {
                 {/* These contain the follow count, clicking on one should redirect appropriately */}
                 <div className='pb-2 flex gap-4'>
                     <div className='hover:underline cursor-pointer' onClick={() => navigate(`/profile/${viewUsername}/following`)}>
-                        <span className='font-semibold mr-1'>{profile.followCount}</span>following
+                        <span className='font-semibold mr-1'>{profile.followCount}</span> following
                     </div>
 
                     <div className='hover:underline cursor-pointer' onClick={() => navigate(`/profile/${viewUsername}/follower`)}>
@@ -179,7 +179,7 @@ const ViewProfile: FC = () => {
                     {
                         posts.map(post => {
                             const { postId } = post;
-                            return <Post key={postId} postId={postId} className='hover:bg-neutral-100' />
+                            return <Post key={postId} postId={postId} onFail={id => setPosts(posts.filter(p => p.postId !== id))} className='hover:bg-neutral-100' />
                         })
                     }
                     <div className='w-full text-center p-5' ref={moreRef}>{hasNextPage ? 'Loading' : 'No more posts'}</div>

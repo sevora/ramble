@@ -119,20 +119,18 @@ router.post('/update', httpOnlyAuthentication, async(request, response) => {
     const parameters = zodVerify(
         // the schema for updating an account
         z.object({
-            userCommonName: z.string().trim().min(4).max(25).optional(),
-            password: z.string().trim().min(8).optional(),
+            userCommonName: z.string().trim().min(4).max(50).optional(),
             biography: z.string().trim().max(200).optional()
         }), 
     request);
 
     if (!parameters) return response.sendStatus(400);  // information sent is incomplete
     const { uuid } = request.authenticated!;
-    const { userCommonName, biography, password } = parameters;
+    const { userCommonName, biography } = parameters;
 
     // there must be a better way to this
     if (userCommonName) await connection.query('UPDATE `user` SET user_common_name = ? WHERE BIN_TO_UUID(user_id) = ?', [ userCommonName, uuid ]);
     if (biography) await connection.query('UPDATE `user` SET user_biography = ? WHERE BIN_TO_UUID(user_id) = ?', [ biography, uuid ]);
-    if (password) await connection.query('UPDATE `user` SET user_password = ? WHERE BIN_TO_UUID(user_id) = ?', [ sha256(password), uuid ]);
     return response.sendStatus(200); // only send a 200 to signify success of operation
 });
 
@@ -149,6 +147,9 @@ router.post('/delete', httpOnlyAuthentication, async(request, response) => {
 
     const { uuid } = request.authenticated!;
     const { password } = parameters;
+
+    const [ findUser ] = await connection.query<any[]>('SELECT * FROM `user` WHERE BIN_TO_UUID(user_id) = ? AND user_password = ?', [ uuid, sha256(password) ]);
+    if (findUser.length === 0) return response.sendStatus(405);
 
     await connection.query('DELETE FROM `user` WHERE BIN_TO_UUID(user_id) = ? AND user_password = ?', [ uuid, sha256(password) ]);
     return response.sendStatus(200); // only send to signify success of operation
