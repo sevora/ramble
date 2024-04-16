@@ -74,10 +74,10 @@ const Home: FC = () => {
     }, [ inView, hasNextPage, posts.length ]);
 
     return (
-        <div className='sm:p-2 sm:w-3/4 sm:mx-auto rounded-lg'>
+        <div className='sm:px-2 sm:w-3/4 sm:mx-auto rounded-lg'>
             <div className='flex'>
-                <button className='px-5 py-3 me-2 rounded-t-lg hover:bg-slate-200' style={{ backgroundColor: category === 'following' ? 'white' : undefined, fontWeight: category === 'following' ? 'bold' : undefined }} onClick={() => loadCategory('following')}>Following</button>
-                <button className='px-5 py-3 me-2 rounded-t-lg hover:bg-slate-200' style={{ backgroundColor: category === 'trending' ? 'white' : undefined, fontWeight: category === 'trending' ? 'bold' : undefined }} onClick={() => loadCategory('trending')}>Global</button>
+                <button className='px-5 py-3 me-2 hover:bg-slate-200' style={{ backgroundColor: category === 'following' ? 'white' : undefined, fontWeight: category === 'following' ? 'bold' : undefined }} onClick={() => loadCategory('following')}>Following</button>
+                <button className='px-5 py-3 me-2 hover:bg-slate-200' style={{ backgroundColor: category === 'trending' ? 'white' : undefined, fontWeight: category === 'trending' ? 'bold' : undefined }} onClick={() => loadCategory('trending')}>Global</button>
             </div>
             <div className='bg-white rounded-tl-none rounded-lg'>  
                 {/* This is where the area to create a post is */}
