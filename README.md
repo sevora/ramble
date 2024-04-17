@@ -1,6 +1,6 @@
 # Ramble
-## Description
-Ramble is a lightweight Twitter Clone that has the core features while being structured in a more manageable and extendable style. I made this primarily for a university project in our Computer Science Course and the goal is to be able to write a CRUD-application utilizing a SQL database.
+## Overview
+Ramble is a lightweight Twitter Clone structured in a simple, manageable, and extendable style. I made this primarily for a university project in our Computer Science Course and the goal is to be able to write a CRUD-application utilizing a SQL database management system. As this is a small project, user account creation is infinite and does not require any third-party identity verification. For production purposes, that must be revised. However, under a local development environment and as a university project, it focuses on providing a clean, functional, and efficient implementation integrating these powerful web and database technologies.
 
 ## Scope and Limitations
 ### Features
@@ -47,9 +47,6 @@ Of course, there are limitations due to the time constraint in developing this p
 - [Zod](https://zod.dev) - object validation.
 - [node-mysql2](https://github.com/sidorares/node-mysql2) - fast MySQL driver for Node.js
 - [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) - for our authentication purposes.
-
-## Overview
-Ramble allows the creation of user accounts, posting of "rambles", commenting, liking, and of course interactive views such as a home page, trending page, and a profile page. As this is a small project, user account creation is infinite and does not require any third-party identity verification. For production purposes, that must be revised. However, for development and as a university project, it focuses on providing a super efficient and smooth user experience whilst integrating these powerful web and database technologies.
 
 ## Environment Variables
 ### ramble-client
