@@ -1,16 +1,18 @@
 import { FC, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
 import axios from 'axios';
 
-import Post from './Post';
+import Post, { PostState } from './Post';
 
 /**
  * 
  * @returns 
  */
 const ViewPost: FC = () => {
-    const { postId: parentPostId } = useParams<{ postId: string }>();
+    const { username: urlUsername, postId: parentPostId } = useParams<{ username: string, postId: string }>();
+    const navigate = useNavigate();
+
     const [draft, setDraft] = useState<string>('');
 
     const [posts, setChildrenPosts] = useState<{ postId: string }[]>([]);
@@ -66,6 +68,11 @@ const ViewPost: FC = () => {
         }
     }
 
+    const ensureURL = (post: PostState) => {
+        if (post.username === urlUsername) return;
+        navigate(`/posts/${post.username}/${post.postId}`);
+    }
+
     //
     useEffect(() => {
         reloadPosts();
@@ -83,7 +90,7 @@ const ViewPost: FC = () => {
             {parentPostError && <div className='bg-white p-3 border-b-2 font-semibold text-lg'>Oops! Post not found!</div>}
 
             {/*  */}
-            <Post postId={parentPostId!} onFail={() => setParentPostError(true)} hideReplyButton />
+            <Post postId={parentPostId!} onFail={() => setParentPostError(true)} onLoadPost={ensureURL} hideReplyButton />
 
             <div className='mx-auto'>
                 {/*  */}

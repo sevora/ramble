@@ -31,7 +31,7 @@ const routes = ({ isLoggedIn }: RoutesParameters): RouteObject[] => [
             { path: '/profile/:username', element: <ViewProfile /> },
             // this specific route should only accept either follower or following
             { path: '/profile/:username/:category', element: <ViewFollower /> },
-            { path: '/post/:postId', element: <ViewPost /> },
+            { path: '/posts/:username/:postId', element: <ViewPost /> },
             { path: '/search', element: <Search /> }
         ]
     },

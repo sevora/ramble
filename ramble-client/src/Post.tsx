@@ -12,7 +12,7 @@ interface PostProps extends React.HTMLProps<HTMLDivElement> {
      */
     postId: string;
 
-    showParent?: boolean;
+    showParentPost?: boolean;
 
     hideReplyButton?: boolean;
 
@@ -23,13 +23,19 @@ interface PostProps extends React.HTMLProps<HTMLDivElement> {
      * post fails.
      */
     onFail?: (postId: string) => void;
+
+    /**
+     * A callback function that can be utilized 
+     * when the post loads.
+     */
+    onLoadPost?: (state: PostState) => void;
 }
 
 /**
  * This describes the state of a post in a single object.
  * You could infer what this means.
  */
-interface PostState { 
+export interface PostState { 
     postId:         string
     postParentId:   string | null
     postContent:    string
@@ -44,7 +50,7 @@ interface PostState {
 /**
  * A reusable component that is reliant on the backend to get the state.
  */
-const Post: FC<PostProps> = ({ postId, className='', showParent=false, hideReplyButton=false, hideControls=false, onFail, ...otherProperties }) => {
+const Post: FC<PostProps> = ({ postId, className='', showParentPost=false, hideReplyButton=false, hideControls=false, onFail, onLoadPost, ...otherProperties }) => {
     const account = useAccount(); // probably not the best organization but this works for me
     const [ state, setState ] = useState<PostState | null>(null);
     const navigate = useNavigate();
@@ -57,6 +63,7 @@ const Post: FC<PostProps> = ({ postId, className='', showParent=false, hideReply
             const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/view`, { postId }, { withCredentials: true });
             const data = response.data as PostState;
             setState(data);
+            onLoadPost && onLoadPost(data);
         } catch { onFail && onFail(postId); }
     }
 
@@ -91,7 +98,7 @@ const Post: FC<PostProps> = ({ postId, className='', showParent=false, hideReply
         return <></>;
 
     return (
-        <div className={'bg-white border-b-2' + className} onClick={event => { event.stopPropagation(); navigate(`/post/${state.postId}`)}} { ...otherProperties }>
+        <div className={'bg-white border-b-2' + className} onClick={event => { event.stopPropagation(); navigate(`/posts/${state.username}/${state.postId}`)}} { ...otherProperties }>
          
             <div className='px-5 py-3 cursor-pointer'>
                 <div className='flex items-center gap-2 whitespace-nowrap' onClick={event => { event.stopPropagation(); navigate(`/profile/${state.username}`) }}>
@@ -103,7 +110,7 @@ const Post: FC<PostProps> = ({ postId, className='', showParent=false, hideReply
                     {state.postContent}
                 </div>
                 
-                { showParent && state.postParentId && 
+                { showParentPost && state.postParentId && 
                     <div className='border border-2 border-neutral-300 p-1 mt-2 rounded-lg'>
                         <Post className='border-none' postId={state.postParentId} hideControls={true} />
                     </div>
