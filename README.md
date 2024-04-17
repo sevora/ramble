@@ -1,6 +1,32 @@
 # Ramble
 ## Description
-Ramble is a lightweight Twitter Clone that has the core features while being structured in a more manageable and extendable style. 
+Ramble is a lightweight Twitter Clone that has the core features while being structured in a more manageable and extendable style. I made this primarily for a university project in our Computer Science Course and the goal is to be able to write a CRUD-application utilizing a SQL database.
+
+## Scope and Limitations
+### Features
+This project is essentially a Twitter clone, with the core functionality implemented. That is to say, in this project, you can:
+- Create an account
+- Update the account's display name and biography
+- Delete the account
+- View accounts, your currently logged in account, or other accounts
+- Follow or unfollow accounts
+- View the follower or following list of your account or other accounts
+- To post a *ramble*, to *ramble*, *rambling*, if this was Twitter, it would be *tweet*
+- View your timeline with the posts from accounts you follow, or view the posts globally
+- View and reply on a post
+- View the posts of an account from their profile including their replies to other posts
+- Delete your posts or replies
+- Search for an account or post by using keywords
+
+The frontend also was written to implement an infinite scroll feature. Essentially, as long as there are posts or accounts that can be shown you can simply scroll down and they will be loaded as needed to populate the page you're viewing. This applies to all of the pages which can potentially contain a lot of data such as viewing your timeline, searching for accounts or posts, checking the follower or following list of an account, or viewing the posts of an account from their profile page.
+
+### Limitations
+Of course, there are limitations due to the time constraint in developing this project in around 4 days or so. Here are some of the limitations:
+- The deletion of a post will cause all replies connected, *even if they're from other users*, be deleted as well, this is the simplest implementation of deleting a post, but in a real social media platform, that is undesirable.
+- Consequently, the deletion of an account will delete all their posts and will also have the same behaviour as the previous point.
+- Post statistics are not sent in real-time, or even periodic time, and availability of new posts on the timeline are not notified to users.
+- There are no loaders or skeleton to visually indicate or aid that data is being retrieved at the moment as the local development environment guarantees a near instantaneous response.
+- There are no privacy features: such as limit the users who can view one's account, block other accounts, or limit replies in a post.
 
 ## Stack
 ### Frontend
@@ -10,8 +36,7 @@ Ramble is a lightweight Twitter Clone that has the core features while being str
 - [Zustand](https://github.com/pmndrs/zustand) - lightweight state management for React.
 - [React Router](https://reactrouter.com/en/main) - for managing client-side routes and components.
 - [react-icons](https://react-icons.github.io/react-icons/) - icons for React all in one place.
-- [react-mentions](https://github.com/signavio/react-mentions) - simplifies mentions in UIs.
-- [react-infinite-scroll-component](https://github.com/ankeetmaini/react-infinite-scroll-component) - simplifies infinite-scroll implementation.
+- [react-intersection-observer] - a React implementation of the Intersection Observer API, mainly used for infinite scroll.
 
 ### Backend
 - [Express](https://expressjs.com) - lightweight unopinionated http server.
@@ -83,3 +108,5 @@ response.json({
 });
 ```
 This is the convention we are following for better clarity.
+
+For the frontend, it is written to be in the simplest form with the least custom dependencies, meaning you could easily modify each page on its own without having to learn about all the other components. However, it is still possible to refactor the code better as there are a lot of common implementations across the pages or views. An example would be the implementation of infinite scroll which is essentially the same across all the components.
