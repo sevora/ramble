@@ -1,3 +1,4 @@
+import './verify-environment';
 import 'dotenv/config';
 
 import express from 'express';
