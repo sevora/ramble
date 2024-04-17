@@ -27,6 +27,8 @@ Of course, there are limitations due to the time constraint in developing this p
 - Post statistics are not sent in real-time, or even periodic time, and availability of new posts on the timeline are not notified to users.
 - There are no loaders or skeleton to visually indicate or aid that data is being retrieved at the moment as the local development environment guarantees a near instantaneous response.
 - There are no privacy features: such as limit the users who can view one's account, block other accounts, or limit replies in a post.
+- There are no notification features: so you won't be notified if someone follows you or replies to your post.
+- There is no messaging system: that is a whole other project on its own.
 
 ## Stack
 ### Frontend
