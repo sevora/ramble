@@ -6,7 +6,7 @@ import zodVerify from "./middlewares/zod-verify";
 import httpOnlyAuthentication from "./middlewares/http-only-authentication";
 
 const router = Router();
-const ROWS_PER_PAGE = 10;
+const rowsPerPage = 10;
 
 /**
  * Use this to create an association between two accounts, following another account.
@@ -130,7 +130,7 @@ router.post('/list', httpOnlyAuthentication, async (request, response) => {
     const [ what, from ] = category === 'follower' ? [ 'follower_id', 'follows_id' ] : [ 'follows_id', 'follower_id' ];
 
     // take note of this query very essential for this kind of association
-    const [ results ] = await connection.query<any[]>(`SELECT user_name FROM user, follower WHERE user_id = ${what} AND BIN_TO_UUID(${from}) = ? ORDER BY follow_created_at DESC, BIN_TO_UUID(user_id) LIMIT ?, ?`, [ uuid, page * ROWS_PER_PAGE, ROWS_PER_PAGE ]);
+    const [ results ] = await connection.query<any[]>(`SELECT user_name FROM user, follower WHERE user_id = ${what} AND BIN_TO_UUID(${from}) = ? ORDER BY follow_created_at DESC, BIN_TO_UUID(user_id) LIMIT ?, ?`, [ uuid, page * rowsPerPage, rowsPerPage ]);
     
     // we then rename these properties following the convention
     return response.json({ users: results.map(entry => 

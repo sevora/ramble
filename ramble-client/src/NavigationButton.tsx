@@ -34,8 +34,8 @@ const NavigationButton: FC<NavigationButtonProps> = ({ InActiveIcon, ActiveIcon,
             <div className='mr-2'>
                 {
                     active ? 
-                        <ActiveIcon className='text-xl'/> :
-                        <InActiveIcon className='text-xl' />
+                        <ActiveIcon className='text-xl text-slate-800'/> :
+                        <InActiveIcon className='text-xl text-slate-800' />
                 }
             </div>
             <div className='hidden sm:inline' style={{ fontWeight: active ? 600 : undefined }}>{label}</div>

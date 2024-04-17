@@ -6,7 +6,7 @@ import zodVerify from "./middlewares/zod-verify";
 import httpOnlyAuthentication from "./middlewares/http-only-authentication";
 
 const router = Router();
-const ROWS_PER_PAGE = 10;
+const rowsPerPage = 10;
 
 /**
  * Use this to create a new post, or reply, or repost. This is done relative 
@@ -195,7 +195,7 @@ router.post('/list', httpOnlyAuthentication, async (request, response) => {
     const { uuid } = request.authenticated!;
     const { username, page, parentId, category } = parameters;
 
-    const pagination = [page * ROWS_PER_PAGE, ROWS_PER_PAGE];
+    const pagination = [page * rowsPerPage, rowsPerPage];
     let results: any[] = [];
 
     // query intended to get the replies to a post
@@ -212,7 +212,7 @@ router.post('/list', httpOnlyAuthentication, async (request, response) => {
 
     // query to get the posts but only when following the user
     else if (category === 'following')
-        [results] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) AS `uuid` FROM post JOIN follower ON post_user_id = follows_id AND BIN_TO_UUID(follower_id) = ? OR BIN_TO_UUID(post_user_id) = ? GROUP BY post_id ORDER BY post_created_at DESC, BIN_TO_UUID(post_id) LIMIT ?, ?', [uuid, uuid, ...pagination]);
+        [results] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) AS `uuid` FROM post JOIN follower ON BIN_TO_UUID(follower_id) = ? AND post_user_id = follows_id OR BIN_TO_UUID(post_user_id) = ? GROUP BY post_id ORDER BY post_created_at DESC, BIN_TO_UUID(post_id) LIMIT ?, ?', [uuid, uuid, ...pagination]);
 
     // postIds are only sent back, not all the details
     response.json({
