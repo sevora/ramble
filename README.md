@@ -112,3 +112,12 @@ response.json({
 This is the convention we are following for better clarity.
 
 For the frontend, it is written to be in the simplest form with the least custom dependencies, meaning you could easily modify each page on its own without having to learn about all the other components. However, it is still possible to refactor the code better as there are a lot of common implementations across the pages or views. An example would be the implementation of infinite scroll which is essentially the same across all the components.
+
+## Screenshots
+<p>These are all screenshots on the mobile layout.</p>
+<img src="./screenshots/mobile_profile.png" width="200" />
+<img src="./screenshots/mobile_profile_update.png" width="200" />
+<img src="./screenshots/mobile_following.png" width="200" />
+<img src="./screenshots/mobile_timeline.png" width="200" />
+<img src="./screenshots/mobile_view_post.png" width="200" />
+<img src="./screenshots/mobile_search.png" width="200" />
