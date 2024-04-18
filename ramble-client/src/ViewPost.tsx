@@ -116,7 +116,7 @@ const ViewPost: FC = () => {
                             return <Post key={child.postId} postId={child.postId} onFail={id => setChildrenPosts(posts.filter(p => p.postId !== id))} />
                         })
                     }
-                    <div className='w-full text-center p-5 bg-white' ref={moreRef}>{hasNextPage ? 'Loading' : 'No more posts'}</div>
+                    <div className='w-full text-center p-5 bg-white' ref={moreRef}>{hasNextPage ? 'Loading' : 'No more replies'}</div>
                 </div>
             </div>
         </div>
