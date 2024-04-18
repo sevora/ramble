@@ -51,6 +51,9 @@ Of course, there are limitations due to the time constraint in developing this p
 - [node-mysql2](https://github.com/sidorares/node-mysql2) - fast MySQL driver for Node.js
 - [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) - for our authentication purposes.
 
+## MySQL Configuration
+It is required that the timezone for the MySQL server be set to UTC for the dates to be in proper format. Use [`ddl.sql`](/ddl.sql) to generate the tables for the database.
+
 ## Environment Variables
 ### ramble-client
 This file can be named `.env` or `.env.development.local` or `.env.production.local` and will adjust transpilation or bundling accordingly to whether it is on development or production matching the file names.
@@ -94,9 +97,6 @@ The directories mentioned here are relative to `/ramble-server`.
 - `npm run build` - transpile the source code from `/src` to `/build`.
 - `npm start` - run the code inside `/build`, remember to run the build command first to generate this directory.
 - `npm run dev` - concurrently compile and run the build under nodemon.
-
-## MySQL Configuration
-It is required that the timezone for the MySQL server be set to UTC for the dates to be in proper format. Use [`ddl.sql`](/ddl.sql) to generate the database.
 
 ## Coding Practice and Convention
 The casing of the MySQL tables and columns are in snake case. However, in TypeScript (or JavaScript), camelCase is the norm. So as a result, in queries and resulting objects of the queries we use snake case however when passing it along as a result of the API, we use camelCase. To provide a clear example,
