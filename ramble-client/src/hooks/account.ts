@@ -1,12 +1,31 @@
 import { create } from 'zustand';
 
+/**
+ * This is the information best kept, that is used across
+ * the site components.
+ */
 interface AccountState {
+  /**
+   * The username is an all lowercase, no space, alphanumeric and underscore only
+   * string that may uniquely identify a user.
+   */
     username: string;
-    userCommonName: string;
+
+    /**
+     * Tells if the user is logged in or not.
+     */
     isLoggedIn: boolean;
 
+    /**
+     * Use this to set the username of the client.
+     * @param username the username
+     */
     setUsername: (username: string) => void;
-    setUserCommonName: (userCommonName: string) => void;
+
+    /**
+     * Use this to set whether the client is logged in or not.
+     * @param isLoggedIn true for logged in, false otherwise
+     */
     setIsLoggedIn: (isLoggedIn: boolean) => void;
 }
 
@@ -15,11 +34,9 @@ interface AccountState {
  */
 const useAccount = create<AccountState>()(set => ({
   username: '',
-  userCommonName: '',
   isLoggedIn: false,
   
   setUsername: (username) => set({ username }),
-  setUserCommonName: (userCommonName) => set({ userCommonName }),
   setIsLoggedIn: (isLoggedIn) => set({ isLoggedIn }),
 }));
 

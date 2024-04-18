@@ -18,7 +18,8 @@ interface ProfileState {
 }
 
 /**
- * 
+ * This component is used to render the followers of an account.
+ * To be specific, both followers and following could be rendered.
  */
 const ViewFollower: FC = () => {
     const { username: viewUsername, category } = useParams<{ username: string, category: string }>();
@@ -46,7 +47,8 @@ const ViewFollower: FC = () => {
     }
 
     /**
-     * 
+     * This gets the accounts in the set category and
+     * page number.
      */
     const getAccounts = async (category: 'follower' | 'following', page: number) => {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/follower/list`, { username: viewUsername, page, category }, { withCredentials: true });
@@ -54,8 +56,8 @@ const ViewFollower: FC = () => {
     }
 
     /**
-     * 
-     * @returns 
+     * This loads more accounts following the category
+     * and page number.
      */
     const loadMoreAccounts = async () => {
         const more = await getAccounts(category as any, page);
@@ -96,6 +98,7 @@ const ViewFollower: FC = () => {
         </div>
 
         <div className='sm:px-2 sm:w-3/4 sm:mx-auto rounded-lg'>
+            {/* This is where the categories are */}
             <div className='flex'>
                 <button className='px-5 py-3 hover:bg-slate-200' style={{ backgroundColor: category === 'following' ? 'white' : undefined, fontWeight: category === 'following' ? 'bold' : undefined }} onClick={() => navigate(`/profile/${viewUsername}/following`)}>{profile.followCount} Following</button>
                 <button className='px-5 py-3 hover:bg-slate-200' style={{ backgroundColor: category === 'follower' ? 'white' : undefined, fontWeight: category === 'follower' ? 'bold' : undefined }} onClick={() => navigate(`/profile/${viewUsername}/follower`)}>{profile.followerCount} Followers</button>

@@ -11,7 +11,7 @@ import ValidatedField from './ValidatedField';
  */
 const SignUp: FC = () => {
     const navigate = useNavigate();
-    const { setUsername: setGlobalUserName, setUserCommonName, setIsLoggedIn } = useAccount();
+    const { setUsername: setGlobalUserName, setIsLoggedIn } = useAccount();
     const [ signUpError, setSignUpError ] = useState<string>(''); // this is the error message for when sign-up fails
 
     const [ username, setUsername ] = useState<string>('');
@@ -61,7 +61,6 @@ const SignUp: FC = () => {
             
             // when we successfully get the data, we are then logged-in
             setGlobalUserName(data.username);
-            setUserCommonName(data.userCommonName);
             setIsLoggedIn(true);
         } catch {
             setSignUpError('Username is already taken!')

@@ -14,7 +14,7 @@ import axios from 'axios';
  * such as home, search, viewing profiles, viewing posts.
  */
 const DashBoard: FC = () => {
-    const { username, setUsername, setUserCommonName, setIsLoggedIn } = useAccount();
+    const { username, setUsername, setIsLoggedIn } = useAccount();
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -32,12 +32,14 @@ const DashBoard: FC = () => {
 
     const activeRoute = getActiveRoute();
 
-    // the logout process simply clears the account state and redirects to '/
+    /**
+     * To log-out, we want to clear the global account state and navigate 
+     * back to the landing page.
+     */
     const logout = async () => {
         await axios.post(`${import.meta.env.VITE_BACKEND_URL}/account/logout`, {}, { withCredentials: true });
         navigate('/');
         setUsername('');
-        setUserCommonName('');
         setIsLoggedIn(false);
     }
 

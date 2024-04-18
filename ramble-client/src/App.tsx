@@ -10,7 +10,7 @@ import useAccount from './hooks/account';
  * for convenience. 
  */
 function App() {
-  const { isLoggedIn, setUsername, setUserCommonName, setIsLoggedIn } = useAccount();
+  const { isLoggedIn, setUsername, setIsLoggedIn } = useAccount();
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -21,17 +21,16 @@ function App() {
   const route = useRoutes( routes({ isLoggedIn }) );
   
   useEffect(() => {
-    // we attempt to log-in right away if our request for our information works
+    // we attempt to log-in right away if our request to view our information works
     const autoLogin = async () => {
       try {
         const account = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/account/view`, {}, { withCredentials: true });
         const data = account.data as { username: string, userCommonName: string };
-        
         setUsername(data.username);
-        setUserCommonName(data.userCommonName);
         setIsLoggedIn(true);
         navigate(lastPath);
       } catch {
+        // if we aren't logged in, the endpoint should fail
         setIsLoggedIn(false);
       }
     }

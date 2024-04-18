@@ -1,5 +1,9 @@
 import { Outlet } from "react-router-dom";
 
+/**
+ * This is the landing page, the outlet here renders the
+ * log-in or sign-up component.
+ */
 const Landing = () => {
     return (
         <div>

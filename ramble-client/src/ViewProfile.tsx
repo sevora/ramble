@@ -55,12 +55,19 @@ const ViewProfile: FC = () => {
      */
     const loadProfileContextState = async () => {
         // reset the profile
-        const accountResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/account/view`, { username: viewUsername }, { withCredentials: true });
-        const followerCountResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/follower/count`, { username: viewUsername }, { withCredentials: true });
-        const postCountResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/count`, { username: viewUsername }, { withCredentials: true });
-        const profile = { ...accountResponse.data, ...followerCountResponse.data, ...postCountResponse.data };
-        setProfile(profile as ProfileState);
-
+        try {
+            const accountResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/account/view`, { username: viewUsername }, { withCredentials: true });
+            const followerCountResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/follower/count`, { username: viewUsername }, { withCredentials: true });
+            const postCountResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/count`, { username: viewUsername }, { withCredentials: true });
+            const profile = { ...accountResponse.data, ...followerCountResponse.data, ...postCountResponse.data };
+            setProfile(profile as ProfileState);
+    
+        } catch {
+            navigate('/404');
+            return;
+        }
+       
+       
     
         await getFollowContext();
 

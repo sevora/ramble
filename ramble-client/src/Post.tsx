@@ -12,21 +12,30 @@ interface PostProps extends React.HTMLProps<HTMLDivElement> {
      */
     postId: string;
 
+    /**
+     * Whether to show the parent post or not.
+     */
     showParentPost?: boolean;
 
+    /**
+     * Whether to hide the reply button or not. This is useful when viewing a post
+     * and the reply count doesn't update in real-time. 
+     */
     hideReplyButton?: boolean;
 
+    /**
+     * Whether to hide the controls or not. This is necessary when showing
+     * the parent post for a less confusing UI.
+     */
     hideControls?: boolean;
 
     /**
-     * This gets called when fetching the 
-     * post fails.
+     * This gets called when fetching the post fails.
      */
     onFail?: (postId: string) => void;
 
     /**
-     * A callback function that can be utilized 
-     * when the post loads.
+     * A callback function that can be utilized when the post loads.
      */
     onLoadPost?: (state: PostState) => void;
 }
@@ -56,7 +65,8 @@ const Post: FC<PostProps> = ({ postId, className='', showParentPost=false, hideR
     const navigate = useNavigate();
 
     /**
-     * 
+     * Retrieves the current post by postId and populates
+     * the state accordingly.
      */
     const getPost = async () => {
         try {
@@ -68,7 +78,8 @@ const Post: FC<PostProps> = ({ postId, className='', showParentPost=false, hideR
     }
 
     /**
-     * 
+     * This toggles the likes of the post and also repopulates 
+     * the state by refetching the post itself.
      */
     const toggleLike: MouseEventHandler = async (event) => {
         event.stopPropagation();
@@ -99,7 +110,8 @@ const Post: FC<PostProps> = ({ postId, className='', showParentPost=false, hideR
 
     return (
         <div className={'bg-white border-b-2' + className} onClick={event => { event.stopPropagation(); navigate(`/posts/${state.username}/${state.postId}`)}} { ...otherProperties }>
-         
+
+            {/* The post data, including who posted when, and the content */}
             <div className='px-5 py-3 cursor-pointer'>
                 <div className='flex items-center gap-2 whitespace-nowrap' onClick={event => { event.stopPropagation(); navigate(`/profile/${state.username}`) }}>
                     <div className='hover:underline cursor-pointer font-semibold whitespace-nowrap text-ellipsis truncate'>{state.userCommonName}</div>
@@ -109,15 +121,17 @@ const Post: FC<PostProps> = ({ postId, className='', showParentPost=false, hideR
                 <div className='w-full text-lg'>
                     {state.postContent}
                 </div>
-                
-                { showParentPost && state.postParentId && 
+
+                { 
+                    // this is the rendering of the parent post, as you can see Post is a recursive component
+                    showParentPost && state.postParentId && 
                     <div className='border border-2 border-neutral-300 p-1 mt-2 rounded-lg'>
                         <Post className='border-none' postId={state.postParentId} hideControls={true} />
                     </div>
                 }
-
             </div>
 
+            {/* Inside here are the controls to the post */}
             <div className='w-full flex items-center border-t-2 border-b-2 justify-around' style={{ display: hideControls ? 'none' : undefined }}>
                 <button className='grow p-2 text-md hover:bg-slate-100' style={{ fontWeight: state.hasLiked ? 'bold' : undefined }} onClick={toggleLike}>{state.likeCount} likes</button>
                 { !hideReplyButton && <button className='grow p-2 text-md hover:bg-slate-100'>{state.replyCount} replies</button> }

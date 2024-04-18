@@ -5,7 +5,8 @@ import axios from 'axios';
 import Post from './Post';
 
 /**
- * This is where the posts are, by following or trending.
+ * This is where homepage where the timeline is. 
+ * Posts may be organized by following or trending.
  */
 const Home: FC = () => {
     const [draft, setDraft] = useState<string>('');
@@ -56,7 +57,8 @@ const Home: FC = () => {
     }
 
     /**
-     * 
+     * This is called whenever the user 
+     * is trying to post a post. 
      */
     const createPost = async () => {
         // validate draft first
@@ -83,13 +85,14 @@ const Home: FC = () => {
                 {/* This is where the area to create a post is */}
                 <div className='p-3 border-b-2'>
                     <textarea value={draft} onInput={event => setDraft((event.target as any).value)} rows={4} maxLength={200} minLength={1} className="block p-2.5 w-full rounded-lg border border-gray-300 focus:ring-neutral-100" placeholder="Write your thoughts here..."></textarea>
-                    <button onClick={createPost} className='mt-2 w-full ml-auto bg-slate-800 hover:bg-slate-950 text-white px-9 py-2 rounded-full'>Post</button>
+                    <button onClick={createPost} className='mt-2 w-full ml-auto bg-slate-800 hover:bg-slate-950 text-white px-9 py-2 rounded-full' style={{  }} disabled={ draft.trim().length === 0 }>Post</button>
                 </div> 
-                {/* This is where the posts are rendered */}
-                { posts.map(post => {
-                    const { postId } = post;
-                    return <Post key={postId} showParentPost onFail={id => setPosts(posts.filter(p => p.postId !== id))} postId={postId} className='hover:bg-slate-100' />
-                }) }
+                { 
+                    posts.map(post => {
+                        const { postId } = post;
+                        return <Post key={postId} showParentPost onFail={id => setPosts(posts.filter(p => p.postId !== id))} postId={postId} className='hover:bg-slate-100' />
+                    }) 
+                }
                 <div className='w-full text-center p-5' ref={moreRef}>{hasNextPage ? 'Loading' : 'No more posts'}</div>
             </div>
         </div>

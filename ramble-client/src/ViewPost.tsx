@@ -6,8 +6,8 @@ import axios from 'axios';
 import Post, { PostState } from './Post';
 
 /**
- * 
- * @returns 
+ * This is a component to view a single post with
+ * its replies down below.
  */
 const ViewPost: FC = () => {
     const { username: urlUsername, postId: parentPostId } = useParams<{ username: string, postId: string }>();
@@ -25,7 +25,8 @@ const ViewPost: FC = () => {
     const [parentPostError, setParentPostError] = useState<boolean>(false);
 
     /**
-     * Essentially the replies,
+     * Gets the posts under the parent post. In essence,
+     * this gets the replies.
      */
     const getPosts = async (page: number) => {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/list`, { parentId: parentPostId, page }, { withCredentials: true });
@@ -33,8 +34,7 @@ const ViewPost: FC = () => {
     }
 
     /**
-     * 
-     * @returns 
+     * Loads more replies.
      */
     const loadMorePosts = async () => {
         const more = await getPosts(page);
@@ -47,6 +47,9 @@ const ViewPost: FC = () => {
         }
     }
 
+    /**
+     * This is used to cause a reload on the replies.
+     */
     const reloadPosts = () => {
         setPage(0);
         setChildrenPosts([]);
@@ -54,7 +57,7 @@ const ViewPost: FC = () => {
     }
 
     /**
-     * 
+     * This is used to create a post.
      */
     const createPost = async () => {
         // validate draft first
@@ -64,16 +67,23 @@ const ViewPost: FC = () => {
             setDraft('');
             reloadPosts();
         } catch {
+            // this was added here to notify if the user can't comment 
+            // because the parent post was deleted
             setParentPostError(true);
         }
     }
 
+    /**
+     * The username being a part of the URL is an illusion.
+     * This is simply to make it easier to identify who posted
+     * what based from the URL only.
+     */
     const ensureURL = (post: PostState) => {
         if (post.username === urlUsername) return;
         navigate(`/posts/${post.username}/${post.postId}`);
     }
 
-    //
+    // when the parent post changes so should its children
     useEffect(() => {
         reloadPosts();
     }, [parentPostId]);
@@ -86,20 +96,20 @@ const ViewPost: FC = () => {
 
     return (
         <div className='sm:px-2 sm:w-3/4 sm:mx-auto rounded-lg'>
-            {/*  */}
+            {/* This is the error message for the missing parent. */}
             {parentPostError && <div className='bg-white p-3 border-b-2 font-semibold text-lg'>Oops! Post not found!</div>}
 
-            {/*  */}
+            {/* The parent post  */}
             <Post postId={parentPostId!} onFail={() => setParentPostError(true)} onLoadPost={ensureURL} hideReplyButton />
 
             <div className='mx-auto'>
-                {/*  */}
+                {/* The reply box */}
                 <div className='p-3 border-b-2 bg-white'>
                     <textarea value={draft} onInput={event => setDraft((event.target as any).value)} rows={4} maxLength={200} minLength={1} className="block p-2.5 w-full rounded-lg border border-gray-300 focus:ring-neutral-100" placeholder="Write your reply here..."></textarea>
                     <button onClick={createPost} className='mt-2 w-full ml-auto bg-slate-800 hover:bg-slate-950 text-white px-9 py-2 rounded-full'>Post</button>
                 </div>
 
-                {/*  */}
+                {/* This is where the replies are rendered */}
                 <div>
                     {
                         posts.map(child => {

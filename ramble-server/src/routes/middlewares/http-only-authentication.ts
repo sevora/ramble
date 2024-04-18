@@ -7,14 +7,15 @@ import jsonwebtoken from 'jsonwebtoken';
  */
 export default async function httpOnlyAuthentication(request: Request, response: Response, next: NextFunction) {
     const token = request.cookies.ramble_authentication_token;
-    if (!token) return response.sendStatus(400);
+    if (!token) return response.sendStatus(400); // if the token can't be found as a cooklie then it's a 400
 
     try {
-        // we set the username in the body with the value found inside the jsonwebtoken
+        // we set the uuid in the body with the value found inside the jsonwebtoken into our custom property
         const { uuid } = jsonwebtoken.verify(token, process.env.SERVER_JWT_KEY || '') as { uuid: string };
         request.authenticated = { uuid };
         return next();
     } catch {
+        // if the token isn't valid then it's a 401 
         return response.sendStatus(401);
     }
 }

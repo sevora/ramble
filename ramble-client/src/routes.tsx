@@ -13,6 +13,10 @@ import NotFound from './NotFound';
 import UpdateProfile from './UpdateProfile';
 
 interface RoutesParameters {
+    /**
+     * Whether the client is logged in or not. 
+     * Changes the routes accordingly.
+     */
     isLoggedIn: boolean;
 }
 

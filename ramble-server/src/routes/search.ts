@@ -10,7 +10,7 @@ const rowsPerPage = 10;
 
 /**
  * Use this to search for a post, requires that the 
- * user is logged in.
+ * user is logged in. It is a simple search.
  */
 router.post('/post', httpOnlyAuthentication, async (request, response) => {
     const parameters = zodVerify(z.object({
@@ -32,7 +32,7 @@ router.post('/post', httpOnlyAuthentication, async (request, response) => {
 
 /**
  * Use this to search for an account, requires that the 
- * user is logged in.
+ * user is logged in. It's a simple search.
  */
 router.post('/account', httpOnlyAuthentication, async (request, response)  => {
     const parameters = zodVerify(z.object({

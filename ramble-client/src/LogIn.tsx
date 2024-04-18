@@ -10,24 +10,38 @@ import useAccount from './hooks/account';
  */
 const LogIn: FC = () => {
     const navigate = useNavigate();
-    const { setUsername: setGlobalUserName, setUserCommonName, setIsLoggedIn } = useAccount();
+    const { setUsername: setGlobalUserName, setIsLoggedIn } = useAccount();
 
     const [ username, setUsername ] = useState<string>('');
     const [ password, setPassword ] = useState<string>('');
     const [ error, setError ] = useState<string>('');
 
+    
     const gotoSignUp = () => navigate('/welcome/signup');
 
+    /**
+     * The username can have no spaces and is lowercased,
+     * only underscore is the special character allowed.
+     */
     const onInputUsername: FormEventHandler<HTMLInputElement> = (event) => {
-        const value = (event.target as HTMLInputElement).value.trim();
+        const value = (event.target as HTMLInputElement).value.trim().toLowerCase();
         setUsername(value);
     }
 
+    /**
+     * The password has no spaces as well, it is unusual
+     * to have passwords that have spaces in between.
+     */
     const onInputPassword: FormEventHandler<HTMLInputElement> = (event) => {
         const value = (event.target as HTMLInputElement).value.trim();
         setPassword(value);
     }
 
+    /**
+     * This is for the login button, it attempts a login, which sets up the httpOnly cookie 
+     * that can't be accessed directly here. Then we do another request for viewing our information,
+     * should that succeed, it means we are logged in, as that endpoint requires the httpOnly cookie.
+     */
     const login = async () => {
         try {
             // we do a log-in and retrieval of information through another route
@@ -37,7 +51,6 @@ const LogIn: FC = () => {
             
             // when we successfully get the data, we are then logged-in
             setGlobalUserName(data.username);
-            setUserCommonName(data.userCommonName);
             setIsLoggedIn(true);
         } catch {
             setError('Username or password is incorrect!');
