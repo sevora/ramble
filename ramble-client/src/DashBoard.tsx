@@ -46,7 +46,7 @@ const DashBoard: FC = () => {
     return (
         <div className="grid grid-rows-[auto_60px] sm:grid-rows-1 sm:grid-cols-[180px_auto] h-screen">
             {/* This is the navigation bar, on mobile, the icons are down below */}
-            <div className="flex items-center flex-row sm:flex-col row-start-2 sm:row-start-1 text-xl border-t-2 pt-5 sm:border-r-2 sm:border-t-0">
+            <div className="flex items-center flex-row sm:flex-col row-start-2 sm:row-start-1 text-xl border-t-2 sm:pt-5 sm:border-r-2 sm:border-t-0">
                 <NavigationButton InActiveIcon={RiUser6Line} ActiveIcon={RiUser6Fill} label='Profile' active={activeRoute === 'profile'} onClick={() => navigate(`/profile/${username}`)} />
                 <NavigationButton InActiveIcon={IoHomeOutline} ActiveIcon={IoHome} label='Home' active={activeRoute === 'home'} onClick={() => navigate('/')} />
                 <NavigationButton InActiveIcon={IoSearchOutline} ActiveIcon={IoSearch} label='Search' active={activeRoute === 'search'} onClick={() => navigate('/search')} />
