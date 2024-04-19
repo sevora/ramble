@@ -130,7 +130,7 @@ router.post('/update', httpOnlyAuthentication, async(request, response) => {
 
     // there must be a better way to this
     if (userCommonName) await connection.query('UPDATE `user` SET user_common_name = ? WHERE BIN_TO_UUID(user_id) = ?', [ userCommonName, uuid ]);
-    if (biography) await connection.query('UPDATE `user` SET user_biography = ? WHERE BIN_TO_UUID(user_id) = ?', [ biography, uuid ]);
+    if (biography !== undefined) await connection.query('UPDATE `user` SET user_biography = ? WHERE BIN_TO_UUID(user_id) = ?', [ biography, uuid ]);
     return response.sendStatus(200); // only send a 200 to signify success of operation
 });
 
