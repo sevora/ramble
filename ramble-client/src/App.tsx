@@ -5,12 +5,15 @@ import axios from 'axios';
 import routes from './routes'
 import useAccount from './hooks/account';
 
+import Loader from './Loader';
+
 /**
  * The application component, separated from the main component
  * for convenience. 
  */
 function App() {
   const { isLoggedIn, setUsername, setIsLoggedIn } = useAccount();
+  const [ isLoading, setIsLoading ] = useState<boolean>(true);
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -33,13 +36,24 @@ function App() {
         // if we aren't logged in, the endpoint should fail
         setIsLoggedIn(false);
       }
+
+      setIsLoading(false);
     }
 
     autoLogin();
   }, []);
 
   return (
-    <>{route}</>
+    <>
+    {
+      !isLoading ? route : (
+        // we want to display a loader if it hasn't loaded yet
+        <div className='flex items-center justify-center w-screen h-screen'>
+          <Loader />
+        </div>
+      )
+    }
+    </>
   )
 }
 
