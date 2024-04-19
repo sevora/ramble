@@ -9,9 +9,10 @@ function verifyEnvironmentVariables() {
     const requiredVariables: (keyof typeof process.env)[] = [ 
         'MYSQL_HOST', 
         'MYSQL_USER', 
-        'MYSQL_PASSWORD', 
+        // 'MYSQL_PASSWORD', this is now optional
         'MYSQL_DATABASE', 
         'SERVER_JWT_KEY', 
+        // 'SERVER_PORT', is also optional
         'CLIENT_URL', 
         'COOKIE_SAME_SITE', 
         'COOKIE_SECURE'
