@@ -4,6 +4,7 @@ import axios from 'axios';
 
 import Post from './Post';
 import Profile from './Profile';
+import Loader from './Loader';
 
 /**
  * This is the search page component allowing one to search by keywords
@@ -134,8 +135,8 @@ const Search: FC = () => {
                 }
 
                 {/* This is the observed element for infinite scroll */}
-                <div className='w-full text-center p-5 bg-white' ref={moreRef}>
-                    {!searchActive ? <span className='italic'>Please hit search with at least one character in the field.</span> : hasNextPage ? 'Loading' : 'No more results'}
+                <div className='w-full flex justify-center items-center text-center p-5 bg-white' ref={moreRef}>
+                    {!searchActive ? <span className='italic'>Please hit search with at least one character in the field.</span> : hasNextPage ? <Loader /> : 'No more results'}
                 </div>
             </div>
         </div>

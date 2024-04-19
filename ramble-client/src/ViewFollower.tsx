@@ -5,6 +5,7 @@ import axios from 'axios';
 
 // this is used to render a single follower/following account, just provide their username
 import Profile from './Profile';
+import Loader from './Loader';
 
 // this is used for the currently viewed account and not for the following/follower profiles
 interface ProfileState {
@@ -111,7 +112,7 @@ const ViewFollower: FC = () => {
                         return (<Profile key={account.username} username={account.username} />)
                     })
                 }
-                <div className='w-full text-center p-5 bg-white' ref={moreElementRef}>{hasNextPage ? 'Loading' : 'No more profiles'}</div>
+                <div className='w-full flex justify-center items-center text-center p-5 bg-white' ref={moreElementRef}>{hasNextPage ? <Loader /> : 'No more profiles'}</div>
             </div>
 
         </div>

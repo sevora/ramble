@@ -4,6 +4,7 @@ import { useInView } from 'react-intersection-observer';
 import axios from 'axios';
 
 import Post, { PostState } from './Post';
+import Loader from './Loader';
 
 /**
  * This is a component to view a single post with
@@ -116,7 +117,7 @@ const ViewPost: FC = () => {
                             return <Post key={child.postId} postId={child.postId} onFail={id => setChildrenPosts(posts.filter(p => p.postId !== id))} />
                         })
                     }
-                    <div className='w-full text-center p-5 bg-white' ref={moreRef}>{hasNextPage ? 'Loading' : 'No more replies'}</div>
+                    <div className='w-full flex justify-center items-center text-center p-5 bg-white' ref={moreRef}>{hasNextPage ? <Loader /> : 'No more replies'}</div>
                 </div>
             </div>
         </div>

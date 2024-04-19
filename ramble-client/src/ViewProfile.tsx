@@ -5,6 +5,7 @@ import axios from 'axios';
 
 import Post from './Post';
 import useAccount from './hooks/account';
+import Loader from './Loader';
 
 /**
  * ProfileState values is a mix of one or more API calls.
@@ -78,7 +79,8 @@ const ViewProfile: FC = () => {
     }
 
     /**
-     * 
+     * This gets the follow context when viewing the profile
+     * which tells us if the client is following or not the user.
      */
     const getFollowContext = async () => {
         // reset the follow context
@@ -187,7 +189,7 @@ const ViewProfile: FC = () => {
                             return <Post key={postId} postId={postId} onFail={id => setPosts(posts.filter(p => p.postId !== id))} showParentPost className='hover:bg-slate-100' />
                         })
                     }
-                    <div className='w-full text-center p-5' ref={moreRef}>{hasNextPage ? 'Loading' : 'No more posts'}</div>
+                    <div className='w-full flex justify-center items-center text-center p-5' ref={moreRef}>{hasNextPage ? <Loader /> : 'No more posts'}</div>
                 </div>
             </div>
 

@@ -1,5 +1,8 @@
 import { FC } from 'react';
 
+/**
+ * A custom loader utilizing tailwind css.
+ */
 const Loader: FC = () => {
     return (
         <div role="status">
