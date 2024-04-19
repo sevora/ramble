@@ -1,5 +1,4 @@
-import { FC, useEffect, useState } from 'react';
-import { useInView } from 'react-intersection-observer';
+import { FC, useState } from 'react';
 import axios from 'axios';
 
 import Post from './Post';
@@ -19,8 +18,6 @@ const Home: FC = () => {
     const [page, setPage] = useState<number>(0);
     const [hasNextPage, setHasNextPage] = useState<boolean>(true);
 
-    const [moreRef, inView ] = useInView({ root: document.querySelector('#dashboard-outlet'), threshold: 1.0 });
-
     /**
      * Use this to get the posts at category and page
      * @param category the category of the post
@@ -29,7 +26,9 @@ const Home: FC = () => {
      */
     const getPosts = async (category: 'following' | 'trending', page: number) => {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/list`, { category, page }, { withCredentials: true });
+        console.log(response.data, category)
         return response.data.posts as { postId: string }[];
+        
     }
 
     /**
@@ -70,12 +69,6 @@ const Home: FC = () => {
         setDraft('');
         loadCategory(category);
     }
-
-    // when the next button is inView (initially it is) we load more posts
-    useEffect(() => {
-        if (inView && hasNextPage) 
-            loadMorePosts();
-    }, [ inView, hasNextPage, posts.length ]);
 
     return (
         <div className='sm:px-2 sm:w-3/4 sm:mx-auto rounded-lg'>
