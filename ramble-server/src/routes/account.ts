@@ -15,7 +15,7 @@ const router = Router();
  */
 router.post('/login', async (request, response) => {
     const parameters = zodVerify(z.object({
-        username: z.string().trim().min(4).max(25).regex(/[a-z0-9_]+/),
+        username: z.string().trim().min(4).max(25),
         password: z.string().trim().min(8)
     }), request);
 
@@ -63,7 +63,7 @@ router.post('/logout', httpOnlyAuthentication, async(_request, response) => {
  */
 router.post('/signup', async(request, response) => {
     const parameters = zodVerify(z.object({
-        username: z.string().trim().min(4).max(25),
+        username: z.string().trim().min(4).max(25).regex(/[a-z0-9_]+/),
         password: z.string().trim().min(8),
     }), request);
     

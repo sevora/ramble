@@ -14,7 +14,7 @@ const rowsPerPage = 10;
  */
 router.post('/follow', httpOnlyAuthentication, async (request, response) => {
     const parameters = zodVerify(z.object({ 
-        username: z.string().min(4).max(25).regex(/[a-z0-9_]+/) 
+        username: z.string().min(4).max(25) 
     }), request);
 
     if (!parameters) return response.sendStatus(400);
@@ -36,7 +36,7 @@ router.post('/follow', httpOnlyAuthentication, async (request, response) => {
  */
 router.post('/unfollow', httpOnlyAuthentication, async (request, response) => {
     const parameters = zodVerify(z.object({ 
-        username: z.string().min(4).max(25).regex(/[a-z0-9_]+/) 
+        username: z.string().min(4).max(25)
     }), request);
 
     if (!parameters) return response.sendStatus(400);
