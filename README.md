@@ -77,7 +77,8 @@ SERVER_JWT_KEY="hardtoguess"
 SERVER_PORT=8000 # by default, will use 80 if not defined.
 
 # This is the URL of the frontend (ramble-client).
-CLIENT_URL="localhost:3000"
+# The exact URL is necessary, otherwise the CORS policy will prevent communication between server and client.
+CLIENT_URL="http://localhost:5173"
 
 # IMPORTANT: sameSite means they're basically on the same domain, when secure is false, sameSite has to be 'lax' or 'strict' 
 # for it to work on certain browsers (option 'none' is only okay over https) 
@@ -89,11 +90,15 @@ COOKIE_SECURE="false"
 **NOTE**: Do not forget to create this file, otherwise issues will persist when starting the server.
 
 ## Installation
-Do `npm install` inside both `ramble-client` and `ramble-server` directories. As of development, v20.12.2 is the version of Node.js being used.
+Do `npm install` inside both `ramble-client` and `ramble-server` directories. As of development, v20.12.2 is the version of Node.js being used. On `ramble-server` do `npm run build` to transpile the files from src into build that `npm start` or `npm run dev` will use.
 
 ## Commands
+### ramble-client
+The commands mentioned here must be run in `/ramble-server`.
+- `npm run dev` - start a development server which will run the client instance when trying the application in a local machine.
+
 ### ramble-server
-The directories mentioned here are relative to `/ramble-server`.
+The commands mentioned here must be run in `/ramble-server`.
 - `npm run build` - transpile the source code from `/src` to `/build`.
 - `npm start` - run the code inside `/build`, remember to run the build command first to generate this directory.
 - `npm run dev` - concurrently compile and run the build under nodemon.
