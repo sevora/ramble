@@ -113,6 +113,6 @@
   "include": [
     "environment.d.ts",
     "src",
-    "../index.d.ts"
-, "types/index.d.ts"  ]
+    "types/index.d.ts"  
+  ]
 }

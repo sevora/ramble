@@ -6,7 +6,7 @@ import jsonwebtoken from 'jsonwebtoken';
  * route to work, otherwise a status code 400 is sent. The `request.body.username` is also modified by this middleware.
  */
 export default async function httpOnlyAuthentication(request: Request, response: Response, next: NextFunction) {
-    const token = request.cookies.ramble_authentication_token;
+    const token = toStringSafe(request.cookies.ramble_authentication_token);
     if (!token) return response.sendStatus(400); // if the token can't be found as a cooklie then it's a 400
 
     try {
@@ -17,5 +17,19 @@ export default async function httpOnlyAuthentication(request: Request, response:
     } catch {
         // if the token isn't valid then it's a 401 
         return response.sendStatus(401);
+    }
+}
+
+/**
+ * A helper function to guarantee that the value will be a string.
+ */
+function toStringSafe(value: any) {
+    switch (typeof value) {
+        case 'object':
+            return 'object';
+        case 'function':
+            return 'function';
+        default:
+            return value + '';
     }
 }
