@@ -1,4 +1,6 @@
-interface NavigationButtonProps extends React.HTMLProps<HTMLDivElement> {
+import { ComponentPropsWithoutRef } from 'react';
+
+interface NavigationButtonProps extends ComponentPropsWithoutRef<"div"> {
     /**
      * This is meant to have a component constructor (not the result rather the constructor)
      * of icon that accepts className attribute.

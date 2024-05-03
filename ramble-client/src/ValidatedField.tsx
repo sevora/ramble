@@ -1,6 +1,6 @@
-import React, { FormEventHandler, useState } from 'react';
+import { ComponentPropsWithoutRef, FormEventHandler, useState } from 'react';
 
-interface ValidatedFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface ValidatedFieldProps extends ComponentPropsWithoutRef<"input"> {
     /**
      * Whether the element should express that its valid or invalid.
      */

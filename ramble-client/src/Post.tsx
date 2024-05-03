@@ -1,11 +1,11 @@
-import { MouseEventHandler, useEffect, useState } from 'react';
+import { ComponentPropsWithoutRef, MouseEventHandler, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 import useAccount from './hooks/account';
 import timeAgo from './helpers/time-ago';
 
-interface PostProps extends React.HTMLProps<HTMLDivElement> {
+interface PostProps extends ComponentPropsWithoutRef<"div"> {
     /**
      * Provide only the postId and this should automatically 
      * have all the functionality.
