@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -22,7 +22,7 @@ interface ProfileState {
  * This component is used to render the followers of an account.
  * To be specific, both followers and following could be rendered.
  */
-const ViewFollower: FC = () => {
+function ViewFollower() {
     const { username: viewUsername, category } = useParams<{ username: string, category: string }>();
     const navigate = useNavigate();
 

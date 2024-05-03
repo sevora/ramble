@@ -1,4 +1,4 @@
-import { FC, FormEventHandler, useState } from 'react';
+import { FormEventHandler, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -8,7 +8,7 @@ import useAccount from './hooks/account';
  * This is the log-in component which allows us to login 
  * through an existing account.
  */
-const LogIn: FC = () => {
+function LogIn() {
     const navigate = useNavigate();
     const { setUsername: setGlobalUserName, setIsLoggedIn } = useAccount();
 

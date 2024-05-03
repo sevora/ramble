@@ -1,4 +1,3 @@
-import { FC } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import { IoHome, IoHomeOutline, IoExit, IoExitOutline, IoSearch, IoSearchOutline } from "react-icons/io5";
@@ -13,7 +12,7 @@ import axios from 'axios';
  * it mainly has the navigation bar and an outlet for the other parts
  * such as home, search, viewing profiles, viewing posts.
  */
-const DashBoard: FC = () => {
+function DashBoard() {
     const { username, setUsername, setIsLoggedIn } = useAccount();
 
     const navigate = useNavigate();

@@ -1,5 +1,3 @@
-import { FC } from 'react';
-
 interface NavigationButtonProps extends React.HTMLProps<HTMLDivElement> {
     /**
      * This is meant to have a component constructor (not the result rather the constructor)
@@ -28,7 +26,7 @@ interface NavigationButtonProps extends React.HTMLProps<HTMLDivElement> {
  * This is a reusable navigation button for the 
  * purpose of decluttering the code I wrote.
  */
-const NavigationButton: FC<NavigationButtonProps> = ({ InActiveIcon, ActiveIcon, active = false, label = '', className='', ...otherProperties }) => {
+function NavigationButton({ InActiveIcon, ActiveIcon, active = false, label = '', className='', ...otherProperties }: NavigationButtonProps) {
     return (
         <div className={'flex items-center justify-center p-2 w-full hover:bg-slate-100 cursor-pointer ' + className}  { ...otherProperties }>
             <div className='mr-2'>

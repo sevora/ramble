@@ -4,7 +4,7 @@ import { Outlet } from "react-router-dom";
  * This is the landing page, the outlet here renders the
  * log-in or sign-up component.
  */
-const Landing = () => {
+function Landing() {
     return (
         <div>
             <div className="flex justify-center flex-col m-auto h-screen bg-slate-100">

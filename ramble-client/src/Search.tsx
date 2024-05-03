@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import axios from 'axios';
 
@@ -10,7 +10,7 @@ import Loader from './Loader';
  * This is the search page component allowing one to search by keywords
  * and get posts or accounts with said keyword.
  */
-const Search: FC = () => {
+function Search() {
     const [searchContent, setSearchContent] = useState<string>('');
     const [searchActive, setSearchActive] = useState<boolean>(false);
 

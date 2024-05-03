@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
 import axios from 'axios';
@@ -10,7 +10,7 @@ import Loader from './Loader';
  * This is a component to view a single post with
  * its replies down below.
  */
-const ViewPost: FC = () => {
+function ViewPost() {
     const { username: urlUsername, postId: parentPostId } = useParams<{ username: string, postId: string }>();
     const navigate = useNavigate();
 

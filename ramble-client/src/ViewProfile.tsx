@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -35,7 +35,7 @@ interface FollowContext {
     isFollower: boolean
 }
 
-const ViewProfile: FC = () => {
+function ViewProfile() {
     const { username: viewUsername } = useParams<{ username: string }>();
     const { username: clientUsername } = useAccount();
     const isClient = viewUsername === clientUsername;

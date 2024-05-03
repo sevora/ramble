@@ -1,4 +1,4 @@
-import { FC, FormEventHandler, useState } from 'react';
+import { FormEventHandler, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -9,7 +9,7 @@ import ValidatedField from './ValidatedField';
  * This is the sign-up component. Use this to interact
  * with the API to create a new account.
  */
-const SignUp: FC = () => {
+function SignUp() {
     const navigate = useNavigate();
     const { setUsername: setGlobalUserName, setIsLoggedIn } = useAccount();
     const [ signUpError, setSignUpError ] = useState<string>(''); // this is the error message for when sign-up fails

@@ -1,10 +1,8 @@
-import { FC } from 'react';
-
 /**
  * This component should appear whenever the client tries to 
  * visit a page that does not exist.
  */
-const NotFound: FC = () => {
+function NotFound() {
     return (
         <div className="w-screen h-screen flex flex-col justify-center items-center text-center">
             <h1 className="mb-4 text-6xl font-semibold text-slate-800">404</h1>

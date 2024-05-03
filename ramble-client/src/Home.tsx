@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 
 import Post from './Post';
@@ -9,7 +9,7 @@ import Loader from './Loader';
  * This is where homepage where the timeline is. 
  * Posts may be organized by following or trending.
  */
-const Home: FC = () => {
+function Home() {
     const [draft, setDraft] = useState<string>('');
 
     const [posts, setPosts] = useState<{ postId: string }[]>([]);

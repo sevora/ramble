@@ -1,4 +1,4 @@
-import { FC, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 
 import Loader from './Loader';
@@ -50,7 +50,7 @@ interface InfiniteScrollProps {
 /**
  * This is the possible refactored infinite scroll version.
  */
-const InfiniteScroll: FC <InfiniteScrollProps>= ({ root, hasNextPage, fetchNextPage, renderLength, loadingComponent, endComponent, children }) => {
+function InfiniteScroll({ root, hasNextPage, fetchNextPage, renderLength, loadingComponent, endComponent, children }: InfiniteScrollProps) {
     const [moreRef, inView ] = useInView({ root, threshold: 1.0 });
     
     useEffect(() => {

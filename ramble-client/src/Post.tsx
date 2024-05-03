@@ -1,4 +1,4 @@
-import { FC, MouseEventHandler, useEffect, useState } from 'react';
+import { MouseEventHandler, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -59,7 +59,7 @@ export interface PostState {
 /**
  * A reusable component that is reliant on the backend to get the state.
  */
-const Post: FC<PostProps> = ({ postId, className='', showParentPost=false, hideReplyButton=false, hideControls=false, onFail, onLoadPost, ...otherProperties }) => {
+function Post({ postId, className='', showParentPost=false, hideReplyButton=false, hideControls=false, onFail, onLoadPost, ...otherProperties }: PostProps) {
     const account = useAccount(); // probably not the best organization but this works for me
     const [ state, setState ] = useState<PostState | null>(null);
     const navigate = useNavigate();

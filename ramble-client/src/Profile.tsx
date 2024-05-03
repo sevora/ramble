@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -37,7 +37,7 @@ interface FollowContext {
  * Reusable component that renders a single profile.
  * This refers to the mini-element profile not the large profile.
  */
-const Profile: FC<ProfileProps> = ({ username }) => {
+function Profile({ username }: ProfileProps) {
     const { username: clientUsername } = useAccount();
 
     const [account, setAccount] = useState<AccountState | null>(null);

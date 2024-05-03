@@ -1,4 +1,4 @@
-import { FC, FormEventHandler, useEffect, useState } from 'react';
+import { FormEventHandler, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -9,7 +9,7 @@ import useAccount from './hooks/account';
  * This component is used to update the profile.
  * Here, one can set their common name and biography.
  */
-const UpdateProfile: FC = () => {
+function UpdateProfile() {
     const { username, setIsLoggedIn } = useAccount();
     const navigate = useNavigate();
 
