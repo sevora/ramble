@@ -59,7 +59,7 @@ export interface PostState {
 /**
  * A reusable component that is reliant on the backend to get the state.
  */
-function Post({ postId, className='', showParentPost=false, hideReplyButton=false, hideControls=false, onFail, onLoadPost, ...otherProperties }: PostProps) {
+function Post({ postId, showParentPost=false, hideReplyButton=false, hideControls=false, onFail, onLoadPost, className, ...otherProperties }: PostProps) {
     const account = useAccount(); // probably not the best organization but this works for me
     const [ state, setState ] = useState<PostState | null>(null);
     const navigate = useNavigate();
@@ -109,7 +109,7 @@ function Post({ postId, className='', showParentPost=false, hideReplyButton=fals
         return <></>;
 
     return (
-        <div className={'bg-white border-b-2' + className} onClick={event => { event.stopPropagation(); navigate(`/posts/${state.username}/${state.postId}`)}} { ...otherProperties }>
+        <div className={`bg-white border-b-2 ${className || ''}`} onClick={event => { event.stopPropagation(); navigate(`/posts/${state.username}/${state.postId}`)}} { ...otherProperties }>
 
             {/* The post data, including who posted when, and the content */}
             <div className='px-5 py-3 cursor-pointer'>

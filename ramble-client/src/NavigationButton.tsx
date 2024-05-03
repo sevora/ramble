@@ -28,9 +28,9 @@ interface NavigationButtonProps extends ComponentPropsWithoutRef<"div"> {
  * This is a reusable navigation button for the 
  * purpose of decluttering the code I wrote.
  */
-function NavigationButton({ InActiveIcon, ActiveIcon, active = false, label = '', className='', ...otherProperties }: NavigationButtonProps) {
+function NavigationButton({ InActiveIcon, ActiveIcon, active = false, label = '', className, ...otherProperties }: NavigationButtonProps) {
     return (
-        <div className={'flex items-center justify-center p-2 w-full hover:bg-slate-100 cursor-pointer ' + className}  { ...otherProperties }>
+        <div className={`flex items-center justify-center p-2 w-full hover:bg-slate-100 cursor-pointer ${className || ''}`}  { ...otherProperties }>
             <div className='mr-2'>
                 {
                     active ? 
