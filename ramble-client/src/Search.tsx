@@ -26,7 +26,7 @@ function Search() {
     /**
      * Use this to get the posts at category and page.
      */
-    const getPosts = async (page: number) => {
+    async function getPosts(page: number) {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/search/post`, { content: searchContent, page }, { withCredentials: true });
         return response.data.posts as { postId: string }[];
     }
@@ -34,7 +34,7 @@ function Search() {
     /**
      * This is the logic to load more posts for infinite scrolling.
      */
-    const loadMorePosts = async () => {
+    async function loadMorePosts() {
         const more = await getPosts(page);
 
         if (more.length > 0) {
@@ -48,7 +48,7 @@ function Search() {
     /**
      * Use this to get accounts at a specified page.
      */
-    const getAccounts = async (page: number) => {
+    async function getAccounts(page: number) {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/search/account`, { username: searchContent, page }, { withCredentials: true });
         return response.data.users as { username: string }[];
     }
@@ -56,7 +56,7 @@ function Search() {
     /**
      * This loads more accounts for infinite scrolling.
      */
-    const loadMoreAccounts = async () => {
+    async function loadMoreAccounts() {
         const more = await getAccounts(page);
 
         if (more.length > 0) {
@@ -72,7 +72,7 @@ function Search() {
      * Use this to switch search category, we don't need both
      * endpoints
      */
-    const switchCategory = (category: 'post' | 'account') => {
+    function switchCategory(category: 'post' | 'account') {
         setCategory(category);
         setPage(0);
         setPosts([]);
@@ -80,7 +80,7 @@ function Search() {
         setHasNextPage(true);
     }
 
-    const search = () => {
+    function search() {
         const trimmed = searchContent.trim();
         if (trimmed.length === 0) return;
         setSearchContent(trimmed);

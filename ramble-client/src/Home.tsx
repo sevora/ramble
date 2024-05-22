@@ -24,7 +24,7 @@ function Home() {
      * @param page the current page
      * @returns the postIds in an array
      */
-    const getPosts = async (category: 'following' | 'trending', page: number) => {
+    async function getPosts(category: 'following' | 'trending', page: number) {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/list`, { category, page }, { withCredentials: true });
         console.log(response.data, category)
         return response.data.posts as { postId: string }[];
@@ -35,7 +35,7 @@ function Home() {
      * Load category resets the page state. Even if the category retains,
      * this will still have a significant effect due to the useEffect of setHasNextPage.
      */
-    const loadCategory = (category: 'following' | 'trending') => {
+    function loadCategory(category: 'following' | 'trending') {
         setCategory(category);
         setPage(0);
         setPosts([]);
@@ -46,7 +46,7 @@ function Home() {
      * This is the logic to load more posts through
      * infinite scrolling. Had wasted time figuring out a lot of things here.
      */
-    const loadMorePosts = async () => {
+    async function loadMorePosts() {
         const more = await getPosts(category, page);
     
         if (more.length > 0) {
@@ -61,7 +61,7 @@ function Home() {
      * This is called whenever the user 
      * is trying to post a post. 
      */
-    const createPost = async () => {
+    async function createPost() {
         // validate draft first
         if (draft.length === 0 || draft.length > 200) return;
         await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/new`, { content: draft }, { withCredentials: true });

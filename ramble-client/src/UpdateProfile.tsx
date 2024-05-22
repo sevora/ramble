@@ -1,4 +1,4 @@
-import { FormEventHandler, useEffect, useState } from 'react';
+import { useEffect, useState, ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -28,7 +28,7 @@ function UpdateProfile() {
      * This is called to populate the account input fields
      * when rendering this component.
      */
-    const populateAccountFields = async () => {
+    async function populateAccountFields() {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/account/view`, {}, { withCredentials: true });
         const account = response.data as { userCommonName: string, username: string, userBiography?: string };
         setUserCommonName(account.userCommonName);
@@ -39,7 +39,7 @@ function UpdateProfile() {
      * The user common name has a length minimum and limit,
      * which if not met will show the error message.
      */
-    const onInputUsername: FormEventHandler<HTMLInputElement> = (event) => {
+    function onChangeUsername(event: ChangeEvent<HTMLInputElement>) {
         const value = (event.target as HTMLInputElement).value;
         setUserCommonName(value);
 
@@ -54,7 +54,7 @@ function UpdateProfile() {
      * This is called after updating an account, navigate 
      * back the client to their profile.
      */
-    const updateAccount = async () => {
+    async function updateAccount() {
         try {
             await axios.post(`${import.meta.env.VITE_BACKEND_URL}/account/update`, { userCommonName: userCommonName.trim(), biography: biography.trim() }, { withCredentials: true });
             navigate(`/profile/${username}`);
@@ -65,7 +65,7 @@ function UpdateProfile() {
      * This is for when attempting to delete the account. 
      * If successful, redirects the client back to the landing page.
      */
-    const deleteAccount = async () => {
+    async function deleteAccount() {
         try {
             await axios.post(`${import.meta.env.VITE_BACKEND_URL}/account/delete`, { password }, { withCredentials: true })
             setIsLoggedIn(false);
@@ -82,7 +82,7 @@ function UpdateProfile() {
             <div className='flex items-center'>
                 {/* This contains the user common name and username field */}
                 <div className='w-full'>
-                    <ValidatedField valid={userCommonNameValid} onInput={onInputUsername} value={userCommonName} size={userCommonName.length} maxLength={50} className='font-semibold flex-grow border border-gray-300 rounded-md' errorMessage='The display name must be between 4-50 characters.' autoComplete='username' />
+                    <ValidatedField valid={userCommonNameValid} onChange={onChangeUsername} value={userCommonName} size={userCommonName.length} maxLength={50} className='font-semibold flex-grow border border-gray-300 rounded-md' errorMessage='The display name must be between 4-50 characters.' autoComplete='username' />
                     <div>{'@' + username}</div>
                 </div>
 

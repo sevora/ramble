@@ -19,7 +19,7 @@ function DashBoard() {
     const location = useLocation();
 
     // this is used for highlighting which navigation button should be highlighted based on website location
-    const getActiveRoute = () => {
+    function getActiveRoute() {
         if (location.pathname === '/')
             return 'home';
         if (location.pathname === '/search')
@@ -35,7 +35,7 @@ function DashBoard() {
      * To log-out, we want to clear the global account state and navigate 
      * back to the landing page.
      */
-    const logout = async () => {
+    async function logout() {
         await axios.post(`${import.meta.env.VITE_BACKEND_URL}/account/logout`, {}, { withCredentials: true });
         navigate('/');
         setUsername('');

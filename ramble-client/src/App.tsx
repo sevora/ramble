@@ -25,7 +25,7 @@ function App() {
   
   useEffect(() => {
     // we attempt to log-in right away if our request to view our information works
-    const autoLogin = async () => {
+    async function autoLogin() {
       try {
         const account = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/account/view`, {}, { withCredentials: true });
         const data = account.data as { username: string, userCommonName: string };

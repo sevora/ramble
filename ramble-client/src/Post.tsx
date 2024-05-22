@@ -1,4 +1,4 @@
-import { ComponentPropsWithoutRef, MouseEventHandler, useEffect, useState } from 'react';
+import { ComponentPropsWithoutRef, MouseEvent, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -68,7 +68,7 @@ function Post({ postId, showParentPost=false, hideReplyButton=false, hideControl
      * Retrieves the current post by postId and populates
      * the state accordingly.
      */
-    const getPost = async () => {
+    async function getPost() {
         try {
             const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/view`, { postId }, { withCredentials: true });
             const data = response.data as PostState;
@@ -81,7 +81,7 @@ function Post({ postId, showParentPost=false, hideReplyButton=false, hideControl
      * This toggles the likes of the post and also repopulates 
      * the state by refetching the post itself.
      */
-    const toggleLike: MouseEventHandler = async (event) => {
+    async function toggleLike(event: MouseEvent) {
         event.stopPropagation();
         if (state === null) return;
         const action = state.hasLiked ? 'dislike' : 'like';
@@ -93,7 +93,7 @@ function Post({ postId, showParentPost=false, hideReplyButton=false, hideControl
      * Delete the post, if deleting it is successful, then 
      * call the onDelete callback
      */
-    const deletePost: MouseEventHandler = async (event) => {
+    async function deletePost(event: MouseEvent) {
         event.stopPropagation();
         await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/delete`, { postId }, { withCredentials: true });
         setState(null);

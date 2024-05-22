@@ -1,4 +1,4 @@
-import { FormEventHandler, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -16,15 +16,16 @@ function LogIn() {
     const [ password, setPassword ] = useState<string>('');
     const [ error, setError ] = useState<string>('');
 
-    
-    const gotoSignUp = () => navigate('/welcome/signup');
+    function gotoSignUp() {
+        navigate('/welcome/signup');
+    }
 
     /**
      * The username can have no spaces and is lowercased,
      * only underscore is the special character allowed.
      */
-    const onInputUsername: FormEventHandler<HTMLInputElement> = (event) => {
-        const value = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    function onChangeUsername(event: ChangeEvent<HTMLInputElement>) {
+        const value = event.target.value.trim().toLowerCase();
         setUsername(value);
     }
 
@@ -32,8 +33,8 @@ function LogIn() {
      * The password has no spaces as well, it is unusual
      * to have passwords that have spaces in between.
      */
-    const onInputPassword: FormEventHandler<HTMLInputElement> = (event) => {
-        const value = (event.target as HTMLInputElement).value.trim();
+    function onChangePassword(event: ChangeEvent<HTMLInputElement>) {
+        const value = event.target.value.trim();
         setPassword(value);
     }
 
@@ -42,7 +43,7 @@ function LogIn() {
      * that can't be accessed directly here. Then we do another request for viewing our information,
      * should that succeed, it means we are logged in, as that endpoint requires the httpOnly cookie.
      */
-    const login = async () => {
+    async function login() {
         try {
             // we do a log-in and retrieval of information through another route
             await axios.post(`${import.meta.env.VITE_BACKEND_URL}/account/login`, { username, password }, { withCredentials: true });
@@ -61,11 +62,11 @@ function LogIn() {
         <form>
             <div className="mb-4">
                 <label className="block text-sm mb-2" htmlFor="username">Username</label>
-                <input value={username} onInput={onInputUsername} className="shadow border rounded-md w-full py-2 px-3" type="text" autoComplete="username" placeholder="Username" />
+                <input value={username} onChange={onChangeUsername} className="shadow border rounded-md w-full py-2 px-3" type="text" autoComplete="username" placeholder="Username" />
             </div>
             <div className="mb-4">
                 <label className="block text-sm mb-2" htmlFor="password">Password</label>
-                <input value={password} onInput={onInputPassword} onKeyDown={event => event.key === 'Enter' && login()} className="shadow border rounded w-full py-2 px-3 mb-3" type="password" autoComplete="current-password" placeholder="Password" />
+                <input value={password} onChange={onChangePassword} onKeyDown={event => event.key === 'Enter' && login()} className="shadow border rounded w-full py-2 px-3 mb-3" type="password" autoComplete="current-password" placeholder="Password" />
                 <p className="text-red-500 text-xs italic">{error}</p>
             </div>
             <div className="flex items-center justify-between">

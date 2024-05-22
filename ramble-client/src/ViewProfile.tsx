@@ -27,9 +27,6 @@ interface ProfileState {
     postCount: number
 }
 
-/**
- * 
- */
 interface FollowContext {
     isFollowing: boolean,
     isFollower: boolean
@@ -54,7 +51,7 @@ function ViewProfile() {
      * Loads the profile and the context related to it
      * @returns 
      */
-    const loadProfileContextState = async () => {
+    async function loadProfileContextState() {
         // reset the profile
         try {
             const accountResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/account/view`, { username: viewUsername }, { withCredentials: true });
@@ -82,7 +79,7 @@ function ViewProfile() {
      * This gets the follow context when viewing the profile
      * which tells us if the client is following or not the user.
      */
-    const getFollowContext = async () => {
+    async function getFollowContext() {
         // reset the follow context
         const followResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/follower/ask`, { username: viewUsername }, { withCredentials: true });
         setFollow(followResponse.data as FollowContext);
@@ -94,7 +91,7 @@ function ViewProfile() {
      * @param page the current page
      * @returns the postIds in an array
      */
-    const getPosts = async (page: number) => {
+    async function getPosts(page: number) {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/list`, { username: viewUsername, page }, { withCredentials: true });
         return response.data.posts as { postId: string }[];
     }
@@ -103,7 +100,7 @@ function ViewProfile() {
      * This is the logic to load more posts through
      * infinite scrolling. Had wasted time figuring out a lot of things here.
      */
-    const loadMorePosts = async () => {
+    async function loadMorePosts() {
         const more = await getPosts(page);
         if (more.length > 0) {
             setPosts([...posts, ...more]);
@@ -116,7 +113,7 @@ function ViewProfile() {
     /**
      * This is used to toggle the follow state of the profile being viewed
      */
-    const toggleFollow = async () => {
+    async function toggleFollow() {
         if (follow === null) return;
         const action = follow.isFollowing ? 'unfollow' : 'follow';
         await axios.post(`${import.meta.env.VITE_BACKEND_URL}/follower/${action}`, { username: viewUsername }, { withCredentials: true });

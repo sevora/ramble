@@ -34,7 +34,7 @@ function ViewFollower() {
     
     const [moreElementRef, inView] = useInView({ root: document.querySelector('#dashboard-outlet'), threshold: 1.0 });
 
-    const loadProfileContextState = async () => {
+    async function loadProfileContextState() {
         // reset the profile
         const accountResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/account/view`, { username: viewUsername }, { withCredentials: true });
         const followerCountResponse = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/follower/count`, { username: viewUsername }, { withCredentials: true });
@@ -51,7 +51,7 @@ function ViewFollower() {
      * This gets the accounts in the set category and
      * page number.
      */
-    const getAccounts = async (category: 'follower' | 'following', page: number) => {
+    async function getAccounts(category: 'follower' | 'following', page: number) {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/follower/list`, { username: viewUsername, page, category }, { withCredentials: true });
         return response.data.users as { username: string }[];
     }
@@ -60,7 +60,7 @@ function ViewFollower() {
      * This loads more accounts following the category
      * and page number.
      */
-    const loadMoreAccounts = async () => {
+    async function loadMoreAccounts() {
         const more = await getAccounts(category as any, page);
 
         if (more.length > 0) {

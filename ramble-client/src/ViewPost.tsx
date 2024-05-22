@@ -29,7 +29,7 @@ function ViewPost() {
      * Gets the posts under the parent post. In essence,
      * this gets the replies.
      */
-    const getPosts = async (page: number) => {
+    async function getPosts(page: number) {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/list`, { parentId: parentPostId, page }, { withCredentials: true });
         return response.data.posts as { postId: string }[];
     }
@@ -37,7 +37,7 @@ function ViewPost() {
     /**
      * Loads more replies.
      */
-    const loadMorePosts = async () => {
+    async function loadMorePosts() {
         const more = await getPosts(page);
 
         if (more.length > 0) {
@@ -51,7 +51,7 @@ function ViewPost() {
     /**
      * This is used to cause a reload on the replies.
      */
-    const reloadPosts = () => {
+    function reloadPosts() {
         setPage(0);
         setChildrenPosts([]);
         setHasNextPage(true);
@@ -60,7 +60,7 @@ function ViewPost() {
     /**
      * This is used to create a post.
      */
-    const createPost = async () => {
+    async function createPost() {
         // validate draft first
         if (draft.length === 0 || draft.length > 200) return;
         try {
@@ -79,7 +79,7 @@ function ViewPost() {
      * This is simply to make it easier to identify who posted
      * what based from the URL only.
      */
-    const ensureURL = (post: PostState) => {
+    function ensureURL(post: PostState) {
         if (post.username === urlUsername) return;
         navigate(`/posts/${post.username}/${post.postId}`);
     }

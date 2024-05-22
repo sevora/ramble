@@ -47,7 +47,7 @@ function Profile({ username }: ProfileProps) {
     /**
      * This is used to populate the account state.
      */
-    const getAccountState = async () => {
+    async function getAccountState() {
         const account = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/account/view`, { username }, { withCredentials: true });
         setAccount(account.data as AccountState);
     }
@@ -55,7 +55,7 @@ function Profile({ username }: ProfileProps) {
     /**
      * This is used to get the follow context.
      */
-    const getFollowContext = async () => {
+    async function getFollowContext() {
         const follow = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/follower/ask`, { username }, { withCredentials: true });
         setFollow(follow.data as FollowContext);
     }
@@ -64,7 +64,7 @@ function Profile({ username }: ProfileProps) {
      * This is used to toggle the follow state of the profile being viewed,
      * it also repopulates the follow context.
      */
-    const toggleFollow = async () => {
+    async function toggleFollow() {
         if (follow === null || account === null) return;
         const action = follow.isFollowing ? 'unfollow' : 'follow';
         await axios.post(`${import.meta.env.VITE_BACKEND_URL}/follower/${action}`, { username: account.username }, { withCredentials: true });
