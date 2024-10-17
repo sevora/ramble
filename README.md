@@ -1,6 +1,6 @@
 # Ramble
 ## Overview
-Ramble is a lightweight Twitter Clone structured in a simple, manageable, and extendable style. I made this primarily for a university project in our Computer Science Course and the goal is to be able to write a CRUD-application utilizing a SQL database management system. As this is a small project, user account creation is infinite and does not require any third-party identity verification. For production purposes, that must be revised. However, under a local development environment and as a university project, it focuses on providing a clean, functional, and efficient implementation integrating these powerful web and database technologies.
+Ramble is a social media applicaion structured in a manageable, and extendable style. I made this primarily for a university project in our Computer Science Course and the goal is to be able to write a CRUD-application utilizing a SQL database management system. As this is a small project, user account creation is infinite and does not require any third-party identity verification. For production purposes, that must be revised. However, under a local development environment and as a university project, it focuses on providing a clean, functional, and efficient implementation integrating these powerful web and database technologies. The updates around October 2024 aim to add more functionalities such as media upload and a mobile client written with Dart and Flutter.
 
 ## Scope and Limitations
 ### Features
