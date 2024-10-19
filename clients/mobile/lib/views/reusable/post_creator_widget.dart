@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:ramble_mobile/controllers/user_controller.dart';
+import 'package:ramble_mobile/models/post_model.dart';
 import '../../themes/typography_theme.dart';
 import '../../themes/light_mode_theme.dart';
 import '../../utilities/utilities.dart';
@@ -9,9 +10,10 @@ import '../../views/reusable/ramble_icon_button.dart';
 class PostCreatorWidget extends StatefulWidget {
   final String prompt;
   final UserController controller;
+  final PostModel? post;
   final Function()? onPost;
 
-  const PostCreatorWidget({super.key, required this.prompt, required this.controller, this.onPost });
+  const PostCreatorWidget({super.key, required this.prompt, required this.controller, this.post, this.onPost });
 
   @override
   State<StatefulWidget> createState() => _PostCreatorWidgetState();
@@ -21,12 +23,15 @@ class _PostCreatorWidgetState extends State<PostCreatorWidget> {
   late String _prompt;
   late UserController _controller;
   String _content = "";
-  final fieldText = TextEditingController();
+  PostModel? _post;
+
+  final _textController = TextEditingController();
 
   @override
   void initState() {
     _prompt = widget.prompt;
     _controller = widget.controller;
+    _post = widget.post;
     super.initState();
   }
 
@@ -84,7 +89,7 @@ class _PostCreatorWidgetState extends State<PostCreatorWidget> {
                       SizedBox(
                         width: MediaQuery.sizeOf(context).width * 1.0,
                         child: TextFormField(
-                          controller: fieldText,
+                          controller: _textController,
                           onChanged: (text) {
                             setState(() {
                               _content = text;
@@ -160,7 +165,7 @@ class _PostCreatorWidgetState extends State<PostCreatorWidget> {
                               ),
                               onPressed: () async {
                                 // make a post
-                                var success = await _controller.createPost(content: _content);
+                                var success = await _controller.createPost(content: _content, parentId: _post?.postId);
 
                                 if (success && widget.onPost != null) {
                                   widget.onPost!();
@@ -168,7 +173,7 @@ class _PostCreatorWidgetState extends State<PostCreatorWidget> {
 
                                 setState(() {
                                   _content = "";
-                                  fieldText.clear();
+                                  _textController.clear();
                                 });
                               },
                             ),

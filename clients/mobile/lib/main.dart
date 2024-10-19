@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       title: 'Ramble',
       home: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
-          child: LogInWidget(controller: UserController())
+          child: LogInWidget(userController: UserController())
       ),
     );
   }

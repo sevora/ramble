@@ -116,15 +116,19 @@ class UserController {
     return List<String>.from(jsonDecode(response.body)["posts"]);
   }
 
+  Future<PostModel> viewPost({ required String postId }) async {
+    var uri = Uri.http(Environment.serverURL, "/post/view");
+    var response = await http.post(uri, headers: _headers, body: jsonEncode({ "postId": postId }));
+    var body = jsonDecode(response.body) as Map<String, dynamic>;
+    return PostModel.fromJSONAPI(body);
+  }
+
   Future<List<PostModel>> getPosts({ int page=0, String? username, String? parentId, String? category }) async {
     var postIds = await _listPosts(page: page, username: username, parentId: parentId, category: category);
-    var uri = Uri.http(Environment.serverURL, "/post/view");
     List<PostModel> posts = [];
 
     for (var postId in postIds) {
-      var response = await http.post(uri, headers: _headers, body: jsonEncode({ "postId": postId }));
-      var body = jsonDecode(response.body) as Map<String, dynamic>;
-      posts.add(PostModel.fromJSONAPI(body));
+      posts.add(await viewPost(postId: postId));
     }
 
     return posts;
@@ -137,6 +141,30 @@ class UserController {
       unencodedBody["parentId"] = parentId;
     }
     var response = await http.post(uri, headers: _headers, body: jsonEncode(unencodedBody));
+    return response.statusCode == 200;
+  }
+
+  Future<bool> likePost({ required String postId }) async {
+    var uri = Uri.http(Environment.serverURL, "/post/like");
+    var response = await http.post(uri, headers: _headers, body: jsonEncode({
+      "postId": postId
+    }));
+    return response.statusCode == 200;
+  }
+
+  Future<bool> dislikePost({ required String postId }) async {
+    var uri = Uri.http(Environment.serverURL, "/post/dislike");
+    var response = await http.post(uri, headers: _headers, body: jsonEncode({
+      "postId": postId
+    }));
+    return response.statusCode == 200;
+  }
+
+  Future<bool> deletePost({ required String postId }) async {
+    var uri = Uri.http(Environment.serverURL, "/post/delete");
+    var response = await http.post(uri, headers: _headers, body: jsonEncode({
+      "postId": postId
+    }));
     return response.statusCode == 200;
   }
 }

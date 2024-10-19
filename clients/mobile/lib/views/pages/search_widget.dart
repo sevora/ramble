@@ -7,9 +7,9 @@ import '../reusable/icon_button.dart';
 import '../reusable/mini_profile_widget.dart';
 
 class SearchWidget extends StatelessWidget {
-  final UserController _controller;
-  const SearchWidget({super.key, required controller}):
-    _controller = controller;
+  final UserController _userController;
+  const SearchWidget({super.key, required userController}):
+    _userController = userController;
 
   @override
   Widget build(BuildContext context) {
@@ -214,18 +214,18 @@ class SearchWidget extends StatelessWidget {
                   displayName: 'Another Account',
                   userName: '@george',
                   isFollowing: true,
-                  controller: _controller,
+                  controller: _userController,
                 ),
                 MiniProfileWidget(
                   displayName: 'Steve',
                   userName: '@cobblestone',
                   isFollowing: false,
                   biography: 'Hello this is a random account.',
-                  controller: _controller,
+                  controller: _userController,
                 ),
                 MiniProfileWidget(
                   isFollowing: false,
-                  controller: _controller,
+                  controller: _userController,
                 ),
               ].divide(const SizedBox(height: 5.0)),
             ),

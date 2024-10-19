@@ -10,17 +10,49 @@ import '../../views/reusable/button.dart';
 import '../../views/reusable/ramble_icon_button.dart';
 import '../pages/view_post_widget.dart';
 
-class PostWidget extends StatelessWidget {
+class PostWidget extends StatefulWidget {
+  final PostModel post;
+  final UserController userController;
+  final bool allowViewPost;
+  final Function()? onDelete;
+
   const PostWidget({
     super.key,
-    required PostModel post,
-    required UserController controller,
-  })  :
-        _post = post,
-        _controller = controller;
+    required this.post,
+    required this.userController,
+    this.allowViewPost=false,
+    this.onDelete
+  });
 
-  final PostModel _post;
-  final UserController _controller;
+  @override
+  State<StatefulWidget> createState() => _PostWidgetState();
+}
+
+class _PostWidgetState extends State<PostWidget> {
+  late PostModel _post;
+  late UserController _userController;
+  late bool _allowViewPost;
+
+  Future<void> _toggleLike() async {
+    if (_post.hasLiked > 0) {
+      await _userController.dislikePost(postId: _post.postId);
+    } else {
+      await _userController.likePost(postId: _post.postId);
+    }
+
+    var updatedPost = await _userController.viewPost(postId: _post.postId);
+    setState(() {
+      _post = updatedPost;
+    });
+  }
+
+  @override
+  void initState() {
+    _post = widget.post;
+    _userController = widget.userController;
+    _allowViewPost = widget.allowViewPost;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,9 +157,12 @@ class PostWidget extends StatelessWidget {
               hoverColor: Colors.transparent,
               highlightColor: Colors.transparent,
               onTap: () async {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ViewPostWidget(post: _post, controller: _controller,)));
-              },
+                if (_allowViewPost) {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ViewPostWidget(post: _post, userController: _userController,)));
+
+                  }
+                },
               child: Column(
                 mainAxisSize: MainAxisSize.max,
                 children: [
@@ -148,21 +183,7 @@ class PostWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Align(
-                    alignment: const AlignmentDirectional(1.0, 0.0),
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(
-                          0.0, 5.0, 7.0, 5.0),
-                      child: Text(
-                        'Read more...',
-                        style: TypographyTheme().bodyMedium.override(
-                              fontFamily: 'Roboto',
-                              color: LightModeTheme().orangePeel,
-                              letterSpacing: 0.0,
-                            ),
-                      ),
-                    ),
-                  ),
+
                   if (_post.postMedia != null)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8.0),
@@ -193,7 +214,7 @@ class PostWidget extends StatelessWidget {
                       if (_post.hasLiked > 0) {
                         return ButtonWidget(
                           onPressed: () {
-                            print('Button pressed ...');
+                            _toggleLike();
                           },
                           text: formatNumber(
                             _post.likeCount,
@@ -225,7 +246,7 @@ class PostWidget extends StatelessWidget {
                       } else {
                         return ButtonWidget(
                           onPressed: () {
-                            print('Button pressed ...');
+                            _toggleLike();
                           },
                           text: formatNumber(
                             _post.likeCount,
@@ -257,7 +278,12 @@ class PostWidget extends StatelessWidget {
                   ),
                   ButtonWidget(
                     onPressed: () {
-                      print('Button pressed ...');
+                      if (_allowViewPost) {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) =>
+                                ViewPostWidget(post: _post,
+                                  userController: _userController,)));
+                      }
                     },
                     text: formatNumber(
                       _post.replyCount,
@@ -284,18 +310,22 @@ class PostWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
-                  RambleIconButton(
-                    borderRadius: 8.0,
-                    buttonSize: 40.0,
-                    icon: Icon(
-                      Icons.keyboard_control,
-                      color: LightModeTheme().primaryText,
-                      size: 20.0,
+                  if (_post.username == _userController.user.username)
+                    RambleIconButton(
+                      borderRadius: 8.0,
+                      buttonSize: 40.0,
+                      icon: Icon(
+                        Icons.delete_outline,
+                        color: LightModeTheme().primaryText,
+                        size: 20.0,
+                      ),
+                      onPressed: () async {
+                        var success = await _userController.deletePost(postId: _post.postId);
+                        if (success && widget.onDelete != null) {
+                          widget.onDelete!();
+                        }
+                      },
                     ),
-                    onPressed: () {
-                      print('IconButton pressed ...');
-                    },
-                  ),
                 ].divide(const SizedBox(width: 5.0)),
               ),
             ),

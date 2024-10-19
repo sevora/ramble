@@ -8,9 +8,9 @@ import '../reusable/button.dart';
 import '../reusable/post_widget.dart';
 
 class ViewProfileWidget extends StatelessWidget {
-  final UserController _controller;
-  const ViewProfileWidget({super.key, required controller}):
-    _controller = controller;
+  final UserController _userController;
+  const ViewProfileWidget({super.key, required userController}):
+    _userController = userController;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class ViewProfileWidget extends StatelessWidget {
                     child: CachedNetworkImage(
                       fadeInDuration: const Duration(milliseconds: 500),
                       fadeOutDuration: const Duration(milliseconds: 500),
-                      imageUrl: _controller.user.userBannerPicture ?? "",
+                      imageUrl: _userController.user.userBannerPicture ?? "",
                       width: MediaQuery.sizeOf(context).width * 1.0,
                       height: 150.0,
                       fit: BoxFit.cover,
@@ -46,7 +46,7 @@ class ViewProfileWidget extends StatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsetsDirectional.fromSTEB(
-                        0.0, 150.0, 0.0, 0.0),
+                        0.0, 170.0, 0.0, 0.0),
                     child: Container(
                       width: MediaQuery.sizeOf(context).width * 1.0,
                       height: 150.0,
@@ -82,7 +82,7 @@ class ViewProfileWidget extends StatelessWidget {
                                             .fromSTEB(
                                             0.0, 15.0, 0.0, 0.0),
                                         child: Text(
-                                          _controller.user.userCommonName,
+                                          _userController.user.userCommonName,
                                           textAlign: TextAlign.start,
                                           style: TypographyTheme()
                                               .bodyMedium
@@ -98,7 +98,7 @@ class ViewProfileWidget extends StatelessWidget {
                                         ),
                                       ),
                                       Text(
-                                        '@${_controller.user.username}',
+                                        '@${_userController.user.username}',
                                         style: TypographyTheme()
                                             .bodyMedium
                                             .override(
@@ -109,7 +109,7 @@ class ViewProfileWidget extends StatelessWidget {
                                         ),
                                       ),
                                       Text(
-                                        _controller.user.userBiography ?? "No biography...",
+                                        _userController.user.userBiography ?? "No biography...",
                                         style: TypographyTheme()
                                             .bodyMedium
                                             .override(
@@ -337,7 +337,7 @@ class ViewProfileWidget extends StatelessWidget {
                         fadeInDuration: const Duration(milliseconds: 500),
                         fadeOutDuration: const Duration(milliseconds: 500),
                         imageUrl:
-                        _controller.user.userProfilePicture ?? "",
+                        _userController.user.userProfilePicture ?? "",
                         fit: BoxFit.cover,
                       ),
                     ),

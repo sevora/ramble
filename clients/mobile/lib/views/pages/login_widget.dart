@@ -8,22 +8,22 @@ import '../../views/reusable/button.dart';
 import './sign_up_widget.dart';
 
 class LogInWidget extends StatefulWidget {
-  final UserController controller;
-  const LogInWidget({super.key, required this.controller});
+  final UserController userController;
+  const LogInWidget({super.key, required this.userController});
 
   @override
   State<LogInWidget> createState() => _LogInWidgetState();
 }
 
 class _LogInWidgetState extends State<LogInWidget> {
-  late UserController _controller;
+  late UserController _userController;
   bool _passwordVisibility = true;
   String _usernameOrEmail = '';
   String _password = '';
 
   @override
   void initState() {
-    _controller = widget.controller;
+    _userController = widget.userController;
     super.initState();
   }
 
@@ -236,13 +236,13 @@ class _LogInWidgetState extends State<LogInWidget> {
                                 onPressed: () async {
                                   // can push loading screen here
 
-                                  await _controller.login(usernameOrEmail: _usernameOrEmail, password: _password);
+                                  await _userController.login(usernameOrEmail: _usernameOrEmail, password: _password);
 
-                                  if (context.mounted && _controller.loggedIn) {
+                                  if (context.mounted && _userController.loggedIn) {
                                     Navigator.pushReplacement(
                                       context,
                                       PageRouteBuilder(
-                                        pageBuilder: (context, animation1, animation2) => BaseWidget(controller: widget.controller,),
+                                        pageBuilder: (context, animation1, animation2) => BaseWidget(userController: widget.userController,),
                                         transitionDuration: Duration.zero,
                                         reverseTransitionDuration: Duration.zero,
                                       ),
@@ -310,7 +310,7 @@ class _LogInWidgetState extends State<LogInWidget> {
                                     Navigator.pushReplacement(
                                       context,
                                       PageRouteBuilder(
-                                        pageBuilder: (context, animation1, animation2) => SignUpWidget(controller: _controller,),
+                                        pageBuilder: (context, animation1, animation2) => SignUpWidget(userController: _userController,),
                                         transitionDuration: Duration.zero,
                                         reverseTransitionDuration: Duration.zero,
                                       ),

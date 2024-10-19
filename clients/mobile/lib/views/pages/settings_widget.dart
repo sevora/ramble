@@ -7,9 +7,9 @@ import '../../utilities/utilities.dart';
 import '../reusable/button.dart';
 
 class SettingsWidget extends StatelessWidget {
-  final UserController _controller;
-  const SettingsWidget({super.key, required controller}):
-    _controller = controller;
+  final UserController _userController;
+  const SettingsWidget({super.key, required userController}):
+    _userController = userController;
 
   @override
   Widget build(BuildContext context) {
@@ -49,14 +49,14 @@ class SettingsWidget extends StatelessWidget {
               ),
               child: ButtonWidget(
                 onPressed: () async {
-                  await _controller.logout();
+                  await _userController.logout();
 
                   if (context.mounted) {
                     Navigator.pushReplacement(
                       context,
                       PageRouteBuilder(
                         pageBuilder: (context, animation1, animation2) =>
-                            LogInWidget(controller: _controller,),
+                            LogInWidget(userController: _userController,),
                         transitionDuration: Duration.zero,
                         reverseTransitionDuration: Duration.zero,
                       ),

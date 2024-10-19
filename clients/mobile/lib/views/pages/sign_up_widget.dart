@@ -9,15 +9,15 @@ import './login_widget.dart';
 import 'base_widget.dart';
 
 class SignUpWidget extends StatefulWidget {
-  final UserController controller;
-  const SignUpWidget({super.key, required this.controller});
+  final UserController userController;
+  const SignUpWidget({super.key, required this.userController});
 
   @override
   State<SignUpWidget> createState() => _SignUpWidgetState();
 }
 
 class _SignUpWidgetState extends State<SignUpWidget> {
-  late UserController _controller;
+  late UserController _userController;
   String _username = '';
   String _email = '';
   String _password = '';
@@ -28,7 +28,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
 
   @override
   void initState() {
-    _controller = widget.controller;
+    _userController = widget.userController;
     super.initState();
   }
 
@@ -408,18 +408,16 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                                   }
 
                                   // can add loading page here
-                                  await _controller.signUp(username: _username, email: _email, password: _password);
+                                  await _userController.signUp(username: _username, email: _email, password: _password);
 
-                                  print(_controller.loggedIn);
-
-                                  if (context.mounted && _controller.loggedIn) {
+                                  if (context.mounted && _userController.loggedIn) {
                                     Navigator.pushReplacement(
                                       context,
                                       PageRouteBuilder(
                                         pageBuilder: (context, animation1,
                                             animation2) =>
                                             BaseWidget(
-                                              controller: _controller,),
+                                              userController: _userController,),
                                         transitionDuration: Duration.zero,
                                         reverseTransitionDuration: Duration
                                             .zero,
@@ -487,7 +485,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                                     Navigator.pushReplacement(
                                       context,
                                       PageRouteBuilder(
-                                        pageBuilder: (context, animation1, animation2) => LogInWidget(controller: _controller,),
+                                        pageBuilder: (context, animation1, animation2) => LogInWidget(userController: _userController,),
                                         transitionDuration: Duration.zero,
                                         reverseTransitionDuration: Duration.zero,
                                       ),

@@ -6,32 +6,32 @@ import '../reusable/post_widget.dart';
 import '../reusable/post_creator_widget.dart';
 
 class PostsWidget extends StatefulWidget {
-  final UserController controller;
-  const PostsWidget({super.key, required this.controller });
+  final UserController userController;
+  const PostsWidget({super.key, required this.userController });
 
   @override
   State<StatefulWidget> createState() => _PostsWidgetState();
 }
 
 class _PostsWidgetState extends State<PostsWidget> {
-  late UserController _controller;
-  final PagingController<int, PostModel> _page = PagingController(firstPageKey: 0);
+  late UserController _userController;
+  final PagingController<int, PostModel> _pageController = PagingController(firstPageKey: 0);
 
   @override
   void initState() {
-    _controller = widget.controller;
-    _page.addPageRequestListener((pageKey) {
+    _userController = widget.userController;
+    _pageController.addPageRequestListener((pageKey) {
       _loadPosts(pageKey);
     });
     super.initState();
   }
 
   Future<void> _loadPosts(int pageKey) async {
-    var newPosts = await _controller.getPosts(page: pageKey, category: "trending");
+    var newPosts = await _userController.getPosts(page: pageKey, category: "trending");
     if (newPosts.isNotEmpty) {
-      _page.appendPage(newPosts, pageKey+1);
+      _pageController.appendPage(newPosts, pageKey+1);
     } else {
-      _page.appendLastPage([]);
+      _pageController.appendLastPage([]);
     }
   }
 
@@ -41,23 +41,31 @@ class _PostsWidgetState extends State<PostsWidget> {
       children: [
         Padding(
           padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 10.0),
-          child: PostCreatorWidget(prompt: "What's new?", controller: _controller,
+          child: PostCreatorWidget(prompt: "What's new?", controller: _userController,
             onPost: () async {
-              _page.refresh();
+              _pageController.refresh();
             }
           )
         ),
         Expanded(
-          child: PagedListView(
-              pagingController: _page,
-              builderDelegate: PagedChildBuilderDelegate<PostModel>(
-                  itemBuilder: (context, item, index) {
-                    return Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                        child: PostWidget(post: item, controller: _controller)
-                    );
-                  }
-              )
+          child: RefreshIndicator(
+          onRefresh: () => Future.sync(
+                () => _pageController.refresh(),
+          ),
+            child: PagedListView(
+                pagingController: _pageController,
+                builderDelegate: PagedChildBuilderDelegate<PostModel>(
+                    itemBuilder: (context, item, index) {
+                      return Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                          child: PostWidget(post: item, userController: _userController, allowViewPost: true,
+                            onDelete: () {
+                            _pageController.refresh();
+                          },)
+                      );
+                    }
+                )
+            ),
           )
         ),
       ],
@@ -66,7 +74,7 @@ class _PostsWidgetState extends State<PostsWidget> {
 
   @override
   void dispose() {
-    _page.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 }

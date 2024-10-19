@@ -7,8 +7,8 @@ import '../../views/pages/view_profile_widget.dart';
 import '../../themes/light_mode_theme.dart';
 
 class BaseWidget extends StatefulWidget {
-  final UserController controller;
-  const BaseWidget({super.key, required this.controller});
+  final UserController userController;
+  const BaseWidget({super.key, required this.userController});
 
   @override
   State<BaseWidget> createState() => _BaseWidgetState();
@@ -20,13 +20,13 @@ class _BaseWidgetState extends State<BaseWidget> {
 
   @override
   void initState() {
-    UserController controller = widget.controller;
+    UserController userController = widget.userController;
 
     _pages = [
-      PostsWidget(controller: controller),
-      SearchWidget(controller: controller),
-      ViewProfileWidget(controller: controller),
-      SettingsWidget(controller: controller),
+      PostsWidget(userController: userController),
+      SearchWidget(userController: userController),
+      ViewProfileWidget(userController: userController),
+      SettingsWidget(userController: userController),
     ];
 
     super.initState();

@@ -16,8 +16,6 @@ class UserModel {
   });
 
   factory UserModel.fromJSONAPI(Map<String, dynamic> object) {
-    print(object);
-
     return UserModel.named(
         userCommonName: object["userCommonName"],
         username: object["username"],
