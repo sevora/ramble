@@ -28,7 +28,6 @@ function Home() {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/post/list`, { category, page }, { withCredentials: true });
         console.log(response.data, category)
         return response.data.posts as { postId: string }[];
-        
     }
 
     /**
