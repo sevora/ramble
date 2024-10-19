@@ -410,6 +410,8 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                                   // can add loading page here
                                   await _controller.signUp(username: _username, email: _email, password: _password);
 
+                                  print(_controller.loggedIn);
+
                                   if (context.mounted && _controller.loggedIn) {
                                     Navigator.pushReplacement(
                                       context,

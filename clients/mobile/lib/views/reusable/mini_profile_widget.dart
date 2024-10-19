@@ -66,6 +66,8 @@ class MiniProfileWidget extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: CachedNetworkImage(
+                        placeholder: (context, url) => Image.asset("assets/profile_placeholder.jpg"),
+                        errorWidget: (context, url, error) => Image.asset("assets/profile_placeholder.jpg"),
                         fadeInDuration: const Duration(milliseconds: 500),
                         fadeOutDuration: const Duration(milliseconds: 500),
                         imageUrl: _profileImageURL,

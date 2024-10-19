@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../controllers/user_controller.dart';
+import '../../models/post_model.dart';
 import '../../themes/light_mode_theme.dart';
 import '../../themes/typography_theme.dart';
 import '../../utilities/utilities.dart';
@@ -10,8 +11,10 @@ import '../reusable/post_creator_widget.dart';
 
 class ViewPostWidget extends StatelessWidget {
   final UserController _controller;
-  const ViewPostWidget({super.key, required controller}):
-    _controller = controller;
+  final PostModel _post;
+  const ViewPostWidget({super.key, required controller, required post}):
+      _post = post,
+       _controller = controller;
 
   @override
   Widget build(BuildContext context) {
@@ -87,8 +90,9 @@ class ViewPostWidget extends StatelessWidget {
                                 fadeInDuration: const Duration(milliseconds: 500),
                                 fadeOutDuration:
                                 const Duration(milliseconds: 500),
-                                imageUrl:
-                                'https://images.unsplash.com/photo-1517242027094-631f8c218a0f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NTYyMDF8MHwxfHNlYXJjaHw4fHxsZWdvfGVufDB8fHx8MTcyNTUyNTYwMnww&ixlib=rb-4.0.3&q=80&w=1080',
+                                imageUrl: _post.userProfilePicture ?? "",
+                                placeholder: (context, url) => Image.asset("assets/profile_placeholder.jpg"),
+                                errorWidget: (context, url, error) => Image.asset("assets/profile_placeholder.jpg"),
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -97,7 +101,7 @@ class ViewPostWidget extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'User A',
+                                  _post.userCommonName,
                                   style: TypographyTheme()
                                       .bodyMedium
                                       .override(
@@ -110,7 +114,7 @@ class ViewPostWidget extends StatelessWidget {
                                   alignment:
                                   const AlignmentDirectional(-1.0, 0.0),
                                   child: Text(
-                                    '@user_a',
+                                    '@${_post.username}',
                                     style: TypographyTheme()
                                         .bodyMedium
                                         .override(
@@ -130,7 +134,7 @@ class ViewPostWidget extends StatelessWidget {
                             Align(
                               alignment: const AlignmentDirectional(-1.0, 0.0),
                               child: Text(
-                                'Lorem ipsum odor amet, consectetuer adipiscing elit. Montes quisque sem pulvinar fames; luctus tristique. Varius dictumst fringilla imperdiet primis primis. Ligula vehicula dictum potenti cursus sapien. Laoreet egestas feugiat morbi mauris felis scelerisque netus ex. Tincidunt parturient dictumst lacus felis placerat congue laoreet enim. Primis imperdiet mattis sem platea diam hendrerit eros. Mauris velit tempor inceptos interdum ut condimentum pulvinar? Iaculis libero morbi adipiscing nam consectetur vestibulum posuere.',
+                                _post.postContent,
                                 style: TypographyTheme()
                                     .bodyMedium
                                     .override(
@@ -139,7 +143,8 @@ class ViewPostWidget extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Container(
+                            if (_post.postMedia != null)
+                              Container(
                               decoration: BoxDecoration(
                                 color: LightModeTheme()
                                     .secondaryText,
@@ -147,11 +152,8 @@ class ViewPostWidget extends StatelessWidget {
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(8.0),
-                                child: Image.asset(
-                                  'assets/images/sample-thumbnail.jpg',
-                                  width: MediaQuery.sizeOf(context).width *
-                                      1.0,
-                                  fit: BoxFit.contain,
+                                child: CachedNetworkImage(
+                                  imageUrl: _post.postMedia ?? '',
                                 ),
                               ),
                             ),

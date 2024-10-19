@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:ramble_mobile/controllers/user_controller.dart';
 import '../../themes/typography_theme.dart';
@@ -5,16 +6,29 @@ import '../../themes/light_mode_theme.dart';
 import '../../utilities/utilities.dart';
 import '../../views/reusable/ramble_icon_button.dart';
 
-class PostCreatorWidget extends StatelessWidget {
-  const PostCreatorWidget({super.key, String? profileImageURL, String? prompt, required UserController controller })
-      : _profileImageURL = profileImageURL ??
-            'https://images.unsplash.com/photo-1517242027094-631f8c218a0f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NTYyMDF8MHwxfHNlYXJjaHw4fHxsZWdvfGVufDB8fHx8MTcyNTUyNTYwMnww&ixlib=rb-4.0.3&q=80&w=1080',
-        _prompt = prompt ?? 'What\'s new?',
-        _controller = controller;
+class PostCreatorWidget extends StatefulWidget {
+  final String prompt;
+  final UserController controller;
+  final Function()? onPost;
 
-  final String _prompt;
-  final String _profileImageURL;
-  final UserController _controller;
+  const PostCreatorWidget({super.key, required this.prompt, required this.controller, this.onPost });
+
+  @override
+  State<StatefulWidget> createState() => _PostCreatorWidgetState();
+}
+
+class _PostCreatorWidgetState extends State<PostCreatorWidget> {
+  late String _prompt;
+  late UserController _controller;
+  String _content = "";
+  final fieldText = TextEditingController();
+
+  @override
+  void initState() {
+    _prompt = widget.prompt;
+    _controller = widget.controller;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,9 +68,10 @@ class PostCreatorWidget extends StatelessWidget {
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                 ),
-                child: Image.network(
-                  _profileImageURL,
-                  fit: BoxFit.cover,
+                child: CachedNetworkImage(
+                  imageUrl: _controller.user.userProfilePicture ?? '',
+                  placeholder: (context, url) => Image.asset("assets/profile_placeholder.jpg"),
+                  errorWidget: (context, url, error) => Image.asset("assets/profile_placeholder.jpg"),
                 ),
               ),
               Expanded(
@@ -69,6 +84,12 @@ class PostCreatorWidget extends StatelessWidget {
                       SizedBox(
                         width: MediaQuery.sizeOf(context).width * 1.0,
                         child: TextFormField(
+                          controller: fieldText,
+                          onChanged: (text) {
+                            setState(() {
+                              _content = text;
+                            });
+                          },
                             autofocus: false,
                             obscureText: false,
                             decoration: InputDecoration(
@@ -137,8 +158,18 @@ class PostCreatorWidget extends StatelessWidget {
                                 color: LightModeTheme().primaryText,
                                 size: 24.0,
                               ),
-                              onPressed: () {
-                                print('IconButton pressed ...');
+                              onPressed: () async {
+                                // make a post
+                                var success = await _controller.createPost(content: _content);
+
+                                if (success && widget.onPost != null) {
+                                  widget.onPost!();
+                                }
+
+                                setState(() {
+                                  _content = "";
+                                  fieldText.clear();
+                                });
                               },
                             ),
                           ],

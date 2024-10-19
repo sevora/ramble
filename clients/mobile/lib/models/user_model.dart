@@ -1,22 +1,30 @@
 class UserModel {
   final String userCommonName;
-  final String userName;
-  final String userBiography;
+  final String username;
+  final String? userBiography;
+  final String? userProfilePicture;
+  final String? userBannerPicture;
   final DateTime userCreatedAt;
 
   UserModel.named({
     required this.userCommonName,
-    required this.userName,
-    required this.userBiography,
+    required this.username,
+    this.userBiography,
+    this.userProfilePicture,
+    this.userBannerPicture,
     required this.userCreatedAt
   });
 
   factory UserModel.fromJSONAPI(Map<String, dynamic> object) {
+    print(object);
+
     return UserModel.named(
         userCommonName: object["userCommonName"],
-        userName: object["userName"],
+        username: object["username"],
         userBiography: object["userBiography"],
-        userCreatedAt: object["userCreatedAt"]
+        userProfilePicture: object["userProfilePicture"],
+        userBannerPicture: object["userBannerPicture"],
+        userCreatedAt: DateTime.parse(object["userCreatedAt"])
     );
   }
 }

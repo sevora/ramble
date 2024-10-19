@@ -72,9 +72,7 @@ class _BaseWidgetState extends State<BaseWidget> {
       backgroundColor: LightModeTheme().primaryBackground,
       body: SafeArea(
         top: true,
-        child: SingleChildScrollView(
-            child: _pages.elementAt(_pageIndex)
-        ),
+        child: _pages.elementAt(_pageIndex),
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ramble_mobile/controllers/user_controller.dart';
+import '../../models/post_model.dart';
 import '../../themes/light_mode_theme.dart';
 import '../../themes/typography_theme.dart';
 import '../../utilities/utilities.dart';
@@ -12,36 +13,13 @@ import '../pages/view_post_widget.dart';
 class PostWidget extends StatelessWidget {
   const PostWidget({
     super.key,
-    String? userName,
-    String? displayName,
-    String? imageURL,
-    String? content,
-    String? relativeDate,
-    bool? isLiked,
-    int? likeCount,
-    int? commentCount,
-    String? profileImageURL,
+    required PostModel post,
     required UserController controller,
-  })  : _userName = userName ?? '@unknown',
-        _displayName = displayName ?? 'Unknown User',
-        _profileImageURL = profileImageURL ?? '',
-        _imageURL = imageURL ?? '',
-        _content = content ?? 'No content found.',
-        _relativeDate = relativeDate ?? '3 hours ago',
-        _isLiked = isLiked ?? false,
-        _likeCount = likeCount ?? 0,
-        _commentCount = commentCount ?? 0,
+  })  :
+        _post = post,
         _controller = controller;
 
-  final String _userName;
-  final String _displayName;
-  final String _profileImageURL;
-  final String _imageURL;
-  final String _content;
-  final String _relativeDate;
-  final bool _isLiked;
-  final int _likeCount;
-  final int _commentCount;
+  final PostModel _post;
   final UserController _controller;
 
   @override
@@ -84,8 +62,10 @@ class PostWidget extends StatelessWidget {
                   child: CachedNetworkImage(
                     fadeInDuration: const Duration(milliseconds: 500),
                     fadeOutDuration: const Duration(milliseconds: 500),
-                    imageUrl: _profileImageURL,
+                    imageUrl: _post.userProfilePicture ?? '',
                     fit: BoxFit.cover,
+                    placeholder: (context, url) => Image.asset("assets/profile_placeholder.jpg"),
+                    errorWidget: (context, url, error) => Image.asset("assets/profile_placeholder.jpg"),
                   ),
                 ),
                 Expanded(
@@ -102,7 +82,7 @@ class PostWidget extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                _displayName,
+                                _post.userCommonName,
                                 style: TypographyTheme().bodyMedium.override(
                                       fontFamily: 'Roboto',
                                       fontSize: 15.0,
@@ -111,10 +91,7 @@ class PostWidget extends StatelessWidget {
                                     ),
                               ),
                               Text(
-                                valueOrDefault<String>(
-                                  _userName,
-                                  '@unknown',
-                                ),
+                                  '@${_post.username}',
                                 style: TypographyTheme().bodyMedium.override(
                                       fontFamily: 'Roboto',
                                       letterSpacing: 0.0,
@@ -126,7 +103,7 @@ class PostWidget extends StatelessWidget {
                           Opacity(
                             opacity: 0.8,
                             child: Text(
-                              _relativeDate,
+                              "42 hours ago",
                               style: TypographyTheme().bodyMedium.override(
                                     fontFamily: 'Roboto',
                                     fontSize: 12.0,
@@ -149,7 +126,7 @@ class PostWidget extends StatelessWidget {
               highlightColor: Colors.transparent,
               onTap: () async {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ViewPostWidget(controller: _controller,)));
+                    MaterialPageRoute(builder: (context) => ViewPostWidget(post: _post, controller: _controller,)));
               },
               child: Column(
                 mainAxisSize: MainAxisSize.max,
@@ -160,7 +137,7 @@ class PostWidget extends StatelessWidget {
                       padding: const EdgeInsetsDirectional.fromSTEB(
                           0.0, 15.0, 0.0, 0.0),
                       child: Text(
-                        _content,
+                        _post.postContent,
                         maxLines: 3,
                         style: TypographyTheme().bodyMedium.override(
                               fontFamily: 'Roboto',
@@ -186,13 +163,15 @@ class PostWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (_imageURL != '')
+                  if (_post.postMedia != null)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8.0),
                       child: CachedNetworkImage(
+                        placeholder: (context, url) => Image.asset("assets/profile_placeholder.jpg"),
+                        errorWidget: (context, url, error) => Image.asset("assets/profile_placeholder.jpg"),
                         fadeInDuration: const Duration(milliseconds: 500),
                         fadeOutDuration: const Duration(milliseconds: 500),
-                        imageUrl: _imageURL,
+                        imageUrl: _post.postMedia!,
                         width: MediaQuery.sizeOf(context).width * 1.0,
                         height: 200.0,
                         fit: BoxFit.cover,
@@ -211,16 +190,13 @@ class PostWidget extends StatelessWidget {
                 children: [
                   Builder(
                     builder: (context) {
-                      if (valueOrDefault<bool>(
-                        _isLiked,
-                        false,
-                      )) {
+                      if (_post.hasLiked > 0) {
                         return ButtonWidget(
                           onPressed: () {
                             print('Button pressed ...');
                           },
                           text: formatNumber(
-                            _likeCount,
+                            _post.likeCount,
                             formatType: FormatType.compact,
                           ),
                           icon: const Icon(
@@ -236,7 +212,7 @@ class PostWidget extends StatelessWidget {
                             color: LightModeTheme().secondaryBackground,
                             textStyle: TypographyTheme().titleSmall.override(
                                   fontFamily: 'Roboto',
-                                  color: _isLiked
+                                  color: _post.hasLiked > 0
                                       ? LightModeTheme().orangePeel
                                       : LightModeTheme().primaryText,
                                   fontSize: 15.0,
@@ -252,7 +228,7 @@ class PostWidget extends StatelessWidget {
                             print('Button pressed ...');
                           },
                           text: formatNumber(
-                            _likeCount,
+                            _post.likeCount,
                             formatType: FormatType.compact,
                           ),
                           icon: const Icon(
@@ -284,7 +260,7 @@ class PostWidget extends StatelessWidget {
                       print('Button pressed ...');
                     },
                     text: formatNumber(
-                      _commentCount,
+                      _post.replyCount,
                       formatType: FormatType.compact,
                     ),
                     icon: const FaIcon(

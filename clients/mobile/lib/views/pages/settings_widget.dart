@@ -49,14 +49,19 @@ class SettingsWidget extends StatelessWidget {
               ),
               child: ButtonWidget(
                 onPressed: () async {
-                  Navigator.pushReplacement(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation1, animation2) => LogInWidget(controller: _controller,),
-                      transitionDuration: Duration.zero,
-                      reverseTransitionDuration: Duration.zero,
-                    ),
-                  );
+                  await _controller.logout();
+
+                  if (context.mounted) {
+                    Navigator.pushReplacement(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation1, animation2) =>
+                            LogInWidget(controller: _controller,),
+                        transitionDuration: Duration.zero,
+                        reverseTransitionDuration: Duration.zero,
+                      ),
+                    );
+                  }
                 },
                 text: 'Log-out',
                 options: ButtonOptions(
