@@ -18,6 +18,8 @@ class LogInWidget extends StatefulWidget {
 class _LogInWidgetState extends State<LogInWidget> {
   late UserController _controller;
   bool _passwordVisibility = true;
+  String _usernameOrEmail = '';
+  String _password = '';
 
   @override
   void initState() {
@@ -97,6 +99,11 @@ class _LogInWidgetState extends State<LogInWidget> {
                               padding: const EdgeInsetsDirectional.fromSTEB(
                                   8.0, 0.0, 8.0, 0.0),
                               child: TextFormField(
+                                onChanged: (text) {
+                                  setState(() {
+                                    _usernameOrEmail = text;
+                                  });
+                                },
                                 autofocus: true,
                                 obscureText: false,
                                 decoration: InputDecoration(
@@ -153,6 +160,11 @@ class _LogInWidgetState extends State<LogInWidget> {
                               padding: const EdgeInsetsDirectional.fromSTEB(
                                   8.0, 0.0, 8.0, 0.0),
                               child: TextFormField(
+                                onChanged: (text) {
+                                  setState(() {
+                                    _password = text;
+                                  });
+                                },
                                 autofocus: true,
                                 obscureText: _passwordVisibility,
                                 decoration: InputDecoration(
@@ -222,14 +234,23 @@ class _LogInWidgetState extends State<LogInWidget> {
                                   10.0, 0.0, 10.0, 0.0),
                               child: ButtonWidget(
                                 onPressed: () async {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    PageRouteBuilder(
-                                      pageBuilder: (context, animation1, animation2) => BaseWidget(controller: widget.controller,),
-                                      transitionDuration: Duration.zero,
-                                      reverseTransitionDuration: Duration.zero,
-                                    ),
-                                  );
+                                  // can push loading screen here
+
+                                  await _controller.login(usernameOrEmail: _usernameOrEmail, password: _password);
+
+                                  if (context.mounted && _controller.loggedIn) {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      PageRouteBuilder(
+                                        pageBuilder: (context, animation1, animation2) => BaseWidget(controller: widget.controller,),
+                                        transitionDuration: Duration.zero,
+                                        reverseTransitionDuration: Duration.zero,
+                                      ),
+                                    );
+                                  } else {
+                                    // failed to log in
+                                  }
+
                                 },
                                 text: 'Log-in',
                                 options: ButtonOptions(

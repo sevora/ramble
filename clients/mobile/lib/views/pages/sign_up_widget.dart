@@ -18,6 +18,11 @@ class SignUpWidget extends StatefulWidget {
 
 class _SignUpWidgetState extends State<SignUpWidget> {
   late UserController _controller;
+  String _username = '';
+  String _email = '';
+  String _password = '';
+  String _confirmPassword = '';
+
   bool _passwordVisibility1 = true;
   bool _passwordVisibility2 = true;
 
@@ -101,6 +106,18 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                               padding: const EdgeInsetsDirectional.fromSTEB(
                                   8.0, 0.0, 8.0, 0.0),
                               child: TextFormField(
+                                validator: (text) {
+                                  if (text != null && text.isNotEmpty) {
+                                    return "Email is required";
+                                  }
+                                  return null;
+                                },
+
+                                onChanged: (text) {
+                                  setState(() {
+                                    _email = text;
+                                  });
+                                },
                                 autofocus: true,
                                 obscureText: false,
                                 decoration: InputDecoration(
@@ -157,6 +174,17 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                               padding: const EdgeInsetsDirectional.fromSTEB(
                                   8.0, 0.0, 8.0, 0.0),
                               child: TextFormField(
+                                validator: (text) {
+                                  if (text != null && text.isNotEmpty) {
+                                    return "Username is required";
+                                  }
+                                  return null;
+                                },
+                                onChanged: (text) {
+                                  setState(() {
+                                    _username = text;
+                                  });
+                                },
                                 autofocus: true,
                                 obscureText: false,
                                 decoration: InputDecoration(
@@ -210,9 +238,21 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                           Align(
                             alignment: const AlignmentDirectional(0.0, 0.0),
                             child: Padding(
+
                               padding: const EdgeInsetsDirectional.fromSTEB(
                                   8.0, 0.0, 8.0, 0.0),
                               child: TextFormField(
+                                onChanged: (text) {
+                                  setState(() {
+                                    _password = text;
+                                  });
+                                },
+                                validator: (text) {
+                                  if (text != null && text.isNotEmpty) {
+                                    return "Password is required";
+                                  }
+                                  return null;
+                                },
                                 autofocus: true,
                                 obscureText: _passwordVisibility1,
                                 decoration: InputDecoration(
@@ -282,6 +322,17 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                               padding: const EdgeInsetsDirectional.fromSTEB(
                                   8.0, 0.0, 8.0, 0.0),
                               child: TextFormField(
+                                onChanged: (text) {
+                                  setState(() {
+                                    _confirmPassword = text;
+                                  });
+                                },
+                                validator: (text) {
+                                  if (text != _password) {
+                                    return "Passwords must match";
+                                  }
+                                  return null;
+                                },
                                 autofocus: true,
                                 obscureText: _passwordVisibility2,
                                 decoration: InputDecoration(
@@ -350,15 +401,31 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                               padding: const EdgeInsetsDirectional.fromSTEB(
                                   10.0, 0.0, 10.0, 0.0),
                               child: ButtonWidget(
+
                                 onPressed: () async {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    PageRouteBuilder(
-                                      pageBuilder: (context, animation1, animation2) => BaseWidget(controller: _controller,),
-                                      transitionDuration: Duration.zero,
-                                      reverseTransitionDuration: Duration.zero,
-                                    ),
-                                  );
+                                  if (_username.isEmpty || _email.isEmpty || _password.isEmpty || _password != _confirmPassword) {
+                                    return null;
+                                  }
+
+                                  // can add loading page here
+                                  await _controller.signUp(username: _username, email: _email, password: _password);
+
+                                  if (context.mounted && _controller.loggedIn) {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      PageRouteBuilder(
+                                        pageBuilder: (context, animation1,
+                                            animation2) =>
+                                            BaseWidget(
+                                              controller: _controller,),
+                                        transitionDuration: Duration.zero,
+                                        reverseTransitionDuration: Duration
+                                            .zero,
+                                      ),
+                                    );
+                                  } else {
+                                    // failed to sign up
+                                  }
                                 },
                                 text: 'Sign-up',
                                 options: ButtonOptions(
