@@ -10,6 +10,7 @@ CREATE TABLE `user` (
   `user_common_name` varchar(50) NOT NULL,
   `user_name` varchar(25) NOT NULL,
   `user_profile_picture` text,
+  `user_banner_picture` text,
   `user_password` text NOT NULL,
   `user_biography` text,
   `user_created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -73,7 +73,7 @@ router.post('/signup', async(request, response) => {
 
     try {
         await connection.query(
-            'INSERT INTO `user` (user_common_name, user_name, user_email, user_password) VALUES (?, ?, ?)', 
+            'INSERT INTO `user` (user_common_name, user_name, user_email, user_password) VALUES (?, ?, ?, ?)', 
             [ username, username, email, sha256(password) ]
         );
         return response.sendStatus(200); // the signup is a success
@@ -97,8 +97,8 @@ router.post('/view', httpOnlyAuthentication, async(request, response) => {
     const { username } = parameters;
 
     const [ userResult ] = username !== undefined ?
-        await connection.query<any[]>(`SELECT user_id, user_name, user_common_name, user_biography, user_created_at FROM \`user\` WHERE user_name = ?`, [ username ]):
-        await connection.query<any[]>(`SELECT user_id, user_name, user_common_name, user_biography, user_created_at FROM \`user\` WHERE user_id = UNHEX(?)`, [ uuid ]); 
+        await connection.query<any[]>(`SELECT user_id, user_name, user_common_name, user_profile_picture, user_banner_picture, user_biography, user_created_at FROM \`user\` WHERE user_name = ?`, [ username ]):
+        await connection.query<any[]>(`SELECT user_id, user_name, user_common_name, user_profile_picture, user_banner_picture, user_biography, user_created_at FROM \`user\` WHERE user_id = UNHEX(?)`, [ uuid ]); 
     
     if ( userResult.length === 0 ) return response.sendStatus(404); // user does not exist
     const user = userResult[0];
@@ -108,6 +108,8 @@ router.post('/view', httpOnlyAuthentication, async(request, response) => {
         userCommonName: user.user_common_name,
         username:       user.user_name,
         userBiography:  user.user_biography,
+        userProfilePicture: user.user_profile_picture,
+        userBannerPicture: user.user_banner_picture,
         userCreatedAt:  user.user_created_at
     });
 });

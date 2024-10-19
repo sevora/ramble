@@ -27,7 +27,8 @@ SERVER_PORT=8000 # by default, will use 80 if not defined.
 
 # This is the URL of the frontend (ramble-client).
 # The exact URL is necessary, otherwise the CORS policy will prevent communication between server and client.
-CLIENT_URL="http://localhost:5173"
+# CLIENT_URL="http://localhost:5173"
+# This is disabled for the Flutter Client
 
 # IMPORTANT: sameSite means they're basically on the same domain, when secure is false, sameSite has to be 'lax' or 'strict' 
 # for it to work on certain browsers (option 'none' is only okay over https) 
