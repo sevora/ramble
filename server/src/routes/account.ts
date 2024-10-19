@@ -15,14 +15,14 @@ const router = Router();
  */
 router.post('/login', async (request, response) => {
     const parameters = zodVerify(z.object({
-        username: z.string().trim().min(4).max(25),
+        usernameOrEmail: z.string().trim(),
         password: z.string().trim().min(8)
     }), request);
 
     if (!parameters) return response.sendStatus(400); // information sent is incomplete
 
-    const { username, password } = parameters;
-    const [ results ] = await connection.query<any[]>('SELECT HEX(user_id) AS `uuid`, user_common_name, user_name FROM `user` WHERE (user_name = ? OR user_email = ?) AND user_password = ?', [ username, username, sha256(password) ]);
+    const { usernameOrEmail, password } = parameters;
+    const [ results ] = await connection.query<any[]>('SELECT HEX(user_id) AS `uuid`, user_common_name, user_name FROM `user` WHERE (user_name = ? OR user_email = ?) AND user_password = ?', [ usernameOrEmail, usernameOrEmail, sha256(password) ]);
     if ( results.length === 0 ) return response.sendStatus(400); // user does not exist or password is incorrect
 
     const user = results[0];
