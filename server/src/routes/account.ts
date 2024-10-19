@@ -22,7 +22,7 @@ router.post('/login', async (request, response) => {
     if (!parameters) return response.sendStatus(400); // information sent is incomplete
 
     const { username, password } = parameters;
-    const [ results ] = await connection.query<any[]>('SELECT HEX(user_id) AS `uuid`, user_common_name, user_name FROM `user` WHERE user_name = ? AND user_password = ?', [ username, sha256(password) ]);
+    const [ results ] = await connection.query<any[]>('SELECT HEX(user_id) AS `uuid`, user_common_name, user_name FROM `user` WHERE (user_name = ? OR user_email = ?) AND user_password = ?', [ username, username, sha256(password) ]);
     if ( results.length === 0 ) return response.sendStatus(400); // user does not exist or password is incorrect
 
     const user = results[0];
@@ -64,16 +64,17 @@ router.post('/logout', httpOnlyAuthentication, async(_request, response) => {
 router.post('/signup', async(request, response) => {
     const parameters = zodVerify(z.object({
         username: z.string().trim().min(4).max(25).regex(/[a-z0-9_]+/),
+        email: z.string().email(),
         password: z.string().trim().min(8),
     }), request);
     
     if (!parameters) return response.sendStatus(400);  // information sent is incomplete
-    const { username, password } = parameters;
+    const { username, email, password } = parameters;
 
     try {
         await connection.query(
-            'INSERT INTO `user` (user_common_name, user_name, user_password) VALUES (?, ?, ?)', 
-            [ username, username, sha256(password) ]
+            'INSERT INTO `user` (user_common_name, user_name, user_email, user_password) VALUES (?, ?, ?)', 
+            [ username, username, email, sha256(password) ]
         );
         return response.sendStatus(200); // the signup is a success
     } catch {

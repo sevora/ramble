@@ -6,6 +6,7 @@
 
 CREATE TABLE `user` (
   `user_id` binary(16) NOT NULL DEFAULT UNHEX(replace(uuid(), "-", "")),
+  `user_email` TEXT NOT NULL,
   `user_common_name` varchar(50) NOT NULL,
   `user_name` varchar(25) NOT NULL,
   `user_profile_picture` text,
@@ -13,7 +14,8 @@ CREATE TABLE `user` (
   `user_biography` text,
   `user_created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`),
-  UNIQUE KEY `uc_user` (`user_name`)
+  UNIQUE KEY `uc_user_name` (`user_name`, `user_email`),
+  UNIQUE KEY `uc_user_email` (`user_email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
 
