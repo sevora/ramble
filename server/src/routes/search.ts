@@ -21,7 +21,7 @@ router.post('/post', httpOnlyAuthentication, async (request, response) => {
     if (!parameters) return response.sendStatus(400);
     const { content, page } = parameters;
 
-    const [ results ] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) AS `uuid` FROM post WHERE post_content LIKE ? ORDER BY post_created_at DESC, BIN_TO_UUID(post_id) LIMIT ?, ?', [ `%${content}%`, page * rowsPerPage, rowsPerPage ]);
+    const [ results ] = await connection.query<any[]>('SELECT HEX(post_id) AS `uuid` FROM post WHERE post_content LIKE ? ORDER BY post_created_at DESC, HEX(post_id) LIMIT ?, ?', [ `%${content}%`, page * rowsPerPage, rowsPerPage ]);
     response.json({
         posts: results.map(entry => ({ 
             postId: entry.uuid 
@@ -43,7 +43,7 @@ router.post('/account', httpOnlyAuthentication, async (request, response)  => {
     if (!parameters) return response.sendStatus(400);
     const { username, page } = parameters;
 
-    const [ results ] = await connection.query<any[]>('SELECT user_name FROM `user` WHERE user_name LIKE ? OR user_common_name LIKE ? ORDER BY user_created_at DESC, BIN_TO_UUID(user_id) LIMIT ?, ?', [ `%${username}%`, `%${username}%`, page * rowsPerPage, rowsPerPage ]);
+    const [ results ] = await connection.query<any[]>('SELECT user_name FROM `user` WHERE user_name LIKE ? OR user_common_name LIKE ? ORDER BY user_created_at DESC, HEX(user_id) LIMIT ?, ?', [ `%${username}%`, `%${username}%`, page * rowsPerPage, rowsPerPage ]);
     response.json({
         users: results.map(entry => ({ 
             username: entry.user_name

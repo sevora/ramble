@@ -22,7 +22,7 @@ router.post('/follow', httpOnlyAuthentication, async (request, response) => {
     const { username } = parameters;
 
     try {
-        await connection.query('INSERT INTO follower (follower_id, follows_id) VALUES (UUID_TO_BIN(?), (SELECT user_id FROM `user` WHERE user_name = ?))', [ uuid, username ]);
+        await connection.query('INSERT INTO follower (follower_id, follows_id) VALUES (UNHEX(?), (SELECT user_id FROM `user` WHERE user_name = ?))', [ uuid, username ]);
     } catch {
         return response.sendStatus(500); // can't follow from or a non-existing account
     }
@@ -43,7 +43,7 @@ router.post('/unfollow', httpOnlyAuthentication, async (request, response) => {
     const { uuid } = request.authenticated!;
     const { username } = parameters;
     
-    await connection.query('DELETE FROM follower WHERE BIN_TO_UUID(follower_id) = ? AND follows_id = (SELECT user_id FROM `user` WHERE user_name = ?)', [ uuid, username ]);
+    await connection.query('DELETE FROM follower WHERE follower_id = UNHEX(?) AND follows_id = (SELECT user_id FROM `user` WHERE user_name = ?)', [ uuid, username ]);
     response.sendStatus(200);
 });
 
@@ -61,11 +61,11 @@ router.post('/ask', httpOnlyAuthentication, async (request, response) => {
     const { username } = parameters;
 
     // if this can be done in a single query that is much more efficient I'm all for it
-    const [ otherUserResult ] = await connection.query<any[]>('SELECT BIN_TO_UUID(user_id) AS `uuid` FROM `user` WHERE user_name = ?', [ username ]);
+    const [ otherUserResult ] = await connection.query<any[]>('SELECT HEX(user_id) AS `uuid` FROM `user` WHERE user_name = ?', [ username ]);
     if (otherUserResult.length === 0) return response.sendStatus(400);
 
-    const [ isFollowerResult ] = await connection.query<any[]>('SELECT * FROM follower WHERE BIN_TO_UUID(follower_id) = ? AND BIN_TO_UUID(follows_id) = ?', [ otherUserResult[0].uuid, uuid ]);
-    const [ isFollowingResult ] = await connection.query<any[]>('SELECT * FROM follower WHERE BIN_TO_UUID(follower_id) = ? AND BIN_TO_UUID(follows_id) = ?', [ uuid, otherUserResult[0].uuid ]);
+    const [ isFollowerResult ] = await connection.query<any[]>('SELECT * FROM follower WHERE follower_id = UNHEX(?) AND follows_id = UNHEX(?)', [ otherUserResult[0].uuid, uuid ]);
+    const [ isFollowingResult ] = await connection.query<any[]>('SELECT * FROM follower WHERE follower_id = UNHEX(?) AND follows_id = UNHEX(?)', [ uuid, otherUserResult[0].uuid ]);
     
     response.json({
         isFollower:  isFollowerResult.length > 0,
@@ -89,14 +89,14 @@ router.post('/count', httpOnlyAuthentication, async (request, response) => {
 
     // if a username is provided, that takes precedence and so we count that person's data instead
     if (username) {
-        const [ userResult ] = await connection.query<any[]>('SELECT BIN_TO_UUID(user_id) AS `uuid` FROM `user` WHERE user_name = ?', [ username ]);
+        const [ userResult ] = await connection.query<any[]>('SELECT HEX(user_id) AS `uuid` FROM `user` WHERE user_name = ?', [ username ]);
         if ( userResult.length === 0 ) return response.sendStatus(404); // user does not exist
         uuid = userResult[0].uuid;
     }
     
     // these queries count the number of followers and following of specified user respectively
-    const [ followerResult ] = await connection.query<any[]>(`SELECT COUNT(*) as follower_count FROM follower WHERE BIN_TO_UUID(follows_id) = ?`, [ uuid ]);
-    const [ followsResult ] = await connection.query<any[]>(`SELECT COUNT(*) as follow_count FROM follower WHERE BIN_TO_UUID(follower_id) = ?`, [ uuid ]);
+    const [ followerResult ] = await connection.query<any[]>(`SELECT COUNT(*) as follower_count FROM follower WHERE follows_id = UNHEX(?)`, [ uuid ]);
+    const [ followsResult ] = await connection.query<any[]>(`SELECT COUNT(*) as follow_count FROM follower WHERE follower_id = UNHEX(?)`, [ uuid ]);
 
     // send the data back
     response.json({
@@ -122,7 +122,7 @@ router.post('/list', httpOnlyAuthentication, async (request, response) => {
 
     // if a username is provided we want to get that one's result instead
     if (username) {
-        const [ userResult ] = await connection.query<any[]>('SELECT BIN_TO_UUID(user_id) AS `uuid` FROM `user` WHERE user_name = ?', [ username ]);
+        const [ userResult ] = await connection.query<any[]>('SELECT HEX(user_id) AS `uuid` FROM `user` WHERE user_name = ?', [ username ]);
         if ( userResult.length === 0 ) return response.sendStatus(404); // user does not exist
         uuid = userResult[0].uuid;
     }
@@ -130,7 +130,7 @@ router.post('/list', httpOnlyAuthentication, async (request, response) => {
     const [ what, from ] = category === 'follower' ? [ 'follower_id', 'follows_id' ] : [ 'follows_id', 'follower_id' ];
 
     // take note of this query very essential for this kind of association
-    const [ results ] = await connection.query<any[]>(`SELECT user_name FROM user, follower WHERE user_id = ${what} AND BIN_TO_UUID(${from}) = ? ORDER BY follow_created_at DESC, BIN_TO_UUID(user_id) LIMIT ?, ?`, [ uuid, page * rowsPerPage, rowsPerPage ]);
+    const [ results ] = await connection.query<any[]>(`SELECT user_name FROM user, follower WHERE user_id = ${what} AND ${from} = UNHEX(?) ORDER BY follow_created_at DESC, HEX(user_id) LIMIT ?, ?`, [ uuid, page * rowsPerPage, rowsPerPage ]);
     
     // we then rename these properties following the convention
     return response.json({ users: results.map(entry => 
