@@ -15,7 +15,7 @@ const rowsPerPage = 10;
 router.post('/new', httpOnlyAuthentication, async (request, response) => {
     const parameters = zodVerify(z.object({
         content: z.string().trim().min(1).max(200),
-        parentId: z.string().regex(/[0-9a-fA-F]+/).length(32)  // for replies
+        parentId: z.string().regex(/[0-9a-fA-F]+/).length(32).optional()  // for replies
     }), request);
 
     if (!parameters) return response.sendStatus(400);
@@ -143,6 +143,7 @@ router.post('/view', httpOnlyAuthentication, async (request, response) => {
             HEX(user_id) as user_uuid,
             user_name,
             user_common_name,
+            user_profile_picture,
 
             -- these are properties that are counted in the other tables
             (SELECT COUNT(*) FROM \`like\` WHERE like_post_id = post_id) AS like_count,
@@ -169,6 +170,7 @@ router.post('/view', httpOnlyAuthentication, async (request, response) => {
         postCreatedAt: post.post_created_at,
         userCommonName: post.user_common_name,
         username: post.user_name,
+        userProfilePicture: post.user_profile_picture,
         likeCount: post.like_count,
         replyCount: post.comment_count,
         hasLiked: post.hasLiked
@@ -218,7 +220,7 @@ router.post('/list', httpOnlyAuthentication, async (request, response) => {
     
     // postIds are only sent back, not all the details
     response.json({
-        posts: results.map(entry => ({ postId: entry.uuid }))
+        posts: results.map(entry => entry.uuid)
     });
 });
 
