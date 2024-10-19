@@ -15,7 +15,7 @@ const rowsPerPage = 10;
 router.post('/new', httpOnlyAuthentication, async (request, response) => {
     const parameters = zodVerify(z.object({
         content: z.string().trim().min(1).max(200),
-        parentId: z.string().uuid().optional()  // for replies
+        parentId: z.string().regex(/[0-9a-fA-F]+/).length(32)  // for replies
     }), request);
 
     if (!parameters) return response.sendStatus(400);
@@ -42,7 +42,7 @@ router.post('/new', httpOnlyAuthentication, async (request, response) => {
  */
 router.post('/delete', httpOnlyAuthentication, async (request, response) => {
     const parameters = zodVerify(z.object({
-        postId: z.string().uuid()
+        postId: z.string().regex(/[0-9a-fA-F]+/).length(32)
     }), request);
 
     if (!parameters) return response.sendStatus(400);
@@ -58,7 +58,7 @@ router.post('/delete', httpOnlyAuthentication, async (request, response) => {
  */
 router.post('/like', httpOnlyAuthentication, async (request, response) => {
     const parameters = zodVerify(z.object({
-        postId: z.string().uuid()
+        postId: z.string().regex(/[0-9a-fA-F]+/).length(32)
     }), request);
 
     if (!parameters) return response.sendStatus(400);
@@ -78,7 +78,7 @@ router.post('/like', httpOnlyAuthentication, async (request, response) => {
  */
 router.post('/dislike', httpOnlyAuthentication, async (request, response) => {
     const parameters = zodVerify(z.object({
-        postId: z.string().uuid()
+        postId: z.string().regex(/[0-9a-fA-F]+/).length(32)
     }), request);
 
     if (!parameters) return response.sendStatus(400);
@@ -122,7 +122,7 @@ router.post('/count', httpOnlyAuthentication, async (request, response) => {
  */
 router.post('/view', httpOnlyAuthentication, async (request, response) => {
     const parameters = zodVerify(z.object({
-        postId: z.string().uuid()
+        postId: z.string().regex(/[0-9a-fA-F]+/).length(32)
     }), request);
 
     if (!parameters) return response.sendStatus(400);
@@ -187,7 +187,7 @@ router.post('/list', httpOnlyAuthentication, async (request, response) => {
     const parameters = zodVerify(z.object({
         page: z.number().min(0),
         username: z.string().min(4).max(25).optional(),
-        parentId: z.string().uuid().optional(),
+        parentId: z.string().regex(/[0-9a-fA-F]+/).length(32).optional(),
         category: z.enum(['trending', 'following']).optional()
     }), request);
 
