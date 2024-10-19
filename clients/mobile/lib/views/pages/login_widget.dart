@@ -242,7 +242,7 @@ class _LogInWidgetState extends State<LogInWidget> {
                                     Navigator.pushReplacement(
                                       context,
                                       PageRouteBuilder(
-                                        pageBuilder: (context, animation1, animation2) => BaseWidget(userController: widget.userController,),
+                                        pageBuilder: (context, animation1, animation2) => BaseWidget(userController: _userController),
                                         transitionDuration: Duration.zero,
                                         reverseTransitionDuration: Duration.zero,
                                       ),

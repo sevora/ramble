@@ -167,4 +167,44 @@ class UserController {
     }));
     return response.statusCode == 200;
   }
+
+  Future<List<PostModel>> searchPosts({ required String content, int page=0 }) async {
+    List<PostModel> posts = [];
+    print("HEY BOZO: $content");
+    var uri = Uri.http(Environment.serverURL, "/search/post");
+    var response = await http.post(uri, headers: _headers, body: jsonEncode({
+      "content": content,
+      "page": page
+    }));
+
+    print(response.body);
+    var postIds = List<String>.from(jsonDecode(response.body)["posts"]);
+    for (var postId in postIds) {
+      posts.add(await viewPost(postId: postId));
+    }
+    print(posts);
+    return posts;
+  }
+
+  Future<List<UserModel>> searchAccounts({ required String username, int page=0 }) async {
+    List<UserModel> users = [];
+    var uri = Uri.http(Environment.serverURL, "/search/account");
+    var response = await http.post(uri, headers: _headers, body: jsonEncode({
+      "username": username,
+      "page": page
+    }));
+
+    var usernames = List<String>.from(jsonDecode(response.body)["users"]);
+    var uri2 = Uri.http(Environment.serverURL, "/account/view");
+    for (var username in usernames) {
+      var response2 = await http.post(uri2, headers: _headers, body: jsonEncode({
+        "username": username
+      }));
+      var body = jsonDecode(response2.body) as Map<String, dynamic>;
+      users.add(UserModel.fromJSONAPI(body));
+    }
+
+    return users;
+  }
+
 }

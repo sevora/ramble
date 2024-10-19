@@ -25,7 +25,7 @@ class _BaseWidgetState extends State<BaseWidget> {
     _pages = [
       PostsWidget(userController: userController),
       SearchWidget(userController: userController),
-      ViewProfileWidget(userController: userController),
+      ViewProfileWidget(userController: userController, user: userController.user,),
       SettingsWidget(userController: userController),
     ];
 

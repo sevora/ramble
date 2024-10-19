@@ -1,15 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:ramble_mobile/views/reusable/tab_filter.dart';
 import '../../controllers/user_controller.dart';
+import '../../models/post_model.dart';
 import '../../themes/light_mode_theme.dart';
 import '../../themes/typography_theme.dart';
 import '../../utilities/utilities.dart';
 import '../reusable/icon_button.dart';
 import '../reusable/mini_profile_widget.dart';
+import '../reusable/post_widget.dart';
 
-class SearchWidget extends StatelessWidget {
-  final UserController _userController;
-  const SearchWidget({super.key, required userController}):
-    _userController = userController;
+class SearchWidget extends StatefulWidget {
+  final UserController userController;
+  const SearchWidget({super.key, required this.userController});
+
+  @override
+  State<SearchWidget> createState() => _SearchWidgetState();
+}
+
+class _SearchWidgetState extends State<SearchWidget> {
+  late UserController _userController;
+  final PagingController<int, PostModel> _pageController = PagingController(firstPageKey: 0);
+
+  String _search = "";
+  String _activeSearch = "";
+  String _filter = "people";
+
+  Future<void> _loadPosts(int pageKey) async {
+    if (_activeSearch.isNotEmpty) {
+      var newPosts = await _userController.searchPosts(page: pageKey, content: _activeSearch);
+      if (newPosts.isNotEmpty) {
+        _pageController.appendPage(newPosts, pageKey+1);
+      } else {
+        _pageController.appendLastPage([]);
+      }
+    } else {
+      _pageController.appendLastPage([]);
+    }
+  }
+
+  @override
+  void initState() {
+    _userController = widget.userController;
+    _pageController.addPageRequestListener((pageKey) {
+      _loadPosts(pageKey);
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +73,11 @@ class SearchWidget extends StatelessWidget {
                   child: SizedBox(
                     width: 200.0,
                     child: TextFormField(
+                      onChanged: (text) {
+                        setState(() {
+                          _search = text;
+                        });
+                      },
                       autofocus: false,
                       obscureText: false,
                       decoration: InputDecoration(
@@ -103,7 +145,10 @@ class SearchWidget extends StatelessWidget {
                       size: 24.0,
                     ),
                     onPressed: () {
-                      print('IconButton pressed ...');
+                      setState(() {
+                        _activeSearch = _search;
+                        _pageController.refresh();
+                      });
                     },
                   ),
                 ),
@@ -111,127 +156,33 @@ class SearchWidget extends StatelessWidget {
             ),
           ),
         ),
-        Container(
-          width: MediaQuery.sizeOf(context).width * 1.0,
-          decoration: BoxDecoration(
-            color: LightModeTheme().secondaryBackground,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Expanded(
-                flex: 1,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: LightModeTheme().secondaryBackground,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text(
-                          'People',
-                          textAlign: TextAlign.center,
-                          style: TypographyTheme().bodyMedium.override(
-                            fontFamily: 'Roboto',
-                            letterSpacing: 0.0,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: MediaQuery.sizeOf(context).width * 1.0,
-                        height: 3.0,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              LightModeTheme().orangePeel,
-                              LightModeTheme().orangePeel
-                            ],
-                            stops: const [0.0, 1.0],
-                            begin: const AlignmentDirectional(0.0, -1.0),
-                            end: const AlignmentDirectional(0, 1.0),
-                          ),
-                          borderRadius: BorderRadius.circular(16.0),
-                          shape: BoxShape.rectangle,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: LightModeTheme().secondaryBackground,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text(
-                          'Posts',
-                          textAlign: TextAlign.center,
-                          style: TypographyTheme().bodyMedium.override(
-                            fontFamily: 'Roboto',
-                            letterSpacing: 0.0,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: MediaQuery.sizeOf(context).width * 1.0,
-                        height: 3.0,
-                        decoration: BoxDecoration(
-                          color: LightModeTheme().secondaryBackground,
-                          borderRadius: BorderRadius.circular(16.0),
-                          shape: BoxShape.rectangle,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Align(
-          alignment: const AlignmentDirectional(0.0, 0.0),
-          child: Container(
-            width: MediaQuery.sizeOf(context).width * 1.0,
-            decoration: const BoxDecoration(),
-            child: ListView(
-              padding: EdgeInsets.zero,
-              primary: false,
-              shrinkWrap: true,
-              scrollDirection: Axis.vertical,
-              children: [
-                MiniProfileWidget(
-                  displayName: 'Another Account',
-                  userName: '@george',
-                  isFollowing: true,
-                  controller: _userController,
-                ),
-                MiniProfileWidget(
-                  displayName: 'Steve',
-                  userName: '@cobblestone',
-                  isFollowing: false,
-                  biography: 'Hello this is a random account.',
-                  controller: _userController,
-                ),
-                MiniProfileWidget(
-                  isFollowing: false,
-                  controller: _userController,
-                ),
-              ].divide(const SizedBox(height: 5.0)),
-            ),
-          ),
-        ),
+        TabFilter(choices: ["people", "posts"], active: _filter, onSelect: (choice) {
+          setState(() {
+            _filter = choice;
+          });
+        }),
+        Expanded(
+            child: PagedListView(
+                pagingController: _pageController,
+                builderDelegate: PagedChildBuilderDelegate<PostModel>(
+                    itemBuilder: (context, item, index) {
+                      return Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                          child: PostWidget(post: item, userController: _userController, allowViewPost: true, onDelete: () {
+                            _pageController.refresh();
+                          })
+                      );
+                    }
+                )
+            )
+        )
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 }
