@@ -136,6 +136,7 @@ router.post('/view', httpOnlyAuthentication, async (request, response) => {
             HEX(post_id) as post_uuid,
             HEX(post_parent_id) as post_parent_uuid,
             post_content,
+            post_media,
             post_created_at,
             
             -- these are the user properties
@@ -164,6 +165,7 @@ router.post('/view', httpOnlyAuthentication, async (request, response) => {
         postId: post.post_uuid,
         postParentId: post.post_parent_uuid,
         postContent: post.post_content,
+        postMedia: post.post_media,
         postCreatedAt: post.post_created_at,
         userCommonName: post.user_common_name,
         username: post.user_name,

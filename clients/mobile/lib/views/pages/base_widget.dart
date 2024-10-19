@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../controllers/user_controller.dart';
 import '../../views/pages/posts_widget.dart';
 import '../../views/pages/search_widget.dart';
 import '../../views/pages/settings_widget.dart';
@@ -6,7 +7,8 @@ import '../../views/pages/view_profile_widget.dart';
 import '../../themes/light_mode_theme.dart';
 
 class BaseWidget extends StatefulWidget {
-  const BaseWidget({super.key});
+  final UserController controller;
+  const BaseWidget({super.key, required this.controller});
 
   @override
   State<BaseWidget> createState() => _BaseWidgetState();
@@ -14,13 +16,21 @@ class BaseWidget extends StatefulWidget {
 
 class _BaseWidgetState extends State<BaseWidget> {
   int _pageIndex = 0;
+  List<Widget> _pages = [];
 
-  final List<Widget> _pages = [
-    const PostsWidget(),
-    const SearchWidget(),
-    const ViewProfileWidget(),
-    const SettingsWidget(),
-  ];
+  @override
+  void initState() {
+    UserController controller = widget.controller;
+
+    _pages = [
+      PostsWidget(controller: controller),
+      SearchWidget(controller: controller),
+      ViewProfileWidget(controller: controller),
+      SettingsWidget(controller: controller),
+    ];
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:ramble_mobile/controllers/user_controller.dart';
 import '../../themes/light_mode_theme.dart';
 import '../../themes/typography_theme.dart';
 import '../../utilities/utilities.dart';
@@ -10,19 +11,22 @@ class MiniProfileWidget extends StatelessWidget {
     super.key,
     String? displayName,
     String? userName,
-    this.isFollowing,
-    this.biography,
+    bool? isFollowing,
+    String? biography,
     String? profileImageURL,
-  })  : displayName = displayName ?? 'Unknown User',
-        userName = userName ?? '@unknown',
-        profileImageURL = profileImageURL ??
-            'https://static.vecteezy.com/system/resources/previews/001/840/618/original/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg';
+    required controller,
+  })  : _biography = biography, _isFollowing = isFollowing, _displayName = displayName ?? 'Unknown User',
+        _userName = userName ?? '@unknown',
+        _profileImageURL = profileImageURL ??
+            'https://static.vecteezy.com/system/resources/previews/001/840/618/original/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg',
+        _controller = controller;
 
-  final String displayName;
-  final String userName;
-  final bool? isFollowing;
-  final String? biography;
-  final String profileImageURL;
+  final String _displayName;
+  final String _userName;
+  final bool? _isFollowing;
+  final String? _biography;
+  final String _profileImageURL;
+  final UserController _controller;
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +68,7 @@ class MiniProfileWidget extends StatelessWidget {
                       child: CachedNetworkImage(
                         fadeInDuration: const Duration(milliseconds: 500),
                         fadeOutDuration: const Duration(milliseconds: 500),
-                        imageUrl: profileImageURL,
+                        imageUrl: _profileImageURL,
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -73,7 +77,7 @@ class MiniProfileWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          displayName,
+                          _displayName,
                           style:
                               TypographyTheme().bodyMedium.override(
                                     fontFamily: 'Roboto',
@@ -82,7 +86,7 @@ class MiniProfileWidget extends StatelessWidget {
                                   ),
                         ),
                         Text(
-                          userName,
+                          _userName,
                           style:
                               TypographyTheme().bodyMedium.override(
                                     fontFamily: 'Roboto',
@@ -103,12 +107,12 @@ class MiniProfileWidget extends StatelessWidget {
                         const EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
                     iconPadding:
                         const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                    color: isFollowing!
+                    color: _isFollowing!
                         ? LightModeTheme().orangePeel
                         : LightModeTheme().secondaryBackground,
                     textStyle: TypographyTheme().titleSmall.override(
                           fontFamily: 'Roboto',
-                          color: isFollowing!
+                          color: _isFollowing
                               ? Colors.white
                               : LightModeTheme().orangePeel,
                           fontSize: 12.0,
@@ -126,7 +130,7 @@ class MiniProfileWidget extends StatelessWidget {
           ),
           Builder(
             builder: (context) {
-              if (biography != null && biography != '') {
+              if (_biography != null && _biography != '') {
                 return Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Container(
@@ -145,7 +149,7 @@ class MiniProfileWidget extends StatelessWidget {
                           const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 10.0),
                       child: Text(
                         valueOrDefault<String>(
-                          biography,
+                          _biography,
                           'Lorem Ipsum',
                         ),
                         maxLines: 3,

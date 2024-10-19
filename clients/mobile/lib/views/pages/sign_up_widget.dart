@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../controllers/user_controller.dart';
 import '../../themes/light_mode_theme.dart';
 import '../../themes/typography_theme.dart';
 import '../../utilities/utilities.dart';
@@ -8,15 +9,23 @@ import './login_widget.dart';
 import 'base_widget.dart';
 
 class SignUpWidget extends StatefulWidget {
-  const SignUpWidget({super.key});
+  final UserController controller;
+  const SignUpWidget({super.key, required this.controller});
 
   @override
   State<SignUpWidget> createState() => _SignUpWidgetState();
 }
 
 class _SignUpWidgetState extends State<SignUpWidget> {
+  late UserController _controller;
   bool _passwordVisibility1 = true;
   bool _passwordVisibility2 = true;
+
+  @override
+  void initState() {
+    _controller = widget.controller;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -345,7 +354,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                                   Navigator.pushReplacement(
                                     context,
                                     PageRouteBuilder(
-                                      pageBuilder: (context, animation1, animation2) => const BaseWidget(),
+                                      pageBuilder: (context, animation1, animation2) => BaseWidget(controller: _controller,),
                                       transitionDuration: Duration.zero,
                                       reverseTransitionDuration: Duration.zero,
                                     ),
@@ -409,7 +418,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                                     Navigator.pushReplacement(
                                       context,
                                       PageRouteBuilder(
-                                        pageBuilder: (context, animation1, animation2) => const LogInWidget(),
+                                        pageBuilder: (context, animation1, animation2) => LogInWidget(controller: _controller,),
                                         transitionDuration: Duration.zero,
                                         reverseTransitionDuration: Duration.zero,
                                       ),

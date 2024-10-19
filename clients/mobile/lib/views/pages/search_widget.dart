@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../controllers/user_controller.dart';
 import '../../themes/light_mode_theme.dart';
 import '../../themes/typography_theme.dart';
 import '../../utilities/utilities.dart';
@@ -6,7 +7,9 @@ import '../reusable/icon_button.dart';
 import '../reusable/mini_profile_widget.dart';
 
 class SearchWidget extends StatelessWidget {
-  const SearchWidget({super.key});
+  final UserController _controller;
+  const SearchWidget({super.key, required controller}):
+    _controller = controller;
 
   @override
   Widget build(BuildContext context) {
@@ -207,19 +210,22 @@ class SearchWidget extends StatelessWidget {
               shrinkWrap: true,
               scrollDirection: Axis.vertical,
               children: [
-                const MiniProfileWidget(
+                MiniProfileWidget(
                   displayName: 'Another Account',
                   userName: '@george',
                   isFollowing: true,
+                  controller: _controller,
                 ),
-                const MiniProfileWidget(
+                MiniProfileWidget(
                   displayName: 'Steve',
                   userName: '@cobblestone',
                   isFollowing: false,
                   biography: 'Hello this is a random account.',
+                  controller: _controller,
                 ),
-                const MiniProfileWidget(
+                MiniProfileWidget(
                   isFollowing: false,
+                  controller: _controller,
                 ),
               ].divide(const SizedBox(height: 5.0)),
             ),

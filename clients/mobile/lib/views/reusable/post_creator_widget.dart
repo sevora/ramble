@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:ramble_mobile/controllers/user_controller.dart';
 import '../../themes/typography_theme.dart';
 import '../../themes/light_mode_theme.dart';
 import '../../utilities/utilities.dart';
 import '../../views/reusable/ramble_icon_button.dart';
 
 class PostCreatorWidget extends StatelessWidget {
-  const PostCreatorWidget({super.key, String? profileImageURL, String? prompt})
-      : profileImageURL = profileImageURL ??
+  const PostCreatorWidget({super.key, String? profileImageURL, String? prompt, required UserController controller })
+      : _profileImageURL = profileImageURL ??
             'https://images.unsplash.com/photo-1517242027094-631f8c218a0f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NTYyMDF8MHwxfHNlYXJjaHw4fHxsZWdvfGVufDB8fHx8MTcyNTUyNTYwMnww&ixlib=rb-4.0.3&q=80&w=1080',
-        prompt = prompt ?? 'What\'s new?';
+        _prompt = prompt ?? 'What\'s new?',
+        _controller = controller;
 
-  final String prompt;
-  final String profileImageURL;
+  final String _prompt;
+  final String _profileImageURL;
+  final UserController _controller;
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +55,7 @@ class PostCreatorWidget extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: Image.network(
-                  profileImageURL,
+                  _profileImageURL,
                   fit: BoxFit.cover,
                 ),
               ),
@@ -71,7 +74,7 @@ class PostCreatorWidget extends StatelessWidget {
                             decoration: InputDecoration(
                               isDense: true,
                               labelStyle: TypographyTheme().labelMedium,
-                              hintText: prompt,
+                              hintText: _prompt,
                               hintStyle: TypographyTheme().labelMedium,
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(width: 1.0),

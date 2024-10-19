@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../controllers/user_controller.dart';
 import '../../themes/light_mode_theme.dart';
 import '../../themes/typography_theme.dart';
 import '../../utilities/utilities.dart';
@@ -8,7 +9,9 @@ import '../reusable/post_creator_widget.dart';
 
 
 class ViewPostWidget extends StatelessWidget {
-  const ViewPostWidget({super.key});
+  final UserController _controller;
+  const ViewPostWidget({super.key, required controller}):
+    _controller = controller;
 
   @override
   Widget build(BuildContext context) {
@@ -198,8 +201,9 @@ class ViewPostWidget extends StatelessWidget {
                     thickness: 2.0,
                     color: LightModeTheme().alternate,
                   ),
-                  const PostCreatorWidget(
+                  PostCreatorWidget(
                     prompt: 'Share your thoughts...',
+                    controller: _controller,
                   ),
                 ].divide(const SizedBox(height: 5.0)),
               ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../controllers/user_controller.dart';
 import '../../views/pages/base_widget.dart';
 import '../../themes/light_mode_theme.dart';
 import '../../themes/typography_theme.dart';
@@ -7,14 +8,22 @@ import '../../views/reusable/button.dart';
 import './sign_up_widget.dart';
 
 class LogInWidget extends StatefulWidget {
-  const LogInWidget({super.key});
+  final UserController controller;
+  const LogInWidget({super.key, required this.controller});
 
   @override
   State<LogInWidget> createState() => _LogInWidgetState();
 }
 
 class _LogInWidgetState extends State<LogInWidget> {
+  late UserController _controller;
   bool _passwordVisibility = true;
+
+  @override
+  void initState() {
+    _controller = widget.controller;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -216,7 +225,7 @@ class _LogInWidgetState extends State<LogInWidget> {
                                   Navigator.pushReplacement(
                                     context,
                                     PageRouteBuilder(
-                                      pageBuilder: (context, animation1, animation2) => const BaseWidget(),
+                                      pageBuilder: (context, animation1, animation2) => BaseWidget(controller: widget.controller,),
                                       transitionDuration: Duration.zero,
                                       reverseTransitionDuration: Duration.zero,
                                     ),
@@ -280,7 +289,7 @@ class _LogInWidgetState extends State<LogInWidget> {
                                     Navigator.pushReplacement(
                                       context,
                                       PageRouteBuilder(
-                                        pageBuilder: (context, animation1, animation2) => const SignUpWidget(),
+                                        pageBuilder: (context, animation1, animation2) => SignUpWidget(controller: _controller,),
                                         transitionDuration: Duration.zero,
                                         reverseTransitionDuration: Duration.zero,
                                       ),

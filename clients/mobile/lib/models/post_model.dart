@@ -1,21 +1,43 @@
 class PostModel {
-  final int postID;
-  final int postUserID;
-  final String postContent;
+  final String postId;
+  final String? postParentId;
+  final String? postContent;
+  final String? postMedia;
   final DateTime postCreatedAt;
 
-  PostModel(
-      {required this.postID,
-      required this.postUserID,
-      required this.postContent,
-      required this.postCreatedAt});
+  final String userCommonName;
+  final String username;
+  final int likeCount;
+  final int replyCount;
+  final bool hasLiked;
 
-  factory PostModel.fromJson(Map<String, dynamic> json) {
-    return PostModel(
-      postID: int.parse(json['post_id'], radix: 2),
-      postUserID: int.parse(json['post_user_id'], radix: 2),
-      postContent: json['post_content'],
-      postCreatedAt: DateTime.parse(json['post_created_at']),
+  PostModel.named({
+    required this.postId,
+    this.postParentId,
+    this.postContent,
+    this.postMedia,
+    required this.postCreatedAt,
+
+    required this.userCommonName,
+    required this.username,
+    required this.likeCount,
+    required this.replyCount,
+    required this.hasLiked
+  });
+
+  factory PostModel.fromJSONAPI(Map<String, dynamic> object) {
+    return PostModel.named(
+        postId: object["postId"],
+        postParentId: object["postParentId"],
+        postContent: object["postContent"],
+        postMedia: object["postMedia"],
+        postCreatedAt: object["postCreatedAt"],
+
+        userCommonName: object["userCommonName"],
+        username: object["username"],
+        likeCount: object["likeCount"],
+        replyCount: object["replyCount"],
+        hasLiked: object["hasLiked"]
     );
   }
 }

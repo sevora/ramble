@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../controllers/user_controller.dart';
 import '../../themes/light_mode_theme.dart';
 import '../../themes/typography_theme.dart';
 import '../../utilities/utilities.dart';
@@ -7,7 +8,9 @@ import '../reusable/button.dart';
 import '../reusable/post_widget.dart';
 
 class ViewProfileWidget extends StatelessWidget {
-  const ViewProfileWidget({super.key});
+  final UserController _controller;
+  const ViewProfileWidget({super.key, required controller}):
+    _controller = controller;
 
   @override
   Widget build(BuildContext context) {
@@ -431,7 +434,7 @@ class ViewProfileWidget extends StatelessWidget {
             primary: false,
             shrinkWrap: true,
             scrollDirection: Axis.vertical,
-            children: const [
+            children: [
               PostWidget(
                 userName: '@felix',
                 displayName: 'Fix it Felix',
@@ -442,9 +445,11 @@ class ViewProfileWidget extends StatelessWidget {
                 likeCount: 2,
                 profileImageURL:
                 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/c7e58dd8-1dd0-4b5e-aac2-307db078977a/d5i4hk9-1751eb66-6fb6-46be-9493-58fe2cb797ca.jpg/v1/fill/w_700,h_700,q_75,strp/fix_it_felix_portrait_by_estefanoida_d5i4hk9-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NzAwIiwicGF0aCI6IlwvZlwvYzdlNThkZDgtMWRkMC00YjVlLWFhYzItMzA3ZGIwNzg5NzdhXC9kNWk0aGs5LTE3NTFlYjY2LTZmYjYtNDZiZS05NDkzLTU4ZmUyY2I3OTdjYS5qcGciLCJ3aWR0aCI6Ijw9NzAwIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.tAjFRcXDR20PmoCPGVgjWoNba3dNICjgGkh7nuoAhXo',
+                controller: _controller,
               ),
               PostWidget(
                 isLiked: true,
+                controller: _controller,
               ),
             ],
           ),

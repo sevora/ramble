@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../controllers/user_controller.dart';
 import '../../views/pages/login_widget.dart';
 import '../../themes/light_mode_theme.dart';
 import '../../themes/typography_theme.dart';
@@ -6,7 +7,9 @@ import '../../utilities/utilities.dart';
 import '../reusable/button.dart';
 
 class SettingsWidget extends StatelessWidget {
-  const SettingsWidget({super.key});
+  final UserController _controller;
+  const SettingsWidget({super.key, required controller}):
+    _controller = controller;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +52,7 @@ class SettingsWidget extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     PageRouteBuilder(
-                      pageBuilder: (context, animation1, animation2) => const LogInWidget(),
+                      pageBuilder: (context, animation1, animation2) => LogInWidget(controller: _controller,),
                       transitionDuration: Duration.zero,
                       reverseTransitionDuration: Duration.zero,
                     ),
