@@ -52,7 +52,6 @@ class UserController {
       "usernameOrEmail": usernameOrEmail,
       "password": password
     }));
-    print(response.body);
 
     String? cookie = response.headers["set-cookie"];
     if (cookie != null) {
