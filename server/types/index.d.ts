@@ -7,7 +7,7 @@ declare namespace Express {
         authenticated?: {
             /**
              * This is a unique identifier for the user, can be used to compare
-             * with `ramble.user.user_id` converted to UUID using `BIN_TO_UUID(...)`
+             * with `ramble.user.user_id` converted to UUID using `HEX(...)` and converted to binary using `UNHEX(...)`
              */
             uuid: string
         }

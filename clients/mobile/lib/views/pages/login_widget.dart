@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../controllers/user_controller.dart';
 import '../../views/pages/base_widget.dart';
 import '../../themes/light_mode_theme.dart';
 import '../../themes/typography_theme.dart';
@@ -7,14 +8,24 @@ import '../../views/reusable/button.dart';
 import './sign_up_widget.dart';
 
 class LogInWidget extends StatefulWidget {
-  const LogInWidget({super.key});
+  final UserController userController;
+  const LogInWidget({super.key, required this.userController});
 
   @override
   State<LogInWidget> createState() => _LogInWidgetState();
 }
 
 class _LogInWidgetState extends State<LogInWidget> {
+  late UserController _userController;
   bool _passwordVisibility = true;
+  String _usernameOrEmail = '';
+  String _password = '';
+
+  @override
+  void initState() {
+    _userController = widget.userController;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +99,11 @@ class _LogInWidgetState extends State<LogInWidget> {
                               padding: const EdgeInsetsDirectional.fromSTEB(
                                   8.0, 0.0, 8.0, 0.0),
                               child: TextFormField(
+                                onChanged: (text) {
+                                  setState(() {
+                                    _usernameOrEmail = text;
+                                  });
+                                },
                                 autofocus: true,
                                 obscureText: false,
                                 decoration: InputDecoration(
@@ -144,6 +160,11 @@ class _LogInWidgetState extends State<LogInWidget> {
                               padding: const EdgeInsetsDirectional.fromSTEB(
                                   8.0, 0.0, 8.0, 0.0),
                               child: TextFormField(
+                                onChanged: (text) {
+                                  setState(() {
+                                    _password = text;
+                                  });
+                                },
                                 autofocus: true,
                                 obscureText: _passwordVisibility,
                                 decoration: InputDecoration(
@@ -213,14 +234,23 @@ class _LogInWidgetState extends State<LogInWidget> {
                                   10.0, 0.0, 10.0, 0.0),
                               child: ButtonWidget(
                                 onPressed: () async {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    PageRouteBuilder(
-                                      pageBuilder: (context, animation1, animation2) => const BaseWidget(),
-                                      transitionDuration: Duration.zero,
-                                      reverseTransitionDuration: Duration.zero,
-                                    ),
-                                  );
+                                  // can push loading screen here
+
+                                  await _userController.login(usernameOrEmail: _usernameOrEmail, password: _password);
+
+                                  if (context.mounted && _userController.loggedIn) {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      PageRouteBuilder(
+                                        pageBuilder: (context, animation1, animation2) => BaseWidget(userController: _userController),
+                                        transitionDuration: Duration.zero,
+                                        reverseTransitionDuration: Duration.zero,
+                                      ),
+                                    );
+                                  } else {
+                                    // failed to log in
+                                  }
+
                                 },
                                 text: 'Log-in',
                                 options: ButtonOptions(
@@ -280,7 +310,7 @@ class _LogInWidgetState extends State<LogInWidget> {
                                     Navigator.pushReplacement(
                                       context,
                                       PageRouteBuilder(
-                                        pageBuilder: (context, animation1, animation2) => const SignUpWidget(),
+                                        pageBuilder: (context, animation1, animation2) => SignUpWidget(userController: _userController,),
                                         transitionDuration: Duration.zero,
                                         reverseTransitionDuration: Duration.zero,
                                       ),

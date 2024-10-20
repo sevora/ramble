@@ -1,76 +1,92 @@
 import 'package:flutter/material.dart';
-
-import '../../themes/light_mode_theme.dart';
-import '../../utilities/utilities.dart';
-
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:ramble_mobile/models/post_model.dart';
+import 'package:ramble_mobile/views/pages/base_widget.dart';
+import '../../controllers/user_controller.dart';
 import '../reusable/post_widget.dart';
 import '../reusable/post_creator_widget.dart';
+import '../reusable/tab_filter.dart';
 
-class PostsWidget extends StatelessWidget {
-  const PostsWidget({super.key});
+class PostsWidget extends StatefulWidget {
+  final UserController userController;
+  final BaseController baseController;
+  const PostsWidget({super.key, required this.userController, required this.baseController });
+
+  @override
+  State<StatefulWidget> createState() => _PostsWidgetState();
+}
+
+class _PostsWidgetState extends State<PostsWidget> {
+  late UserController _userController;
+  final PagingController<int, PostModel> _pageController = PagingController(firstPageKey: 0);
+  String _filter = "following";
+
+  @override
+  void initState() {
+    _userController = widget.userController;
+    _pageController.addPageRequestListener((pageKey) {
+      _loadPosts(pageKey);
+    });
+    super.initState();
+  }
+
+  Future<void> _loadPosts(int pageKey) async {
+    var newPosts = await _userController.getPosts(page: pageKey, category: _filter);
+    if (newPosts.isNotEmpty) {
+      _pageController.appendPage(newPosts, pageKey+1);
+    } else {
+      _pageController.appendLastPage([]);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.max,
       children: [
-        const Padding(
-          padding: EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 10.0),
-          child: PostCreatorWidget()
+        Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 5.0),
+          child: PostCreatorWidget(prompt: "What's new?", controller: _userController,
+            onPost: () async {
+              _pageController.refresh();
+            }
+          )
         ),
-        Container(
-          width: MediaQuery.sizeOf(context).width * 1.0,
-          decoration: BoxDecoration(
-            color: LightModeTheme().secondaryBackground,
+        TabFilter(choices: ["trending", "following"], active: _filter, onSelect: (choice) {
+          setState(() {
+            _filter = choice;
+            _pageController.refresh();
+          });
+        }),
+        Expanded(
+          child: RefreshIndicator(
+          onRefresh: () => Future.sync(
+                () => _pageController.refresh(),
           ),
-          child: Align(
-            alignment: const AlignmentDirectional(0.0, 0.0),
-            child: ListView(
-              padding: EdgeInsets.zero,
-              primary: false,
-              shrinkWrap: true,
-              scrollDirection: Axis.vertical,
-              children: [
-                const PostWidget(
-                  userName: '@goodcat',
-                  displayName: 'Smirkly',
-                  imageURL:
-                      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e',
-                  content:
-                      'Meow meow meow meow, meow, meow, meow meow meow. Meow meow meow meow.',
-                  isLiked: true,
-                  likeCount: 350,
-                  commentCount: 20,
-                  profileImageURL: 'https://i.imgflip.com/5qke6k.jpg',
-                ),
-                const PostWidget(
-                  userName: '@not_a_user',
-                  displayName: 'Le Placeholder',
-                  imageURL: 'https://picsum.photos/seed/632/600',
-                  isLiked: false,
-                  likeCount: 120,
-                  commentCount: 10,
-                ),
-                const PostWidget(
-                  userName: '@fortnite_lover',
-                  displayName: 'Victory Royale',
-                  content:
-                      'Number 1. Victory Royale,\nYeah Fortnite we bout to get down (get down)',
-                  isLiked: false,
-                  likeCount: 420,
-                  commentCount: 50,
-                  profileImageURL:
-                      'https://th.bing.com/th/id/OIP.Bcxd6Lke-5RdH42mY-6uewAAAA?rs=1&pid=ImgDetMain',
-                ),
-                Divider(
-                  thickness: 2.0,
-                  color: LightModeTheme().alternate,
-                ),
-              ].divide(const SizedBox(height: 10.0)),
+            child: PagedListView(
+                pagingController: _pageController,
+                builderDelegate: PagedChildBuilderDelegate<PostModel>(
+                    itemBuilder: (context, item, index) {
+                      return Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                          child: PostWidget(post: item, userController: _userController, allowViewPost: true,
+                            onDelete: () {
+                              _pageController.refresh();
+                          },
+                            baseController: widget.baseController
+                          )
+                      );
+                    }
+                )
             ),
-          ),
+          )
         ),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 }

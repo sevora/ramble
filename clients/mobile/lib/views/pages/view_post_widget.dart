@@ -1,14 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:ramble_mobile/views/pages/base_widget.dart';
+import '../../controllers/user_controller.dart';
+import '../../models/post_model.dart';
 import '../../themes/light_mode_theme.dart';
 import '../../themes/typography_theme.dart';
 import '../../utilities/utilities.dart';
+import '../reusable/post_widget.dart';
 import '../reusable/ramble_icon_button.dart';
 import '../reusable/post_creator_widget.dart';
 
 
-class ViewPostWidget extends StatelessWidget {
-  const ViewPostWidget({super.key});
+class ViewPostWidget extends StatefulWidget {
+  final UserController userController;
+  final PostModel post;
+  final BaseController baseController;
+
+  const ViewPostWidget({super.key, required this.userController, required this.post, required this.baseController});
+
+  @override
+  State<StatefulWidget> createState() => _ViewPostWidgetState();
+}
+
+class _ViewPostWidgetState extends State<ViewPostWidget> {
+  late UserController _userController;
+  late PostModel _post;
+  // List<PostModel> _comments = [];
+  final PagingController<int, PostModel> _pageController = PagingController(firstPageKey: 0);
+
+  @override
+  void initState() {
+    _userController = widget.userController;
+    _post = widget.post;
+    _pageController.addPageRequestListener((pageKey) {
+      _loadPosts(pageKey);
+    });
+    super.initState();
+  }
+
+  Future<void> _loadPosts(int pageKey) async {
+    var newPosts = await _userController.getPosts(page: pageKey, parentId: _post.postId);
+    if (newPosts.isNotEmpty) {
+      _pageController.appendPage(newPosts, pageKey+1);
+    } else {
+      _pageController.appendLastPage([]);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,174 +73,63 @@ class ViewPostWidget extends StatelessWidget {
           ),
           child: Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(10.0, 20.0, 10.0, 10.0),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      RambleIconButton(
-                        borderRadius: 8.0,
-                        icon: Icon(
-                          Icons.arrow_back_ios_new_outlined,
-                          color: LightModeTheme().primaryText,
-                          size: 24.0,
-                        ),
-                        onPressed: () async {
-                          Navigator.pop(context);
-                        },
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    RambleIconButton(
+                      borderRadius: 8.0,
+                      icon: Icon(
+                        Icons.arrow_back_ios_new_outlined,
+                        color: LightModeTheme().primaryText,
+                        size: 24.0,
                       ),
-                      Text(
-                        'Post',
-                        style: TypographyTheme()
-                            .titleLarge
-                            .override(
-                          fontFamily: 'Roboto',
-                          letterSpacing: 0.0,
-                        ),
+                      onPressed: () async {
+                        widget.baseController.pop();
+                      },
+                    ),
+                    Text(
+                      'Post',
+                      style: TypographyTheme()
+                          .titleLarge
+                          .override(
+                        fontFamily: 'Roboto',
+                        letterSpacing: 0.0,
                       ),
-                    ].divide(const SizedBox(width: 10.0)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Container(
-                              width: 70.0,
-                              height: 70.0,
-                              clipBehavior: Clip.antiAlias,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                              ),
-                              child: CachedNetworkImage(
-                                fadeInDuration: const Duration(milliseconds: 500),
-                                fadeOutDuration:
-                                const Duration(milliseconds: 500),
-                                imageUrl:
-                                'https://images.unsplash.com/photo-1517242027094-631f8c218a0f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NTYyMDF8MHwxfHNlYXJjaHw4fHxsZWdvfGVufDB8fHx8MTcyNTUyNTYwMnww&ixlib=rb-4.0.3&q=80&w=1080',
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            Column(
-                              mainAxisSize: MainAxisSize.max,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'User A',
-                                  style: TypographyTheme()
-                                      .bodyMedium
-                                      .override(
-                                    fontFamily: 'Roboto',
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Align(
-                                  alignment:
-                                  const AlignmentDirectional(-1.0, 0.0),
-                                  child: Text(
-                                    '@user_a',
-                                    style: TypographyTheme()
-                                        .bodyMedium
-                                        .override(
-                                      fontFamily: 'Roboto',
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ].divide(const SizedBox(width: 10.0)),
-                        ),
-                        Column(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Align(
-                              alignment: const AlignmentDirectional(-1.0, 0.0),
-                              child: Text(
-                                'Lorem ipsum odor amet, consectetuer adipiscing elit. Montes quisque sem pulvinar fames; luctus tristique. Varius dictumst fringilla imperdiet primis primis. Ligula vehicula dictum potenti cursus sapien. Laoreet egestas feugiat morbi mauris felis scelerisque netus ex. Tincidunt parturient dictumst lacus felis placerat congue laoreet enim. Primis imperdiet mattis sem platea diam hendrerit eros. Mauris velit tempor inceptos interdum ut condimentum pulvinar? Iaculis libero morbi adipiscing nam consectetur vestibulum posuere.',
-                                style: TypographyTheme()
-                                    .bodyMedium
-                                    .override(
-                                  fontFamily: 'Roboto',
-                                  letterSpacing: 0.0,
-                                ),
-                              ),
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: LightModeTheme()
-                                    .secondaryText,
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8.0),
-                                child: Image.asset(
-                                  'assets/images/sample-thumbnail.jpg',
-                                  width: MediaQuery.sizeOf(context).width *
-                                      1.0,
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                            ),
-                          ].divide(const SizedBox(height: 10.0)),
-                        ),
-                      ].divide(const SizedBox(height: 15.0)),
                     ),
-                  ),
-                  Padding(
-                    padding:
-                    const EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 0.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        RambleIconButton(
-                          borderColor: Colors.transparent,
-                          borderRadius: 8.0,
-                          buttonSize: 40.0,
-                          icon: Icon(
-                            Icons.favorite_border,
-                            color: LightModeTheme().primaryText,
-                            size: 24.0,
-                          ),
-                          onPressed: () {
-                            print('IconButton pressed ...');
-                          },
-                        ),
-                        RambleIconButton(
-                          borderColor: Colors.transparent,
-                          borderRadius: 8.0,
-                          buttonSize: 40.0,
-                          icon: Icon(
-                            Icons.keyboard_control,
-                            color: LightModeTheme().primaryText,
-                            size: 24.0,
-                          ),
-                          onPressed: () {
-                            print('IconButton pressed ...');
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  Divider(
-                    thickness: 2.0,
-                    color: LightModeTheme().alternate,
-                  ),
-                  const PostCreatorWidget(
-                    prompt: 'Share your thoughts...',
-                  ),
-                ].divide(const SizedBox(height: 5.0)),
-              ),
+                  ].divide(const SizedBox(width: 10.0)),
+                ),
+                PostWidget(post: _post, userController: _userController, onDelete: () {
+                  widget.baseController.pop();
+                }, baseController: widget.baseController,),
+                PostCreatorWidget(
+                  prompt: 'Share your thoughts...',
+                  controller: _userController,
+                  post: _post,
+                  onPost: () {
+                    _pageController.refresh();
+                  },
+                ),
+
+                Expanded(
+                    child: PagedListView(
+                        pagingController: _pageController,
+                        builderDelegate: PagedChildBuilderDelegate<PostModel>(
+                            itemBuilder: (context, item, index) {
+                              return Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                                  child: PostWidget(post: item, userController: _userController, allowViewPost: true, onDelete: () {
+                                    _pageController.refresh();
+                                  }, baseController: widget.baseController)
+                              );
+                            }
+                        )
+                    )
+                )
+              ].divide(const SizedBox(height: 5.0)),
             ),
           ),
         ),

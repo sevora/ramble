@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'controllers/user_controller.dart';
 import 'views/pages/login_widget.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
       title: 'Ramble',
       home: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
-          child: const LogInWidget()
+          child: LogInWidget(userController: UserController())
       ),
     );
   }

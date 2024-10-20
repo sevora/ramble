@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:ramble_mobile/controllers/user_controller.dart';
+import 'package:ramble_mobile/views/pages/base_widget.dart';
+import 'package:ramble_mobile/views/pages/view_profile_widget.dart';
+import '../../models/post_model.dart';
 import '../../themes/light_mode_theme.dart';
 import '../../themes/typography_theme.dart';
 import '../../utilities/utilities.dart';
@@ -8,37 +12,51 @@ import '../../views/reusable/button.dart';
 import '../../views/reusable/ramble_icon_button.dart';
 import '../pages/view_post_widget.dart';
 
-class PostWidget extends StatelessWidget {
+class PostWidget extends StatefulWidget {
+  final PostModel post;
+  final UserController userController;
+  final bool allowViewPost;
+  final Function()? onDelete;
+  final BaseController baseController;
+
   const PostWidget({
     super.key,
-    String? userName,
-    String? displayName,
-    String? imageURL,
-    String? content,
-    String? relativeDate,
-    bool? isLiked,
-    int? likeCount,
-    int? commentCount,
-    String? profileImageURL,
-  })  : userName = userName ?? '@unknown',
-        displayName = displayName ?? 'Unknown User',
-        profileImageURL = profileImageURL ?? '',
-        imageURL = imageURL ?? '',
-        content = content ?? 'No content found.',
-        relativeDate = relativeDate ?? '3 hours ago',
-        isLiked = isLiked ?? false,
-        likeCount = likeCount ?? 0,
-        commentCount = commentCount ?? 0;
+    required this.post,
+    required this.userController,
+    this.allowViewPost=false,
+    this.onDelete,
+    required this.baseController
+  });
 
-  final String userName;
-  final String displayName;
-  final String profileImageURL;
-  final String imageURL;
-  final String content;
-  final String relativeDate;
-  final bool isLiked;
-  final int likeCount;
-  final int commentCount;
+  @override
+  State<StatefulWidget> createState() => _PostWidgetState();
+}
+
+class _PostWidgetState extends State<PostWidget> {
+  late PostModel _post;
+  late UserController _userController;
+  late bool _allowViewPost;
+
+  Future<void> _toggleLike() async {
+    if (_post.hasLiked) {
+      await _userController.dislikePost(postId: _post.postId);
+    } else {
+      await _userController.likePost(postId: _post.postId);
+    }
+
+    var updatedPost = await _userController.viewPost(postId: _post.postId);
+    setState(() {
+      _post = updatedPost;
+    });
+  }
+
+  @override
+  void initState() {
+    _post = widget.post;
+    _userController = widget.userController;
+    _allowViewPost = widget.allowViewPost;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,77 +84,82 @@ class PostWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: 46.0,
-                  height: 46.0,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
+            InkWell(
+              onTap: () async {
+                var user = await _userController.getUser(username: _post.username);
+                widget.baseController.push(ViewProfileWidget(userController: _userController, user: user, baseController: widget.baseController, key: Key(user.username)));
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 46.0,
+                    height: 46.0,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                    ),
+                    child: CachedNetworkImage(
+                      fadeInDuration: const Duration(milliseconds: 500),
+                      fadeOutDuration: const Duration(milliseconds: 500),
+                      imageUrl: _post.userProfilePicture ?? '',
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Image.asset("assets/profile_placeholder.jpg"),
+                      errorWidget: (context, url, error) => Image.asset("assets/profile_placeholder.jpg"),
+                    ),
                   ),
-                  child: CachedNetworkImage(
-                    fadeInDuration: const Duration(milliseconds: 500),
-                    fadeOutDuration: const Duration(milliseconds: 500),
-                    imageUrl: profileImageURL,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                Expanded(
-                  child: Align(
-                    alignment: const AlignmentDirectional(0.0, 0.0),
-                    child: Container(
-                      decoration: const BoxDecoration(),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                displayName,
-                                style: TypographyTheme().bodyMedium.override(
-                                      fontFamily: 'Roboto',
-                                      fontSize: 15.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                              ),
-                              Text(
-                                valueOrDefault<String>(
-                                  userName,
-                                  '@unknown',
+                  Expanded(
+                    child: Align(
+                      alignment: const AlignmentDirectional(0.0, 0.0),
+                      child: Container(
+                        decoration: const BoxDecoration(),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              mainAxisSize: MainAxisSize.max,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _post.userCommonName,
+                                  style: TypographyTheme().bodyMedium.override(
+                                        fontFamily: 'Roboto',
+                                        fontSize: 15.0,
+                                        letterSpacing: 0.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                 ),
+                                Text(
+                                    '@${_post.username}',
+                                  style: TypographyTheme().bodyMedium.override(
+                                        fontFamily: 'Roboto',
+                                        letterSpacing: 0.0,
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                ),
+                              ],
+                            ),
+                            Opacity(
+                              opacity: 0.8,
+                              child: Text(
+                                "42 hours ago",
                                 style: TypographyTheme().bodyMedium.override(
                                       fontFamily: 'Roboto',
+                                      fontSize: 12.0,
                                       letterSpacing: 0.0,
-                                      fontWeight: FontWeight.normal,
+                                      fontWeight: FontWeight.w500,
                                     ),
                               ),
-                            ],
-                          ),
-                          Opacity(
-                            opacity: 0.8,
-                            child: Text(
-                              relativeDate,
-                              style: TypographyTheme().bodyMedium.override(
-                                    fontFamily: 'Roboto',
-                                    fontSize: 12.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
                             ),
-                          ),
-                        ].divide(const SizedBox(width: 10.0)),
+                          ].divide(const SizedBox(width: 10.0)),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ].divide(const SizedBox(width: 10.0)),
+                ].divide(const SizedBox(width: 10.0)),
+              ),
             ),
             InkWell(
               splashColor: Colors.transparent,
@@ -144,9 +167,10 @@ class PostWidget extends StatelessWidget {
               hoverColor: Colors.transparent,
               highlightColor: Colors.transparent,
               onTap: () async {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const ViewPostWidget()));
-              },
+                if (_allowViewPost) {
+                  widget.baseController.push(ViewPostWidget(key: Key(_post.postId), post: _post, userController: _userController,baseController: widget.baseController));
+                  }
+                },
               child: Column(
                 mainAxisSize: MainAxisSize.max,
                 children: [
@@ -156,7 +180,7 @@ class PostWidget extends StatelessWidget {
                       padding: const EdgeInsetsDirectional.fromSTEB(
                           0.0, 15.0, 0.0, 0.0),
                       child: Text(
-                        content,
+                        _post.postContent,
                         maxLines: 3,
                         style: TypographyTheme().bodyMedium.override(
                               fontFamily: 'Roboto',
@@ -167,28 +191,16 @@ class PostWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Align(
-                    alignment: const AlignmentDirectional(1.0, 0.0),
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(
-                          0.0, 5.0, 7.0, 5.0),
-                      child: Text(
-                        'Read more...',
-                        style: TypographyTheme().bodyMedium.override(
-                              fontFamily: 'Roboto',
-                              color: LightModeTheme().orangePeel,
-                              letterSpacing: 0.0,
-                            ),
-                      ),
-                    ),
-                  ),
-                  if (imageURL != '')
+
+                  if (_post.postMedia != null)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8.0),
                       child: CachedNetworkImage(
+                        placeholder: (context, url) => Image.asset("assets/profile_placeholder.jpg"),
+                        errorWidget: (context, url, error) => Image.asset("assets/profile_placeholder.jpg"),
                         fadeInDuration: const Duration(milliseconds: 500),
                         fadeOutDuration: const Duration(milliseconds: 500),
-                        imageUrl: imageURL,
+                        imageUrl: _post.postMedia!,
                         width: MediaQuery.sizeOf(context).width * 1.0,
                         height: 200.0,
                         fit: BoxFit.cover,
@@ -207,16 +219,13 @@ class PostWidget extends StatelessWidget {
                 children: [
                   Builder(
                     builder: (context) {
-                      if (valueOrDefault<bool>(
-                        isLiked,
-                        false,
-                      )) {
+                      if (_post.hasLiked) {
                         return ButtonWidget(
                           onPressed: () {
-                            print('Button pressed ...');
+                            _toggleLike();
                           },
                           text: formatNumber(
-                            likeCount,
+                            _post.likeCount,
                             formatType: FormatType.compact,
                           ),
                           icon: const Icon(
@@ -232,7 +241,7 @@ class PostWidget extends StatelessWidget {
                             color: LightModeTheme().secondaryBackground,
                             textStyle: TypographyTheme().titleSmall.override(
                                   fontFamily: 'Roboto',
-                                  color: isLiked
+                                  color: _post.hasLiked
                                       ? LightModeTheme().orangePeel
                                       : LightModeTheme().primaryText,
                                   fontSize: 15.0,
@@ -245,10 +254,10 @@ class PostWidget extends StatelessWidget {
                       } else {
                         return ButtonWidget(
                           onPressed: () {
-                            print('Button pressed ...');
+                            _toggleLike();
                           },
                           text: formatNumber(
-                            likeCount,
+                            _post.likeCount,
                             formatType: FormatType.compact,
                           ),
                           icon: const Icon(
@@ -277,10 +286,12 @@ class PostWidget extends StatelessWidget {
                   ),
                   ButtonWidget(
                     onPressed: () {
-                      print('Button pressed ...');
+                      if (_allowViewPost) {
+                        widget.baseController.push(ViewPostWidget(key: Key(_post.postId), post: _post, userController: _userController,baseController: widget.baseController));
+                      }
                     },
                     text: formatNumber(
-                      commentCount,
+                      _post.replyCount,
                       formatType: FormatType.compact,
                     ),
                     icon: const FaIcon(
@@ -304,18 +315,22 @@ class PostWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
-                  RambleIconButton(
-                    borderRadius: 8.0,
-                    buttonSize: 40.0,
-                    icon: Icon(
-                      Icons.keyboard_control,
-                      color: LightModeTheme().primaryText,
-                      size: 20.0,
+                  if (_post.username == _userController.user.username)
+                    RambleIconButton(
+                      borderRadius: 8.0,
+                      buttonSize: 40.0,
+                      icon: Icon(
+                        Icons.delete_outline,
+                        color: LightModeTheme().primaryText,
+                        size: 20.0,
+                      ),
+                      onPressed: () async {
+                        var success = await _userController.deletePost(postId: _post.postId);
+                        if (success && widget.onDelete != null) {
+                          widget.onDelete!();
+                        }
+                      },
                     ),
-                    onPressed: () {
-                      print('IconButton pressed ...');
-                    },
-                  ),
                 ].divide(const SizedBox(width: 5.0)),
               ),
             ),

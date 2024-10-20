@@ -1,17 +1,39 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:ramble_mobile/controllers/user_controller.dart';
+import 'package:ramble_mobile/models/post_model.dart';
 import '../../themes/typography_theme.dart';
 import '../../themes/light_mode_theme.dart';
 import '../../utilities/utilities.dart';
 import '../../views/reusable/ramble_icon_button.dart';
 
-class PostCreatorWidget extends StatelessWidget {
-  const PostCreatorWidget({super.key, String? profileImageURL, String? prompt})
-      : profileImageURL = profileImageURL ??
-            'https://images.unsplash.com/photo-1517242027094-631f8c218a0f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NTYyMDF8MHwxfHNlYXJjaHw4fHxsZWdvfGVufDB8fHx8MTcyNTUyNTYwMnww&ixlib=rb-4.0.3&q=80&w=1080',
-        prompt = prompt ?? 'What\'s new?';
-
+class PostCreatorWidget extends StatefulWidget {
   final String prompt;
-  final String profileImageURL;
+  final UserController controller;
+  final PostModel? post;
+  final Function()? onPost;
+
+  const PostCreatorWidget({super.key, required this.prompt, required this.controller, this.post, this.onPost });
+
+  @override
+  State<StatefulWidget> createState() => _PostCreatorWidgetState();
+}
+
+class _PostCreatorWidgetState extends State<PostCreatorWidget> {
+  late String _prompt;
+  late UserController _controller;
+  String _content = "";
+  PostModel? _post;
+
+  final _textController = TextEditingController();
+
+  @override
+  void initState() {
+    _prompt = widget.prompt;
+    _controller = widget.controller;
+    _post = widget.post;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,9 +73,10 @@ class PostCreatorWidget extends StatelessWidget {
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                 ),
-                child: Image.network(
-                  profileImageURL,
-                  fit: BoxFit.cover,
+                child: CachedNetworkImage(
+                  imageUrl: _controller.user.userProfilePicture ?? '',
+                  placeholder: (context, url) => Image.asset("assets/profile_placeholder.jpg"),
+                  errorWidget: (context, url, error) => Image.asset("assets/profile_placeholder.jpg"),
                 ),
               ),
               Expanded(
@@ -66,12 +89,18 @@ class PostCreatorWidget extends StatelessWidget {
                       SizedBox(
                         width: MediaQuery.sizeOf(context).width * 1.0,
                         child: TextFormField(
+                          controller: _textController,
+                          onChanged: (text) {
+                            setState(() {
+                              _content = text;
+                            });
+                          },
                             autofocus: false,
                             obscureText: false,
                             decoration: InputDecoration(
                               isDense: true,
                               labelStyle: TypographyTheme().labelMedium,
-                              hintText: prompt,
+                              hintText: _prompt,
                               hintStyle: TypographyTheme().labelMedium,
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(width: 1.0),
@@ -134,8 +163,18 @@ class PostCreatorWidget extends StatelessWidget {
                                 color: LightModeTheme().primaryText,
                                 size: 24.0,
                               ),
-                              onPressed: () {
-                                print('IconButton pressed ...');
+                              onPressed: () async {
+                                // make a post
+                                var success = await _controller.createPost(content: _content, parentId: _post?.postId);
+
+                                if (success && widget.onPost != null) {
+                                  widget.onPost!();
+                                }
+
+                                setState(() {
+                                  _content = "";
+                                  _textController.clear();
+                                });
                               },
                             ),
                           ],

@@ -13,7 +13,7 @@ function verifyEnvironmentVariables() {
         'MYSQL_DATABASE', 
         'SERVER_JWT_KEY', 
         // 'SERVER_PORT', is also optional
-        'CLIENT_URL', 
+        // 'CLIENT_URL', 
         'COOKIE_SAME_SITE', 
         'COOKIE_SECURE'
     ].filter(key => process.env[key] === undefined);

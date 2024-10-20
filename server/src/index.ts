@@ -19,7 +19,7 @@ const port = process.env.SERVER_PORT || 80;
  */
 application.use([
     cors({
-        origin: process.env.CLIENT_URL,
+        origin: "*",
         methods: ['GET', 'POST'],
         credentials: true
     }),

@@ -15,7 +15,7 @@ const rowsPerPage = 10;
 router.post('/new', httpOnlyAuthentication, async (request, response) => {
     const parameters = zodVerify(z.object({
         content: z.string().trim().min(1).max(200),
-        parentId: z.string().uuid().optional()  // for replies
+        parentId: z.string().regex(/[0-9a-fA-F]+/).length(32).optional()  // for replies
     }), request);
 
     if (!parameters) return response.sendStatus(400);
@@ -27,7 +27,7 @@ router.post('/new', httpOnlyAuthentication, async (request, response) => {
         // could look more beautiful
         await connection.query(`
         INSERT INTO post (post_user_id, post_content ${parentId ? ', post_parent_id' : ''}) 
-        VALUES (UUID_TO_BIN(?), ? ${parentId ? ', UUID_TO_BIN(?)' : ''})`,
+        VALUES (UNHEX(?), ? ${parentId ? ', UNHEX(?)' : ''})`,
             [uuid, content, parentId]);
         return response.sendStatus(200);
     } catch (error) {
@@ -42,14 +42,14 @@ router.post('/new', httpOnlyAuthentication, async (request, response) => {
  */
 router.post('/delete', httpOnlyAuthentication, async (request, response) => {
     const parameters = zodVerify(z.object({
-        postId: z.string().uuid()
+        postId: z.string().regex(/[0-9a-fA-F]+/).length(32)
     }), request);
 
     if (!parameters) return response.sendStatus(400);
     const { uuid } = request.authenticated!;
     const { postId } = parameters;
 
-    await connection.query('DELETE FROM post WHERE BIN_TO_UUID(post_user_id) = ? AND BIN_TO_UUID(post_id) = ?', [uuid, postId]);
+    await connection.query('DELETE FROM post WHERE post_user_id = UNHEX(?) AND post_id = UNHEX(?)', [uuid, postId]);
     response.sendStatus(200);
 });
 
@@ -58,7 +58,7 @@ router.post('/delete', httpOnlyAuthentication, async (request, response) => {
  */
 router.post('/like', httpOnlyAuthentication, async (request, response) => {
     const parameters = zodVerify(z.object({
-        postId: z.string().uuid()
+        postId: z.string().regex(/[0-9a-fA-F]+/).length(32)
     }), request);
 
     if (!parameters) return response.sendStatus(400);
@@ -66,7 +66,7 @@ router.post('/like', httpOnlyAuthentication, async (request, response) => {
     const { postId } = parameters;
 
     try {
-        await connection.query('INSERT INTO `like` (like_user_id, like_post_id) VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?))', [uuid, postId]);
+        await connection.query('INSERT INTO `like` (like_user_id, like_post_id) VALUES (UNHEX(?), UNHEX(?))', [uuid, postId]);
         return response.sendStatus(200);
     } catch {
         return response.sendStatus(500); // can't double like a post
@@ -78,14 +78,14 @@ router.post('/like', httpOnlyAuthentication, async (request, response) => {
  */
 router.post('/dislike', httpOnlyAuthentication, async (request, response) => {
     const parameters = zodVerify(z.object({
-        postId: z.string().uuid()
+        postId: z.string().regex(/[0-9a-fA-F]+/).length(32)
     }), request);
 
     if (!parameters) return response.sendStatus(400);
     const { uuid } = request.authenticated!;
     const { postId } = parameters;
 
-    await connection.query('DELETE FROM `like` WHERE BIN_TO_UUID(like_user_id) = ? AND BIN_TO_UUID(like_post_id) = ?', [uuid, postId]);
+    await connection.query('DELETE FROM `like` WHERE like_user_id = UNHEX(?) AND like_post_id = UNHEX(?)', [uuid, postId]);
     return response.sendStatus(200);
 });
 
@@ -105,12 +105,12 @@ router.post('/count', httpOnlyAuthentication, async (request, response) => {
 
     // if a username is provided, that takes precedence
     if (username) {
-        const [userResult] = await connection.query<any[]>('SELECT BIN_TO_UUID(user_id) AS `uuid` FROM user WHERE user_name = ?', [username]);
+        const [userResult] = await connection.query<any[]>('SELECT HEX(user_id) AS `uuid` FROM user WHERE user_name = ?', [username]);
         if (userResult.length === 0) return response.sendStatus(404); // user does not exist
         uuid = userResult[0].uuid;
     }
 
-    const [result] = await connection.query<any[]>(`SELECT COUNT(*) as post_count FROM post WHERE BIN_TO_UUID(post_user_id) = ?`, [uuid]);
+    const [result] = await connection.query<any[]>(`SELECT COUNT(*) as post_count FROM post WHERE post_user_id = UNHEX(?)`, [uuid]);
     response.json({
         postCount: result[0].post_count
     });
@@ -122,7 +122,7 @@ router.post('/count', httpOnlyAuthentication, async (request, response) => {
  */
 router.post('/view', httpOnlyAuthentication, async (request, response) => {
     const parameters = zodVerify(z.object({
-        postId: z.string().uuid()
+        postId: z.string().regex(/[0-9a-fA-F]+/).length(32)
     }), request);
 
     if (!parameters) return response.sendStatus(400);
@@ -133,29 +133,31 @@ router.post('/view', httpOnlyAuthentication, async (request, response) => {
     const [result] = await connection.query<any[]>(`
         SELECT 
             -- these are the post properties
-            BIN_TO_UUID(post_id) as post_uuid,
-            BIN_TO_UUID(post_parent_id) as post_parent_uuid,
+            HEX(post_id) as post_uuid,
+            HEX(post_parent_id) as post_parent_uuid,
             post_content,
+            post_media,
             post_created_at,
             
             -- these are the user properties
-            BIN_TO_UUID(user_id) as user_uuid,
+            HEX(user_id) as user_uuid,
             user_name,
             user_common_name,
+            user_profile_picture,
 
             -- these are properties that are counted in the other tables
             (SELECT COUNT(*) FROM \`like\` WHERE like_post_id = post_id) AS like_count,
             (SELECT COUNT(*) FROM post WHERE post_parent_id = source_post.post_id) AS comment_count,
-            (SELECT COUNT(*) FROM \`like\` WHERE BIN_TO_UUID(like_user_id) = ? AND like_post_id = post_id) > 0 AS hasLiked
+            (SELECT COUNT(*) FROM \`like\` WHERE like_user_id = UNHEX(?) AND like_post_id = post_id) > 0 AS hasLiked
         -- we give it an alias to be able to reference it inside inner queries
         FROM 
             post source_post
         -- some properties are needed from the user table
         LEFT JOIN 
-            \`user\` u ON BIN_TO_UUID(user_id) = BIN_TO_UUID(post_user_id)
+            \`user\` u ON user_id = post_user_id
         -- we find the post with the same postId
         WHERE 
-            BIN_TO_UUID(post_id) = ?`, [ uuid, postId ]);
+            post_id = UNHEX(?)`, [ uuid, postId ]);
 
     if (result.length === 0) return response.sendStatus(404);
     const post = result[0];
@@ -164,12 +166,14 @@ router.post('/view', httpOnlyAuthentication, async (request, response) => {
         postId: post.post_uuid,
         postParentId: post.post_parent_uuid,
         postContent: post.post_content,
+        postMedia: post.post_media,
         postCreatedAt: post.post_created_at,
         userCommonName: post.user_common_name,
         username: post.user_name,
+        userProfilePicture: post.user_profile_picture,
         likeCount: post.like_count,
         replyCount: post.comment_count,
-        hasLiked: post.hasLiked
+        hasLiked: post.hasLiked > 0
     });
 });
 
@@ -187,8 +191,8 @@ router.post('/list', httpOnlyAuthentication, async (request, response) => {
     const parameters = zodVerify(z.object({
         page: z.number().min(0),
         username: z.string().min(4).max(25).optional(),
-        parentId: z.string().uuid().optional(),
-        category: z.enum(['trending', 'following']).optional()
+        parentId: z.string().regex(/[0-9a-fA-F]+/).length(32).optional(),
+        category: z.enum(['trending', 'following', 'likes']).optional()
     }), request);
 
     if (!parameters) return response.sendStatus(400);
@@ -200,23 +204,26 @@ router.post('/list', httpOnlyAuthentication, async (request, response) => {
 
     // query intended to get the replies to a post
     if (parentId)
-        [results] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) AS `uuid` FROM post WHERE BIN_TO_UUID(post_parent_id) = ? ORDER BY post_created_at DESC, BIN_TO_UUID(post_id) LIMIT ?, ?', [parentId, ...pagination]);
+        [results] = await connection.query<any[]>('SELECT HEX(post_id) AS `uuid` FROM post WHERE post_parent_id = UNHEX(?) ORDER BY post_created_at DESC, HEX(post_id) LIMIT ?, ?', [parentId, ...pagination]);
 
     // query to get the posts of a user
     else if (username)
-        [results] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) AS `uuid` FROM post JOIN user ON post_user_id = user_id WHERE user_name = ? ORDER BY post_created_at DESC, BIN_TO_UUID(post_id) LIMIT ?, ?', [username, ...pagination]);
+        [results] = await connection.query<any[]>('SELECT HEX(post_id) AS `uuid` FROM post JOIN user ON post_user_id = user_id WHERE user_name = ? ORDER BY post_created_at DESC, HEX(post_id) LIMIT ?, ?', [username, ...pagination]);
 
     // this query was intended to be for trending posts, but because of issues when paginating and duplicates, we do global instead
     else if (category === 'trending')
-        [results] = await connection.query<any[]>('SELECT BIN_TO_UUID(post_id) AS `uuid` FROM post ORDER BY post_created_at DESC, BIN_TO_UUID(post_id) DESC LIMIT ?, ?', pagination);
+        [results] = await connection.query<any[]>('SELECT HEX(post_id) AS `uuid` FROM post ORDER BY post_created_at DESC, HEX(post_id) DESC LIMIT ?, ?', pagination);
 
     // query to get the posts but only when following the user
     else if (category === 'following')
-        [results] = await connection.query<any[]>('(SELECT BIN_TO_UUID(post_id) AS `uuid`, post_id, post_created_at FROM post JOIN follower ON (post_user_id = follows_id AND BIN_TO_UUID(follower_id) = ?)) UNION (SELECT BIN_TO_UUID(p.post_id) AS `uuid`, p.post_id, p.post_created_at FROM post p WHERE BIN_TO_UUID(p.post_user_id) = ?) ORDER BY post_created_at DESC, BIN_TO_UUID(post_id) LIMIT ?, ?', [uuid, uuid, ...pagination]);
+        [results] = await connection.query<any[]>('(SELECT HEX(post_id) AS `uuid`, post_id, post_created_at FROM post JOIN follower ON (post_user_id = follows_id AND follower_id = UNHEX(?))) UNION (SELECT HEX(p.post_id) AS `uuid`, p.post_id, p.post_created_at FROM post p WHERE p.post_user_id = UNHEX(?)) ORDER BY post_created_at DESC, HEX(post_id) LIMIT ?, ?', [uuid, uuid, ...pagination]);
     
+    else if (category === 'likes')
+        [results] = await connection.query<any[]>('(SELECT HEX(post_id) AS `uuid`, post_id, post_created_at FROM post JOIN `like` ON (post_id = like_post_id AND like_user_id = UNHEX(?))) ORDER BY post_created_at DESC, HEX(post_id) LIMIT ?, ?', [uuid, ...pagination]);
+
     // postIds are only sent back, not all the details
     response.json({
-        posts: results.map(entry => ({ postId: entry.uuid }))
+        posts: results.map(entry => entry.uuid)
     });
 });
 

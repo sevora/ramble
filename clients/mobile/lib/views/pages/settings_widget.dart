@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../controllers/user_controller.dart';
 import '../../views/pages/login_widget.dart';
 import '../../themes/light_mode_theme.dart';
 import '../../themes/typography_theme.dart';
@@ -6,7 +7,9 @@ import '../../utilities/utilities.dart';
 import '../reusable/button.dart';
 
 class SettingsWidget extends StatelessWidget {
-  const SettingsWidget({super.key});
+  final UserController _userController;
+  const SettingsWidget({super.key, required userController}):
+    _userController = userController;
 
   @override
   Widget build(BuildContext context) {
@@ -46,14 +49,19 @@ class SettingsWidget extends StatelessWidget {
               ),
               child: ButtonWidget(
                 onPressed: () async {
-                  Navigator.pushReplacement(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation1, animation2) => const LogInWidget(),
-                      transitionDuration: Duration.zero,
-                      reverseTransitionDuration: Duration.zero,
-                    ),
-                  );
+                  await _userController.logout();
+
+                  if (context.mounted) {
+                    Navigator.pushReplacement(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation1, animation2) =>
+                            LogInWidget(userController: _userController,),
+                        transitionDuration: Duration.zero,
+                        reverseTransitionDuration: Duration.zero,
+                      ),
+                    );
+                  }
                 },
                 text: 'Log-out',
                 options: ButtonOptions(

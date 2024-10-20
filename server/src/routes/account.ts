@@ -15,14 +15,14 @@ const router = Router();
  */
 router.post('/login', async (request, response) => {
     const parameters = zodVerify(z.object({
-        username: z.string().trim().min(4).max(25),
+        usernameOrEmail: z.string().trim(),
         password: z.string().trim().min(8)
     }), request);
 
     if (!parameters) return response.sendStatus(400); // information sent is incomplete
 
-    const { username, password } = parameters;
-    const [ results ] = await connection.query<any[]>('SELECT BIN_TO_UUID(user_id) AS `uuid`, user_common_name, user_name FROM `user` WHERE user_name = ? AND user_password = ?', [ username, sha256(password) ]);
+    const { usernameOrEmail, password } = parameters;
+    const [ results ] = await connection.query<any[]>('SELECT HEX(user_id) AS `uuid`, user_common_name, user_name FROM `user` WHERE (user_name = ? OR user_email = ?) AND user_password = ?', [ usernameOrEmail, usernameOrEmail, sha256(password) ]);
     if ( results.length === 0 ) return response.sendStatus(400); // user does not exist or password is incorrect
 
     const user = results[0];
@@ -64,16 +64,17 @@ router.post('/logout', httpOnlyAuthentication, async(_request, response) => {
 router.post('/signup', async(request, response) => {
     const parameters = zodVerify(z.object({
         username: z.string().trim().min(4).max(25).regex(/[a-z0-9_]+/),
+        email: z.string().email(),
         password: z.string().trim().min(8),
     }), request);
     
     if (!parameters) return response.sendStatus(400);  // information sent is incomplete
-    const { username, password } = parameters;
+    const { username, email, password } = parameters;
 
     try {
         await connection.query(
-            'INSERT INTO `user` (user_common_name, user_name, user_password) VALUES (?, ?, ?)', 
-            [ username, username, sha256(password) ]
+            'INSERT INTO `user` (user_common_name, user_name, user_email, user_password) VALUES (?, ?, ?, ?)', 
+            [ username, username, email, sha256(password) ]
         );
         return response.sendStatus(200); // the signup is a success
     } catch {
@@ -95,10 +96,10 @@ router.post('/view', httpOnlyAuthentication, async(request, response) => {
     const { uuid } = request.authenticated!;
     const { username } = parameters;
 
-    // the question and answer changes depending on if the username is provided or not,
-    // we do not need to escape the question as it is hardcoded here, but the answer must be escaped for safety
-    const [ question, answer ] = username !== undefined ? [ 'user_name', username ] : [ 'BIN_TO_UUID(user_id)', uuid ];
-    const [ userResult ] = await connection.query<any[]>(`SELECT user_id, user_name, user_common_name, user_biography, user_created_at FROM \`user\` WHERE ${question} = ?`, [ answer ]);
+    const [ userResult ] = username !== undefined ?
+        await connection.query<any[]>(`SELECT user_id, user_name, user_common_name, user_profile_picture, user_banner_picture, user_biography, user_created_at FROM \`user\` WHERE user_name = ?`, [ username ]):
+        await connection.query<any[]>(`SELECT user_id, user_name, user_common_name, user_profile_picture, user_banner_picture, user_biography, user_created_at FROM \`user\` WHERE user_id = UNHEX(?)`, [ uuid ]); 
+    
     if ( userResult.length === 0 ) return response.sendStatus(404); // user does not exist
     const user = userResult[0];
 
@@ -107,6 +108,8 @@ router.post('/view', httpOnlyAuthentication, async(request, response) => {
         userCommonName: user.user_common_name,
         username:       user.user_name,
         userBiography:  user.user_biography,
+        userProfilePicture: user.user_profile_picture,
+        userBannerPicture: user.user_banner_picture,
         userCreatedAt:  user.user_created_at
     });
 });
@@ -129,8 +132,8 @@ router.post('/update', httpOnlyAuthentication, async(request, response) => {
     const { userCommonName, biography } = parameters;
 
     // there must be a better way to this
-    if (userCommonName) await connection.query('UPDATE `user` SET user_common_name = ? WHERE BIN_TO_UUID(user_id) = ?', [ userCommonName, uuid ]);
-    if (biography !== undefined) await connection.query('UPDATE `user` SET user_biography = ? WHERE BIN_TO_UUID(user_id) = ?', [ biography, uuid ]);
+    if (userCommonName) await connection.query('UPDATE `user` SET user_common_name = ? WHERE user_id = UNHEX(?)', [ userCommonName, uuid ]);
+    if (biography !== undefined) await connection.query('UPDATE `user` SET user_biography = ? WHERE user_id = UNHEX(?)', [ biography, uuid ]);
     return response.sendStatus(200); // only send a 200 to signify success of operation
 });
 
@@ -148,10 +151,10 @@ router.post('/delete', httpOnlyAuthentication, async(request, response) => {
     const { uuid } = request.authenticated!;
     const { password } = parameters;
 
-    const [ findUser ] = await connection.query<any[]>('SELECT * FROM `user` WHERE BIN_TO_UUID(user_id) = ? AND user_password = ?', [ uuid, sha256(password) ]);
+    const [ findUser ] = await connection.query<any[]>('SELECT * FROM `user` WHERE user_id = UNHEX(?) AND user_password = ?', [ uuid, sha256(password) ]);
     if (findUser.length === 0) return response.sendStatus(405);
 
-    await connection.query('DELETE FROM `user` WHERE BIN_TO_UUID(user_id) = ? AND user_password = ?', [ uuid, sha256(password) ]);
+    await connection.query('DELETE FROM `user` WHERE user_id = UNHEX(?) AND user_password = ?', [ uuid, sha256(password) ]);
     return response.sendStatus(200); // only send to signify success of operation
 });
 
