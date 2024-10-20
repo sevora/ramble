@@ -31,14 +31,14 @@ class UserController {
   }
 
   Future<UserModel> _getActiveUser() async {
-    var uri = Uri.http(Environment.serverURL, "/account/view");
+    var uri = Uri.https(Environment.serverURL, "/account/view");
     var response = await http.post(uri, headers: _headers);
     var body = jsonDecode(response.body) as Map<String, dynamic>;
     return UserModel.fromJSONAPI(body);
   }
 
   Future<UserModel> getUser({ required String username }) async {
-    var uri = Uri.http(Environment.serverURL, "/account/view");
+    var uri = Uri.https(Environment.serverURL, "/account/view");
     var response = await http.post(uri, headers: _headers, body: jsonEncode({
       "username": username
     }));
@@ -47,7 +47,7 @@ class UserController {
   }
 
   Future<void> login({required String usernameOrEmail, required String password}) async {
-    var uri = Uri.http(Environment.serverURL, "/account/login");
+    var uri = Uri.https(Environment.serverURL, "/account/login");
     var response = await http.post(uri, headers: _headers, body: jsonEncode({
       "usernameOrEmail": usernameOrEmail,
       "password": password
@@ -65,12 +65,12 @@ class UserController {
     _headers.remove("cookie");
     _user = null;
 
-    var uri = Uri.http(Environment.serverURL, "/account/logout");
+    var uri = Uri.https(Environment.serverURL, "/account/logout");
     await http.post(uri, headers: _headers);
   }
 
   Future<UserModel> view({ String? username }) async {
-    var uri = Uri.http(Environment.serverURL, "/account/view");
+    var uri = Uri.https(Environment.serverURL, "/account/view");
     var response = await http.post(uri, headers: _headers, body: jsonEncode({
       "username": username ?? _user?.username,
     }));
@@ -79,7 +79,7 @@ class UserController {
   }
 
   Future<void> signUp({ required String username, required String email, required String password }) async {
-    var uri = Uri.http(Environment.serverURL, "/account/signup");
+    var uri = Uri.https(Environment.serverURL, "/account/signup");
     var response = await http.post(uri, headers: _headers, body: jsonEncode({
       "username": username,
       "email": email,
@@ -93,7 +93,7 @@ class UserController {
   }
 
   Future<bool> updateAccount({ String? userCommonName, String? biography, File? profilePicture, File? bannerPicture }) async {
-    var uri = Uri.http(Environment.serverURL, "/account/update");
+    var uri = Uri.https(Environment.serverURL, "/account/update");
     var request = http.MultipartRequest("post", uri);
     request.headers.addAll(_headers);
 
@@ -126,7 +126,7 @@ class UserController {
   }
 
   Future<void> deleteAccount() async {
-    var uri = Uri.http(Environment.serverURL, "/account/delete");
+    var uri = Uri.https(Environment.serverURL, "/account/delete");
     var response = await http.post(uri, headers: _headers);
     if (response.statusCode == 200) {
       _user = null;
@@ -134,7 +134,7 @@ class UserController {
   }
 
   Future<List<String>> _listPosts({ int page=0, String? username, String? parentId, String? category }) async {
-    var uri = Uri.http(Environment.serverURL, "/post/list");
+    var uri = Uri.https(Environment.serverURL, "/post/list");
     Map<String, dynamic> unencodedBody = { "page": page };
 
     if (username != null) {
@@ -154,7 +154,7 @@ class UserController {
   }
 
   Future<PostModel> viewPost({ required String postId }) async {
-    var uri = Uri.http(Environment.serverURL, "/post/view");
+    var uri = Uri.https(Environment.serverURL, "/post/view");
     var response = await http.post(uri, headers: _headers, body: jsonEncode({ "postId": postId }));
     var body = jsonDecode(response.body) as Map<String, dynamic>;
     return PostModel.fromJSONAPI(body);
@@ -172,7 +172,7 @@ class UserController {
   }
 
   Future<bool> createPost({ required String content, String? parentId, File? image }) async {
-    var uri = Uri.http(Environment.serverURL, "/post/new");
+    var uri = Uri.https(Environment.serverURL, "/post/new");
 
     var request = http.MultipartRequest("post", uri);
     request.headers.addAll(_headers);
@@ -193,7 +193,7 @@ class UserController {
   }
 
   Future<bool> likePost({ required String postId }) async {
-    var uri = Uri.http(Environment.serverURL, "/post/like");
+    var uri = Uri.https(Environment.serverURL, "/post/like");
     var response = await http.post(uri, headers: _headers, body: jsonEncode({
       "postId": postId
     }));
@@ -201,7 +201,7 @@ class UserController {
   }
 
   Future<bool> dislikePost({ required String postId }) async {
-    var uri = Uri.http(Environment.serverURL, "/post/dislike");
+    var uri = Uri.https(Environment.serverURL, "/post/dislike");
     var response = await http.post(uri, headers: _headers, body: jsonEncode({
       "postId": postId
     }));
@@ -209,7 +209,7 @@ class UserController {
   }
 
   Future<bool> deletePost({ required String postId }) async {
-    var uri = Uri.http(Environment.serverURL, "/post/delete");
+    var uri = Uri.https(Environment.serverURL, "/post/delete");
     var response = await http.post(uri, headers: _headers, body: jsonEncode({
       "postId": postId
     }));
@@ -218,7 +218,7 @@ class UserController {
 
   Future<List<PostModel>> searchPosts({ required String content, int page=0 }) async {
     List<PostModel> posts = [];
-    var uri = Uri.http(Environment.serverURL, "/search/post");
+    var uri = Uri.https(Environment.serverURL, "/search/post");
     var response = await http.post(uri, headers: _headers, body: jsonEncode({
       "content": content,
       "page": page
@@ -233,7 +233,7 @@ class UserController {
 
   Future<List<UserModel>> searchAccounts({ required String username, int page=0 }) async {
     List<UserModel> users = [];
-    var uri = Uri.http(Environment.serverURL, "/search/account");
+    var uri = Uri.https(Environment.serverURL, "/search/account");
     var response = await http.post(uri, headers: _headers, body: jsonEncode({
       "username": username,
       "page": page
@@ -247,13 +247,13 @@ class UserController {
   }
 
   Future<FollowModel> getFollowContextStatistics({ required String username }) async {
-    var askUri = Uri.http(Environment.serverURL, "/follower/ask");
+    var askUri = Uri.https(Environment.serverURL, "/follower/ask");
     var askResponse = await http.post(askUri, headers: _headers, body: jsonEncode({
       "username": username,
     }));
     var askBody = jsonDecode(askResponse.body) as Map<String, dynamic>;
 
-    var countUri = Uri.http(Environment.serverURL, "/follower/count");
+    var countUri = Uri.https(Environment.serverURL, "/follower/count");
     var countResponse = await http.post(countUri, headers: _headers, body: jsonEncode({
       "username": username,
     }));
@@ -263,7 +263,7 @@ class UserController {
   }
 
   Future<bool> followAccount({ required String username }) async {
-    var uri = Uri.http(Environment.serverURL, "/follower/follow");
+    var uri = Uri.https(Environment.serverURL, "/follower/follow");
     var response = await http.post(uri, headers: _headers, body: jsonEncode({
       "username": username
     }));
@@ -271,7 +271,7 @@ class UserController {
   }
 
   Future<bool> unfollowAccount({ required String username }) async {
-    var uri = Uri.http(Environment.serverURL, "/follower/unfollow");
+    var uri = Uri.https(Environment.serverURL, "/follower/unfollow");
     var response = await http.post(uri, headers: _headers, body: jsonEncode({
       "username": username
     }));
@@ -280,7 +280,7 @@ class UserController {
 
   Future<List<UserModel>> getFollowAccounts({ int page=0, required String username, required String category  }) async {
     List<UserModel> users = [];
-    var uri = Uri.http(Environment.serverURL, "/follower/list");
+    var uri = Uri.https(Environment.serverURL, "/follower/list");
     var response = await http.post(uri, headers: _headers, body: jsonEncode({
       "username": username,
       "category": category,
