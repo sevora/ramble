@@ -18,7 +18,8 @@ function verifyEnvironmentVariables() {
         'COOKIE_SECURE',
         'AWS_ACCESS_KEY',
         'AWS_SECRET_ACCESS_KEY',
-        'AMAZON_S3_REGION'
+        'AMAZON_S3_REGION',
+        'AMAZON_S3_BUCKET'
     ].filter(key => process.env[key] === undefined);
 
     if (requiredVariables.length === 0) return;

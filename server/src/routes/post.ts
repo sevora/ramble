@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { extname } from "path";
 
 import s3 from '../s3-client.js';
 import connection from "../mysql.js";
@@ -42,7 +43,8 @@ const imageUpload = multer({
     limits: { fileSize: 1000 * 1000 * 30 }, // 30 megabyte limit per file
     storage: s3Storage,
     fileFilter(_request, file, callback) {
-        if (file.mimetype.startsWith('image')) {
+        const extension = extname(file.originalname).toLowerCase();
+        if (['.jpg', '.jpeg', '.png'].includes(extension)) {
             callback(null, true);
         } else {
             callback(new Error("Invalid Mimetype"));
@@ -62,20 +64,21 @@ router.post('/new', httpOnlyAuthentication, async (request, response) => {
         }), request);
     
         if (!parameters || error) return response.sendStatus(400);
-
-        console.log(request.file);
-
+        
         const { uuid } = request.authenticated!;
         const { content, parentId } = parameters;
-    
+        
+        const file = request.file as Express.MulterS3.File;
+        const location = file ? file.location : undefined;
+
         try {
-            // could look more beautiful
             await connection.query(`
-            INSERT INTO post (post_user_id, post_content ${parentId ? ', post_parent_id' : ''}) 
-            VALUES (UNHEX(?), ? ${parentId ? ', UNHEX(?)' : ''})`,
-                [uuid, content, parentId]);
+                INSERT INTO POST (post_user_id, post_content, post_media, post_parent_id)
+                VALUES (UNHEX(?), ?, ?, UNHEX(?))
+            `, [ uuid, content, location, parentId ])
             return response.sendStatus(200);
         } catch (error) {
+            console.log(error);
             return response.sendStatus(500);
         }
     });
