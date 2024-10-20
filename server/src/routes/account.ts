@@ -3,9 +3,9 @@ import { z } from 'zod';
 import { sha256 } from "js-sha256";
 import jsonwebtoken from 'jsonwebtoken';
 
-import connection from "../mysql";
-import zodVerify from "./middlewares/zod-verify";
-import httpOnlyAuthentication from "./middlewares/http-only-authentication";
+import connection from "../mysql.js";
+import zodVerify from "./middlewares/zod-verify.js";
+import httpOnlyAuthentication from "./middlewares/http-only-authentication.js";
 
 const router = Router();
 

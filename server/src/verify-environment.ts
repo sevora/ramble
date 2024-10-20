@@ -15,7 +15,10 @@ function verifyEnvironmentVariables() {
         // 'SERVER_PORT', is also optional
         // 'CLIENT_URL', 
         'COOKIE_SAME_SITE', 
-        'COOKIE_SECURE'
+        'COOKIE_SECURE',
+        'AWS_ACCESS_KEY',
+        'AWS_SECRET_ACCESS_KEY',
+        'AMAZON_S3_REGION'
     ].filter(key => process.env[key] === undefined);
 
     if (requiredVariables.length === 0) return;

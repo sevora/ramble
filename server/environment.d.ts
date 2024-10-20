@@ -13,6 +13,11 @@ declare global {
             
             readonly COOKIE_SAME_SITE?: "lax" | "strict" | "none";
             readonly COOKIE_SECURE?: "true" | "false";
+
+            readonly AWS_ACCESS_KEY: string;
+            readonly AWS_SECRET_ACCESS_KEY: string;
+            readonly AMAZON_S3_REGION: string;
+            readonly AMAZON_S3_BUCKET: string;
         }
     }
 }

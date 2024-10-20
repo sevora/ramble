@@ -1,14 +1,14 @@
-import './verify-environment';
+import './verify-environment.js';
 import 'dotenv/config';
 
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
-import accountRouter from './routes/account';
-import followerRouter from './routes/follower';
-import postRouter from './routes/post';
-import searchRouter from './routes/search';
+import accountRouter from './routes/account.js';
+import followerRouter from './routes/follower.js';
+import postRouter from './routes/post.js';
+import searchRouter from './routes/search.js';
 
 const application = express();
 const port = process.env.SERVER_PORT || 80;

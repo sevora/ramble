@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { z } from 'zod';
 
-import connection from "../mysql";
-import zodVerify from "./middlewares/zod-verify";
-import httpOnlyAuthentication from "./middlewares/http-only-authentication";
+import connection from "../mysql.js";
+import zodVerify from "./middlewares/zod-verify.js";
+import httpOnlyAuthentication from "./middlewares/http-only-authentication.js";
 
 const router = Router();
 const rowsPerPage = 10;
