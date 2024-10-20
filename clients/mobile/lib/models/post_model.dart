@@ -10,7 +10,7 @@ class PostModel {
   final String? userProfilePicture;
   final int likeCount;
   final int replyCount;
-  final int hasLiked;
+  final bool hasLiked;
 
   PostModel.named({
     required this.postId,

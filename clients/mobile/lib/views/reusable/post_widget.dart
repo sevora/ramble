@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ramble_mobile/controllers/user_controller.dart';
+import 'package:ramble_mobile/views/pages/base_widget.dart';
+import 'package:ramble_mobile/views/pages/view_profile_widget.dart';
 import '../../models/post_model.dart';
 import '../../themes/light_mode_theme.dart';
 import '../../themes/typography_theme.dart';
@@ -15,13 +17,15 @@ class PostWidget extends StatefulWidget {
   final UserController userController;
   final bool allowViewPost;
   final Function()? onDelete;
+  final BaseController baseController;
 
   const PostWidget({
     super.key,
     required this.post,
     required this.userController,
     this.allowViewPost=false,
-    this.onDelete
+    this.onDelete,
+    required this.baseController
   });
 
   @override
@@ -34,7 +38,7 @@ class _PostWidgetState extends State<PostWidget> {
   late bool _allowViewPost;
 
   Future<void> _toggleLike() async {
-    if (_post.hasLiked > 0) {
+    if (_post.hasLiked) {
       await _userController.dislikePost(postId: _post.postId);
     } else {
       await _userController.likePost(postId: _post.postId);
@@ -80,76 +84,82 @@ class _PostWidgetState extends State<PostWidget> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: 46.0,
-                  height: 46.0,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
+            InkWell(
+              onTap: () async {
+                var user = await _userController.getUser(username: _post.username);
+                widget.baseController.push(ViewProfileWidget(userController: _userController, user: user, baseController: widget.baseController, key: Key(user.username)));
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 46.0,
+                    height: 46.0,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                    ),
+                    child: CachedNetworkImage(
+                      fadeInDuration: const Duration(milliseconds: 500),
+                      fadeOutDuration: const Duration(milliseconds: 500),
+                      imageUrl: _post.userProfilePicture ?? '',
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Image.asset("assets/profile_placeholder.jpg"),
+                      errorWidget: (context, url, error) => Image.asset("assets/profile_placeholder.jpg"),
+                    ),
                   ),
-                  child: CachedNetworkImage(
-                    fadeInDuration: const Duration(milliseconds: 500),
-                    fadeOutDuration: const Duration(milliseconds: 500),
-                    imageUrl: _post.userProfilePicture ?? '',
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Image.asset("assets/profile_placeholder.jpg"),
-                    errorWidget: (context, url, error) => Image.asset("assets/profile_placeholder.jpg"),
-                  ),
-                ),
-                Expanded(
-                  child: Align(
-                    alignment: const AlignmentDirectional(0.0, 0.0),
-                    child: Container(
-                      decoration: const BoxDecoration(),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _post.userCommonName,
-                                style: TypographyTheme().bodyMedium.override(
-                                      fontFamily: 'Roboto',
-                                      fontSize: 15.0,
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                              ),
-                              Text(
-                                  '@${_post.username}',
-                                style: TypographyTheme().bodyMedium.override(
-                                      fontFamily: 'Roboto',
-                                      letterSpacing: 0.0,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                              ),
-                            ],
-                          ),
-                          Opacity(
-                            opacity: 0.8,
-                            child: Text(
-                              "42 hours ago",
-                              style: TypographyTheme().bodyMedium.override(
-                                    fontFamily: 'Roboto',
-                                    fontSize: 12.0,
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                  Expanded(
+                    child: Align(
+                      alignment: const AlignmentDirectional(0.0, 0.0),
+                      child: Container(
+                        decoration: const BoxDecoration(),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              mainAxisSize: MainAxisSize.max,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _post.userCommonName,
+                                  style: TypographyTheme().bodyMedium.override(
+                                        fontFamily: 'Roboto',
+                                        fontSize: 15.0,
+                                        letterSpacing: 0.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
+                                Text(
+                                    '@${_post.username}',
+                                  style: TypographyTheme().bodyMedium.override(
+                                        fontFamily: 'Roboto',
+                                        letterSpacing: 0.0,
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ].divide(const SizedBox(width: 10.0)),
+                            Opacity(
+                              opacity: 0.8,
+                              child: Text(
+                                "42 hours ago",
+                                style: TypographyTheme().bodyMedium.override(
+                                      fontFamily: 'Roboto',
+                                      fontSize: 12.0,
+                                      letterSpacing: 0.0,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                              ),
+                            ),
+                          ].divide(const SizedBox(width: 10.0)),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ].divide(const SizedBox(width: 10.0)),
+                ].divide(const SizedBox(width: 10.0)),
+              ),
             ),
             InkWell(
               splashColor: Colors.transparent,
@@ -158,9 +168,7 @@ class _PostWidgetState extends State<PostWidget> {
               highlightColor: Colors.transparent,
               onTap: () async {
                 if (_allowViewPost) {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => ViewPostWidget(post: _post, userController: _userController,)));
-
+                  widget.baseController.push(ViewPostWidget(key: Key(_post.postId), post: _post, userController: _userController,baseController: widget.baseController));
                   }
                 },
               child: Column(
@@ -211,7 +219,7 @@ class _PostWidgetState extends State<PostWidget> {
                 children: [
                   Builder(
                     builder: (context) {
-                      if (_post.hasLiked > 0) {
+                      if (_post.hasLiked) {
                         return ButtonWidget(
                           onPressed: () {
                             _toggleLike();
@@ -233,7 +241,7 @@ class _PostWidgetState extends State<PostWidget> {
                             color: LightModeTheme().secondaryBackground,
                             textStyle: TypographyTheme().titleSmall.override(
                                   fontFamily: 'Roboto',
-                                  color: _post.hasLiked > 0
+                                  color: _post.hasLiked
                                       ? LightModeTheme().orangePeel
                                       : LightModeTheme().primaryText,
                                   fontSize: 15.0,
@@ -279,10 +287,7 @@ class _PostWidgetState extends State<PostWidget> {
                   ButtonWidget(
                     onPressed: () {
                       if (_allowViewPost) {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) =>
-                                ViewPostWidget(post: _post,
-                                  userController: _userController,)));
+                        widget.baseController.push(ViewPostWidget(key: Key(_post.postId), post: _post, userController: _userController,baseController: widget.baseController));
                       }
                     },
                     text: formatNumber(

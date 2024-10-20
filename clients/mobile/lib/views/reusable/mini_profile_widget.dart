@@ -1,32 +1,51 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:ramble_mobile/controllers/user_controller.dart';
+import 'package:ramble_mobile/models/follow_model.dart';
+import 'package:ramble_mobile/views/pages/base_widget.dart';
+import '../../models/user_model.dart';
 import '../../themes/light_mode_theme.dart';
 import '../../themes/typography_theme.dart';
 import '../../utilities/utilities.dart';
 import '../../views/reusable/button.dart';
+import '../pages/view_profile_widget.dart';
 
-class MiniProfileWidget extends StatelessWidget {
+class MiniProfileWidget extends StatefulWidget {
   const MiniProfileWidget({
     super.key,
-    String? displayName,
-    String? userName,
-    bool? isFollowing,
-    String? biography,
-    String? profileImageURL,
-    required controller,
-  })  : _biography = biography, _isFollowing = isFollowing, _displayName = displayName ?? 'Unknown User',
-        _userName = userName ?? '@unknown',
-        _profileImageURL = profileImageURL ??
-            'https://static.vecteezy.com/system/resources/previews/001/840/618/original/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg',
-        _controller = controller;
+    required this.user,
+    required this.userController,
+    required this.baseController
+  });
 
-  final String _displayName;
-  final String _userName;
-  final bool? _isFollowing;
-  final String? _biography;
-  final String _profileImageURL;
-  final UserController _controller;
+  final UserModel user;
+  final UserController userController;
+  final BaseController baseController;
+  @override
+  State<MiniProfileWidget> createState() => _MiniProfileWidgetState();
+}
+
+class _MiniProfileWidgetState extends State<MiniProfileWidget> {
+  late UserModel _user;
+  late UserController _userController;
+
+  FollowModel _follow = FollowModel.named(isFollower: false, isFollowing: false, followerCount: 0, followCount: 0);
+
+  @override
+  void initState() {
+    _user = widget.user;
+    _userController = widget.userController;
+    _loadFollow();
+    super.initState();
+  }
+
+  Future<void> _loadFollow() async {
+    var updatedFollow = await _userController.getFollowContextStatistics(username: _user.username);
+
+    setState(() {
+      _follow = updatedFollow;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,66 +74,78 @@ class MiniProfileWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Container(
-                      width: 50.0,
-                      height: 50.0,
-                      clipBehavior: Clip.antiAlias,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                      ),
-                      child: CachedNetworkImage(
-                        placeholder: (context, url) => Image.asset("assets/profile_placeholder.jpg"),
-                        errorWidget: (context, url, error) => Image.asset("assets/profile_placeholder.jpg"),
-                        fadeInDuration: const Duration(milliseconds: 500),
-                        fadeOutDuration: const Duration(milliseconds: 500),
-                        imageUrl: _profileImageURL,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Column(
-                      mainAxisSize: MainAxisSize.max,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _displayName,
-                          style:
-                              TypographyTheme().bodyMedium.override(
-                                    fontFamily: 'Roboto',
-                                    letterSpacing: 0.0,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                        ),
-                        Text(
-                          _userName,
-                          style:
-                              TypographyTheme().bodyMedium.override(
-                                    fontFamily: 'Roboto',
-                                    letterSpacing: 0.0,
-                                  ),
-                        ),
-                      ],
-                    ),
-                  ].divide(const SizedBox(width: 10.0)),
-                ),
-                ButtonWidget(
-                  onPressed: () {
-                    print('Button pressed ...');
+                InkWell(
+                onTap: () async {
+                  widget.baseController.push(ViewProfileWidget(userController: _userController, user: _user, baseController: widget.baseController, key: Key(_user.username)));
                   },
-                  text: 'Follow',
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Container(
+                        width: 50.0,
+                        height: 50.0,
+                        clipBehavior: Clip.antiAlias,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                        ),
+                        child: CachedNetworkImage(
+                          placeholder: (context, url) => Image.asset("assets/profile_placeholder.jpg"),
+                          errorWidget: (context, url, error) => Image.asset("assets/profile_placeholder.jpg"),
+                          fadeInDuration: const Duration(milliseconds: 500),
+                          fadeOutDuration: const Duration(milliseconds: 500),
+                          imageUrl: _user.userProfilePicture ?? '',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.max,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _user.userCommonName,
+                            style:
+                                TypographyTheme().bodyMedium.override(
+                                      fontFamily: 'Roboto',
+                                      letterSpacing: 0.0,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                          ),
+                          Text(
+                            _user.username,
+                            style:
+                                TypographyTheme().bodyMedium.override(
+                                      fontFamily: 'Roboto',
+                                      letterSpacing: 0.0,
+                                    ),
+                          ),
+                        ],
+                      ),
+                    ].divide(const SizedBox(width: 10.0)),
+                  ),
+                ),
+                if (_userController.user.username != _user.username)
+                ButtonWidget(
+                  onPressed: () async {
+                    if (_follow.isFollowing) {
+                      await _userController.unfollowAccount(username: _user.username);
+                    } else {
+                      await _userController.followAccount(username: _user.username);
+                    }
+
+                    await _loadFollow();
+                  },
+                  text: _follow.isFollowing ? 'Unfollow' : 'Follow',
                   options: ButtonOptions(
                     padding:
                         const EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
                     iconPadding:
                         const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                    color: _isFollowing!
+                    color: _follow.isFollowing
                         ? LightModeTheme().orangePeel
                         : LightModeTheme().secondaryBackground,
                     textStyle: TypographyTheme().titleSmall.override(
                           fontFamily: 'Roboto',
-                          color: _isFollowing
+                          color: _follow.isFollowing
                               ? Colors.white
                               : LightModeTheme().orangePeel,
                           fontSize: 12.0,
@@ -132,7 +163,7 @@ class MiniProfileWidget extends StatelessWidget {
           ),
           Builder(
             builder: (context) {
-              if (_biography != null && _biography != '') {
+              if (_user.userBiography != null) {
                 return Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Container(
@@ -150,10 +181,7 @@ class MiniProfileWidget extends StatelessWidget {
                       padding:
                           const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 10.0),
                       child: Text(
-                        valueOrDefault<String>(
-                          _biography,
-                          'Lorem Ipsum',
-                        ),
+                        _user.userBiography!,
                         maxLines: 3,
                         style: TypographyTheme().bodyMedium.override(
                               fontFamily: 'Roboto',

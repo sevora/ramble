@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:ramble_mobile/views/pages/base_widget.dart';
 import '../../controllers/user_controller.dart';
 import '../../models/post_model.dart';
 import '../../themes/light_mode_theme.dart';
@@ -14,8 +15,9 @@ import '../reusable/post_creator_widget.dart';
 class ViewPostWidget extends StatefulWidget {
   final UserController userController;
   final PostModel post;
+  final BaseController baseController;
 
-  const ViewPostWidget({super.key, required this.userController, required this.post});
+  const ViewPostWidget({super.key, required this.userController, required this.post, required this.baseController});
 
   @override
   State<StatefulWidget> createState() => _ViewPostWidgetState();
@@ -86,7 +88,7 @@ class _ViewPostWidgetState extends State<ViewPostWidget> {
                         size: 24.0,
                       ),
                       onPressed: () async {
-                        Navigator.pop(context);
+                        widget.baseController.pop();
                       },
                     ),
                     Text(
@@ -101,8 +103,8 @@ class _ViewPostWidgetState extends State<ViewPostWidget> {
                   ].divide(const SizedBox(width: 10.0)),
                 ),
                 PostWidget(post: _post, userController: _userController, onDelete: () {
-                  Navigator.pop(context);
-                },),
+                  widget.baseController.pop();
+                }, baseController: widget.baseController,),
                 PostCreatorWidget(
                   prompt: 'Share your thoughts...',
                   controller: _userController,
@@ -121,7 +123,7 @@ class _ViewPostWidgetState extends State<ViewPostWidget> {
                                   padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
                                   child: PostWidget(post: item, userController: _userController, allowViewPost: true, onDelete: () {
                                     _pageController.refresh();
-                                  })
+                                  }, baseController: widget.baseController)
                               );
                             }
                         )

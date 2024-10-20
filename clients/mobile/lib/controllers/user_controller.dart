@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:ramble_mobile/models/follow_model.dart';
 import 'package:ramble_mobile/models/post_model.dart';
 import '../environment.dart';
 import '../models/user_model.dart';
@@ -16,7 +17,12 @@ class UserController {
   UserModel? _user;
 
   UserModel get user {
-    return _user ?? UserModel.named(userCommonName: "Unknown", username: "unknown", userCreatedAt: DateTime.now());
+    return _user ??
+        UserModel.named(
+            userCommonName: "Unknown",
+            username: "unknown",
+            userCreatedAt: DateTime.now()
+        );
   }
 
   bool get loggedIn {
@@ -26,6 +32,15 @@ class UserController {
   Future<UserModel> _getActiveUser() async {
     var uri = Uri.http(Environment.serverURL, "/account/view");
     var response = await http.post(uri, headers: _headers);
+    var body = jsonDecode(response.body) as Map<String, dynamic>;
+    return UserModel.fromJSONAPI(body);
+  }
+
+  Future<UserModel> getUser({ required String username }) async {
+    var uri = Uri.http(Environment.serverURL, "/account/view");
+    var response = await http.post(uri, headers: _headers, body: jsonEncode({
+      "username": username
+    }));
     var body = jsonDecode(response.body) as Map<String, dynamic>;
     return UserModel.fromJSONAPI(body);
   }
@@ -170,19 +185,16 @@ class UserController {
 
   Future<List<PostModel>> searchPosts({ required String content, int page=0 }) async {
     List<PostModel> posts = [];
-    print("HEY BOZO: $content");
     var uri = Uri.http(Environment.serverURL, "/search/post");
     var response = await http.post(uri, headers: _headers, body: jsonEncode({
       "content": content,
       "page": page
     }));
 
-    print(response.body);
     var postIds = List<String>.from(jsonDecode(response.body)["posts"]);
     for (var postId in postIds) {
       posts.add(await viewPost(postId: postId));
     }
-    print(posts);
     return posts;
   }
 
@@ -195,16 +207,57 @@ class UserController {
     }));
 
     var usernames = List<String>.from(jsonDecode(response.body)["users"]);
-    var uri2 = Uri.http(Environment.serverURL, "/account/view");
     for (var username in usernames) {
-      var response2 = await http.post(uri2, headers: _headers, body: jsonEncode({
-        "username": username
-      }));
-      var body = jsonDecode(response2.body) as Map<String, dynamic>;
-      users.add(UserModel.fromJSONAPI(body));
+      users.add(await getUser(username: username));
     }
-
     return users;
   }
 
+  Future<FollowModel> getFollowContextStatistics({ required String username }) async {
+    var askUri = Uri.http(Environment.serverURL, "/follower/ask");
+    var askResponse = await http.post(askUri, headers: _headers, body: jsonEncode({
+      "username": username,
+    }));
+    var askBody = jsonDecode(askResponse.body) as Map<String, dynamic>;
+
+    var countUri = Uri.http(Environment.serverURL, "/follower/count");
+    var countResponse = await http.post(countUri, headers: _headers, body: jsonEncode({
+      "username": username,
+    }));
+    var countBody = jsonDecode(countResponse.body) as Map<String, dynamic>;
+    askBody.addAll(countBody);
+    return FollowModel.fromJSONAPI(askBody);
+  }
+
+  Future<bool> followAccount({ required String username }) async {
+    var uri = Uri.http(Environment.serverURL, "/follower/follow");
+    var response = await http.post(uri, headers: _headers, body: jsonEncode({
+      "username": username
+    }));
+    return response.statusCode == 200;
+  }
+
+  Future<bool> unfollowAccount({ required String username }) async {
+    var uri = Uri.http(Environment.serverURL, "/follower/unfollow");
+    var response = await http.post(uri, headers: _headers, body: jsonEncode({
+      "username": username
+    }));
+    return response.statusCode == 200;
+  }
+
+  Future<List<UserModel>> getFollowAccounts({ int page=0, required String username, required String category  }) async {
+    List<UserModel> users = [];
+    var uri = Uri.http(Environment.serverURL, "/follower/list");
+    var response = await http.post(uri, headers: _headers, body: jsonEncode({
+      "username": username,
+      "category": category,
+      "page": page
+    }));
+
+    var usernames = List<String>.from(jsonDecode(response.body)["users"]);
+    for (var username in usernames) {
+      users.add(await getUser(username: username));
+    }
+    return users;
+  }
 }

@@ -134,9 +134,7 @@ router.post('/list', httpOnlyAuthentication, async (request, response) => {
     
     // we then rename these properties following the convention
     return response.json({ users: results.map(entry => 
-            ({ 
-                username: entry.user_name
-            })
+            entry.user_name
         )
     });
 });

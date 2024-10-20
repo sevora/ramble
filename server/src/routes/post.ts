@@ -173,7 +173,7 @@ router.post('/view', httpOnlyAuthentication, async (request, response) => {
         userProfilePicture: post.user_profile_picture,
         likeCount: post.like_count,
         replyCount: post.comment_count,
-        hasLiked: post.hasLiked
+        hasLiked: post.hasLiked > 0
     });
 });
 
@@ -220,8 +220,6 @@ router.post('/list', httpOnlyAuthentication, async (request, response) => {
     
     else if (category === 'likes')
         [results] = await connection.query<any[]>('(SELECT HEX(post_id) AS `uuid`, post_id, post_created_at FROM post JOIN `like` ON (post_id = like_post_id AND like_user_id = UNHEX(?))) ORDER BY post_created_at DESC, HEX(post_id) LIMIT ?, ?', [uuid, ...pagination]);
-    
-    console.log(results);
 
     // postIds are only sent back, not all the details
     response.json({

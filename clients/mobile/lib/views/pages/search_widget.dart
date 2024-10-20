@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:ramble_mobile/views/pages/base_widget.dart';
 import 'package:ramble_mobile/views/reusable/tab_filter.dart';
 import '../../controllers/user_controller.dart';
 import '../../models/post_model.dart';
+import '../../models/user_model.dart';
 import '../../themes/light_mode_theme.dart';
 import '../../themes/typography_theme.dart';
 import '../../utilities/utilities.dart';
@@ -12,7 +14,8 @@ import '../reusable/post_widget.dart';
 
 class SearchWidget extends StatefulWidget {
   final UserController userController;
-  const SearchWidget({super.key, required this.userController});
+  final BaseController baseController;
+  const SearchWidget({super.key, required this.userController, required this.baseController});
 
   @override
   State<SearchWidget> createState() => _SearchWidgetState();
@@ -20,30 +23,47 @@ class SearchWidget extends StatefulWidget {
 
 class _SearchWidgetState extends State<SearchWidget> {
   late UserController _userController;
-  final PagingController<int, PostModel> _pageController = PagingController(firstPageKey: 0);
+  final PagingController<int, PostModel> _postsController = PagingController(firstPageKey: 0);
+  final PagingController<int, UserModel> _accountsController = PagingController(firstPageKey: 0);
 
   String _search = "";
   String _activeSearch = "";
   String _filter = "people";
 
   Future<void> _loadPosts(int pageKey) async {
-    if (_activeSearch.isNotEmpty) {
+    if (_activeSearch.isNotEmpty && _filter == "posts") {
       var newPosts = await _userController.searchPosts(page: pageKey, content: _activeSearch);
       if (newPosts.isNotEmpty) {
-        _pageController.appendPage(newPosts, pageKey+1);
+        _postsController.appendPage(newPosts, pageKey+1);
       } else {
-        _pageController.appendLastPage([]);
+        _postsController.appendLastPage([]);
       }
     } else {
-      _pageController.appendLastPage([]);
+      _postsController.appendLastPage([]);
+    }
+  }
+
+  Future<void> _loadUsers(int pageKey) async {
+    if (_activeSearch.isNotEmpty && _filter == "people") {
+      var newUsers = await _userController.searchAccounts(page: pageKey, username: _activeSearch);
+      if (newUsers.isNotEmpty) {
+        _accountsController.appendPage(newUsers, pageKey+1);
+      } else {
+        _accountsController.appendLastPage([]);
+      }
+    } else {
+      _accountsController.appendLastPage([]);
     }
   }
 
   @override
   void initState() {
     _userController = widget.userController;
-    _pageController.addPageRequestListener((pageKey) {
+    _postsController.addPageRequestListener((pageKey) {
       _loadPosts(pageKey);
+    });
+    _accountsController.addPageRequestListener((pageKey) {
+      _loadUsers(pageKey);
     });
     super.initState();
   }
@@ -147,7 +167,11 @@ class _SearchWidgetState extends State<SearchWidget> {
                     onPressed: () {
                       setState(() {
                         _activeSearch = _search;
-                        _pageController.refresh();
+                        if (_filter == "posts") {
+                          _postsController.refresh();
+                        } else if (_filter == "people") {
+                          _accountsController.refresh();
+                        }
                       });
                     },
                   ),
@@ -159,21 +183,50 @@ class _SearchWidgetState extends State<SearchWidget> {
         TabFilter(choices: ["people", "posts"], active: _filter, onSelect: (choice) {
           setState(() {
             _filter = choice;
+            if (_filter == "posts") {
+              _postsController.refresh();
+            } else if (_filter == "people") {
+              _accountsController.refresh();
+            }
           });
         }),
         Expanded(
-            child: PagedListView(
-                pagingController: _pageController,
-                builderDelegate: PagedChildBuilderDelegate<PostModel>(
-                    itemBuilder: (context, item, index) {
-                      return Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                          child: PostWidget(post: item, userController: _userController, allowViewPost: true, onDelete: () {
-                            _pageController.refresh();
-                          })
-                      );
-                    }
-                )
+            child: RefreshIndicator(
+              onRefresh: () => Future.sync(
+                    () {
+                      if (_filter == "posts") {
+                        _postsController.refresh();
+                      } else if (_filter == "people") {
+                        _accountsController.refresh();
+                      }
+                      },
+              ),
+              child: _filter == "posts" ?
+              PagedListView(
+                  pagingController: _postsController,
+                  builderDelegate: PagedChildBuilderDelegate<PostModel>(
+                      itemBuilder: (context, item, index) {
+                        return Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                            child: PostWidget(post: item, userController: _userController, allowViewPost: true, onDelete: () {
+                              _postsController.refresh();
+                            }, baseController: widget.baseController,)
+                        );
+                      }
+                  )
+              )
+                  :
+              PagedListView(
+                  pagingController: _accountsController,
+                  builderDelegate: PagedChildBuilderDelegate<UserModel>(
+                      itemBuilder: (context, item, index) {
+                        return Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                            child: MiniProfileWidget(user: item, userController: _userController, baseController: widget.baseController,)
+                        );
+                      }
+                  )
+              ) ,
             )
         )
       ],
@@ -182,7 +235,8 @@ class _SearchWidgetState extends State<SearchWidget> {
 
   @override
   void dispose() {
-    _pageController.dispose();
+    _postsController.dispose();
+    _accountsController.dispose();
     super.dispose();
   }
 }

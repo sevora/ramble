@@ -25,7 +25,6 @@ router.post('/post', httpOnlyAuthentication, async (request, response) => {
     response.json({
         posts: results.map(entry => entry.uuid)
     });
-
 });
 
 /**
