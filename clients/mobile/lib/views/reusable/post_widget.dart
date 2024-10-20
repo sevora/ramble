@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:ramble_mobile/controllers/user_controller.dart';
 import 'package:ramble_mobile/views/pages/base_widget.dart';
 import 'package:ramble_mobile/views/pages/view_profile_widget.dart';
@@ -144,7 +145,7 @@ class _PostWidgetState extends State<PostWidget> {
                             Opacity(
                               opacity: 0.8,
                               child: Text(
-                                "42 hours ago",
+                                DateFormat("MEd").format(_post.postCreatedAt),
                                 style: TypographyTheme().bodyMedium.override(
                                       fontFamily: 'Roboto',
                                       fontSize: 12.0,
