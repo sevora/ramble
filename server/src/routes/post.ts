@@ -59,7 +59,7 @@ const imageUpload = multer({
 router.post('/new', httpOnlyAuthentication, async (request, response) => {
     imageUpload(request, response, async (error) => {
         const parameters = zodVerify(z.object({
-            content: z.string().trim().min(1).max(200),
+            content: z.string().trim().max(200),
             parentId: z.string().regex(/[0-9a-fA-F]+/).length(32).optional()  // for replies
         }), request);
     
@@ -70,6 +70,8 @@ router.post('/new', httpOnlyAuthentication, async (request, response) => {
 
         const file = request.file as Express.MulterS3.File;
         const location = file ? file.location : undefined;
+
+        if (content.length <= 0 && !file) return response.sendStatus(400);
 
         try {
             await connection.query(`

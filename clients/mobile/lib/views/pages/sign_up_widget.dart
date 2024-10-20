@@ -7,6 +7,7 @@ import '../../views/reusable/button.dart';
 
 import './login_widget.dart';
 import 'base_widget.dart';
+import 'loading_screen.dart';
 
 class SignUpWidget extends StatefulWidget {
   final UserController userController;
@@ -408,9 +409,11 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                                   }
 
                                   // can add loading page here
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const LoadingScreen()));
                                   await _userController.signUp(username: _username, email: _email, password: _password);
 
                                   if (context.mounted && _userController.loggedIn) {
+                                    Navigator.pop(context);
                                     Navigator.pushReplacement(
                                       context,
                                       PageRouteBuilder(

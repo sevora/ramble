@@ -178,7 +178,7 @@ class _PostWidgetState extends State<PostWidget> {
                     alignment: const AlignmentDirectional(-1.0, 0.0),
                     child: Padding(
                       padding: const EdgeInsetsDirectional.fromSTEB(
-                          0.0, 15.0, 0.0, 0.0),
+                          0.0, 15.0, 0.0, 10.0),
                       child: Text(
                         _post.postContent,
                         maxLines: 3,
@@ -196,8 +196,8 @@ class _PostWidgetState extends State<PostWidget> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8.0),
                       child: CachedNetworkImage(
-                        placeholder: (context, url) => Image.asset("assets/profile_placeholder.jpg"),
-                        errorWidget: (context, url, error) => Image.asset("assets/profile_placeholder.jpg"),
+                        placeholder: (context, url) => Image.asset("assets/banner_placeholder.jpg"),
+                        errorWidget: (context, url, error) => Image.asset("assets/banner_placeholder.jpg"),
                         fadeInDuration: const Duration(milliseconds: 500),
                         fadeOutDuration: const Duration(milliseconds: 500),
                         imageUrl: _post.postMedia!,

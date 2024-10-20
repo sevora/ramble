@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:ramble_mobile/views/pages/base_widget.dart';
+import 'package:ramble_mobile/views/pages/edit_profile_widget.dart';
 import 'package:ramble_mobile/views/pages/following_widget.dart';
 import 'package:ramble_mobile/views/reusable/tab_filter.dart';
 import '../../controllers/user_controller.dart';
@@ -37,11 +38,19 @@ class _ViewProfileWidgetState extends State<ViewProfileWidget> {
   void initState() {
     _userController = widget.userController;
     _user = widget.user;
+    _loadUser();
     _loadFollow();
     _pageController.addPageRequestListener((pageKey) {
       _loadPosts(pageKey);
     });
     super.initState();
+  }
+
+  Future<void> _loadUser() async {
+    var updatedUser = await _userController.getUser(username: widget.user.username);
+    setState(() {
+      _user = updatedUser;
+    });
   }
 
   Future<void> _loadFollow() async {
@@ -265,7 +274,7 @@ class _ViewProfileWidgetState extends State<ViewProfileWidget> {
                                         padding: const EdgeInsets.all(8.0),
                                         child: _user.username == _userController.user.username ? ButtonWidget(
                                           onPressed: () {
-                                            print('Button pressed ...');
+                                            widget.baseController.push(EditProfileWidget(userController: _userController, baseController: widget.baseController));
                                           },
                                           text: 'Edit',
                                           options: ButtonOptions(

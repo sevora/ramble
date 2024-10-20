@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ramble_mobile/views/pages/loading_screen.dart';
 import '../../controllers/user_controller.dart';
 import '../../views/pages/base_widget.dart';
 import '../../themes/light_mode_theme.dart';
@@ -235,10 +236,11 @@ class _LogInWidgetState extends State<LogInWidget> {
                               child: ButtonWidget(
                                 onPressed: () async {
                                   // can push loading screen here
-
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const LoadingScreen()));
                                   await _userController.login(usernameOrEmail: _usernameOrEmail, password: _password);
 
                                   if (context.mounted && _userController.loggedIn) {
+                                    Navigator.pop(context);
                                     Navigator.pushReplacement(
                                       context,
                                       PageRouteBuilder(

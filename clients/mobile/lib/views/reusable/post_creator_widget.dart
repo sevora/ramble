@@ -32,6 +32,8 @@ class _PostCreatorWidgetState extends State<PostCreatorWidget> {
   final _picker = ImagePicker();
   final _textController = TextEditingController();
 
+  bool _buffering = false;
+
   Future<void> _openImagePicker() async {
     final XFile? pickedImage =
     await _picker.pickImage(source: ImageSource.gallery);
@@ -73,8 +75,10 @@ class _PostCreatorWidgetState extends State<PostCreatorWidget> {
           topRight: Radius.circular(0.0),
         ),
       ),
-      child: Column(
-        children: [Padding(
+      child:
+      Column(
+        children: [
+          Padding(
           padding: const EdgeInsets.all(12.0),
           child: Row(
             mainAxisSize: MainAxisSize.max,
@@ -151,6 +155,13 @@ class _PostCreatorWidgetState extends State<PostCreatorWidget> {
                             cursorColor: LightModeTheme().primaryText),
                       ),
 
+                      if (_buffering)
+                        CircularProgressIndicator(
+                        color: LightModeTheme().orangePeel,
+                        backgroundColor: LightModeTheme().primaryBackground,
+                      ),
+
+                      if (!_buffering)
                       Container(
                         width: MediaQuery.sizeOf(context).width * 1.0,
                         decoration: const BoxDecoration(),
@@ -179,6 +190,9 @@ class _PostCreatorWidgetState extends State<PostCreatorWidget> {
                                 size: 24.0,
                               ),
                               onPressed: () async {
+                                setState(() {
+                                  _buffering = true;
+                                });
                                 // make a post
                                 var success = await _controller.createPost(content: _content, parentId: _post?.postId, image: _image);
 
@@ -190,6 +204,7 @@ class _PostCreatorWidgetState extends State<PostCreatorWidget> {
                                   _content = "";
                                   _image = null;
                                   _textController.clear();
+                                  _buffering = false;
                                 });
                               },
                             ),
@@ -203,7 +218,7 @@ class _PostCreatorWidgetState extends State<PostCreatorWidget> {
             ].divide(const SizedBox(width: 5.0)),
           ),
         ),
-          if (_image != null)
+          if (_image != null && !_buffering)
             SizedBox(
                 height: 200,
                 child: Stack(children: [

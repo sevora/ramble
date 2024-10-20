@@ -93,15 +93,37 @@ class UserController {
     }
   }
 
-  Future<void> updateAccount({ String? userCommonName, String? biography }) async {
+  Future<bool> updateAccount({ String? userCommonName, String? biography, File? profilePicture, File? bannerPicture }) async {
     var uri = Uri.http(Environment.serverURL, "/account/update");
-    var response = await http.post(uri, headers: _headers, body: jsonEncode({
-      "userCommonName": userCommonName,
-      "biography": biography
-    }));
+    var request = http.MultipartRequest("post", uri);
+    request.headers.addAll(_headers);
+
+    if (userCommonName != null) {
+      request.fields["userCommonName"] = userCommonName;
+    }
+
+    if (biography != null) {
+      request.fields["biography"] = biography;
+    }
+
+    if (profilePicture != null) {
+      request.files.add(
+          await http.MultipartFile.fromPath("profile_picture", profilePicture.path)
+      );
+    }
+
+    if (bannerPicture != null) {
+      request.files.add(
+          await http.MultipartFile.fromPath("banner_picture", bannerPicture.path)
+      );
+    }
+
+    var response = await request.send();
     if (response.statusCode == 200) {
       _user = await _getActiveUser();
     }
+
+    return response.statusCode == 200;
   }
 
   Future<void> deleteAccount() async {
@@ -169,13 +191,6 @@ class UserController {
 
     var response = await request.send();
     return response.statusCode == 200;
-
-    // Map<String, dynamic> unencodedBody = { "content": content };
-    // if (parentId != null) {
-    //   unencodedBody["parentId"] = parentId;
-    // }
-    // var request = await http.post(uri, headers: _headers, body: jsonEncode(unencodedBody));
-    // return response.statusCode == 200;
   }
 
   Future<bool> likePost({ required String postId }) async {
