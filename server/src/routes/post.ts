@@ -75,7 +75,7 @@ router.post('/new', httpOnlyAuthentication, async (request, response) => {
 
         try {
             await connection.query(`
-                INSERT INTO POST (post_user_id, post_content, post_media, post_parent_id)
+                INSERT INTO \`post\` (post_user_id, post_content, post_media, post_parent_id)
                 VALUES (UNHEX(?), ?, ?, UNHEX(?))
             `, [ uuid, content, location, parentId ])
             return response.sendStatus(200);
