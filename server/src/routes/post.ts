@@ -67,7 +67,7 @@ router.post('/new', httpOnlyAuthentication, async (request, response) => {
         
         const { uuid } = request.authenticated!;
         const { content, parentId } = parameters;
-        
+
         const file = request.file as Express.MulterS3.File;
         const location = file ? file.location : undefined;
 
@@ -78,7 +78,6 @@ router.post('/new', httpOnlyAuthentication, async (request, response) => {
             `, [ uuid, content, location, parentId ])
             return response.sendStatus(200);
         } catch (error) {
-            console.log(error);
             return response.sendStatus(500);
         }
     });
