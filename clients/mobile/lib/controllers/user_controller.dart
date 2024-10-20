@@ -52,6 +52,7 @@ class UserController {
       "usernameOrEmail": usernameOrEmail,
       "password": password
     }));
+    print(response.body);
 
     String? cookie = response.headers["set-cookie"];
     if (cookie != null) {
@@ -62,12 +63,11 @@ class UserController {
   }
 
   Future<void> logout() async {
-    var uri = Uri.http(Environment.serverURL, "/account/login");
-    var response = await http.post(uri, headers: _headers);
-    if (response.statusCode == 200) {
-      _headers.remove("cookie");
-      _user = null;
-    }
+    _headers.remove("cookie");
+    _user = null;
+
+    var uri = Uri.http(Environment.serverURL, "/account/logout");
+    await http.post(uri, headers: _headers);
   }
 
   Future<UserModel> view({ String? username }) async {

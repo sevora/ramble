@@ -239,8 +239,11 @@ class _LogInWidgetState extends State<LogInWidget> {
                                   Navigator.push(context, MaterialPageRoute(builder: (context) => const LoadingScreen()));
                                   await _userController.login(usernameOrEmail: _usernameOrEmail, password: _password);
 
-                                  if (context.mounted && _userController.loggedIn) {
+                                  if (context.mounted) {
                                     Navigator.pop(context);
+                                  }
+
+                                  if (context.mounted && _userController.loggedIn) {
                                     Navigator.pushReplacement(
                                       context,
                                       PageRouteBuilder(

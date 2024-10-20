@@ -412,8 +412,11 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                                   Navigator.push(context, MaterialPageRoute(builder: (context) => const LoadingScreen()));
                                   await _userController.signUp(username: _username, email: _email, password: _password);
 
-                                  if (context.mounted && _userController.loggedIn) {
+                                  if (context.mounted) {
                                     Navigator.pop(context);
+                                  }
+
+                                  if (context.mounted && _userController.loggedIn) {
                                     Navigator.pushReplacement(
                                       context,
                                       PageRouteBuilder(

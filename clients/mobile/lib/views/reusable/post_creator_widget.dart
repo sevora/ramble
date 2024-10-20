@@ -92,6 +92,7 @@ class _PostCreatorWidgetState extends State<PostCreatorWidget> {
                   shape: BoxShape.circle,
                 ),
                 child: CachedNetworkImage(
+                  fit: BoxFit.cover,
                   imageUrl: _controller.user.userProfilePicture ?? '',
                   placeholder: (context, url) => Image.asset("assets/profile_placeholder.jpg"),
                   errorWidget: (context, url, error) => Image.asset("assets/profile_placeholder.jpg"),
