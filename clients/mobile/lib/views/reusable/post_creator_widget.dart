@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:ramble_mobile/controllers/user_controller.dart';
 import 'package:ramble_mobile/models/post_model.dart';
 import '../../themes/typography_theme.dart';
@@ -25,7 +28,19 @@ class _PostCreatorWidgetState extends State<PostCreatorWidget> {
   String _content = "";
   PostModel? _post;
 
+  File? _image;
+  final _picker = ImagePicker();
   final _textController = TextEditingController();
+
+  Future<void> _openImagePicker() async {
+    final XFile? pickedImage =
+    await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedImage != null) {
+      setState(() {
+        _image = File(pickedImage.path);
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -37,30 +52,29 @@ class _PostCreatorWidgetState extends State<PostCreatorWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: const AlignmentDirectional(0.0, 0.0),
-      child: Container(
-        width: MediaQuery.sizeOf(context).width * 1.0,
-        decoration: BoxDecoration(
-          color: LightModeTheme().secondaryBackground,
-          boxShadow: const [
-            BoxShadow(
-              blurRadius: 4.0,
-              color: Color(0x33000000),
-              offset: Offset(
-                0.0,
-                2.0,
-              ),
-            )
-          ],
-          borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(10.0),
-            bottomRight: Radius.circular(10.0),
-            topLeft: Radius.circular(0.0),
-            topRight: Radius.circular(0.0),
-          ),
+    return Container(
+      width: MediaQuery.sizeOf(context).width * 1.0,
+      decoration: BoxDecoration(
+        color: LightModeTheme().secondaryBackground,
+        boxShadow: const [
+          BoxShadow(
+            blurRadius: 4.0,
+            color: Color(0x33000000),
+            offset: Offset(
+              0.0,
+              2.0,
+            ),
+          )
+        ],
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(10.0),
+          bottomRight: Radius.circular(10.0),
+          topLeft: Radius.circular(0.0),
+          topRight: Radius.circular(0.0),
         ),
-        child: Padding(
+      ),
+      child: Column(
+        children: [Padding(
           padding: const EdgeInsets.all(12.0),
           child: Row(
             mainAxisSize: MainAxisSize.max,
@@ -136,6 +150,7 @@ class _PostCreatorWidgetState extends State<PostCreatorWidget> {
                                 ),
                             cursorColor: LightModeTheme().primaryText),
                       ),
+
                       Container(
                         width: MediaQuery.sizeOf(context).width * 1.0,
                         decoration: const BoxDecoration(),
@@ -152,7 +167,7 @@ class _PostCreatorWidgetState extends State<PostCreatorWidget> {
                                 size: 24.0,
                               ),
                               onPressed: () {
-                                print('IconButton pressed ...');
+                                _openImagePicker();
                               },
                             ),
                             RambleIconButton(
@@ -165,7 +180,7 @@ class _PostCreatorWidgetState extends State<PostCreatorWidget> {
                               ),
                               onPressed: () async {
                                 // make a post
-                                var success = await _controller.createPost(content: _content, parentId: _post?.postId);
+                                var success = await _controller.createPost(content: _content, parentId: _post?.postId, image: _image);
 
                                 if (success && widget.onPost != null) {
                                   widget.onPost!();
@@ -173,6 +188,7 @@ class _PostCreatorWidgetState extends State<PostCreatorWidget> {
 
                                 setState(() {
                                   _content = "";
+                                  _image = null;
                                   _textController.clear();
                                 });
                               },
@@ -187,6 +203,29 @@ class _PostCreatorWidgetState extends State<PostCreatorWidget> {
             ].divide(const SizedBox(width: 5.0)),
           ),
         ),
+          if (_image != null)
+            SizedBox(
+                height: 200,
+                child: Stack(children: [
+                  Image.file(_image!),
+                  ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _image = null;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shape: CircleBorder()
+                    ),
+                      child: Icon(Icons.close,
+                        color: LightModeTheme().primaryText,
+                        size: 24.0
+                      )
+                  )
+                ])
+            ),
+      ]
       ),
     );
   }

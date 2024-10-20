@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:ramble_mobile/models/follow_model.dart';
@@ -149,14 +150,32 @@ class UserController {
     return posts;
   }
 
-  Future<bool> createPost({ required String content, String? parentId }) async {
+  Future<bool> createPost({ required String content, String? parentId, File? image }) async {
     var uri = Uri.http(Environment.serverURL, "/post/new");
-    Map<String, dynamic> unencodedBody = { "content": content };
+
+    var request = http.MultipartRequest("post", uri);
+    request.headers.addAll(_headers);
+    request.fields["content"] = content;
+
     if (parentId != null) {
-      unencodedBody["parentId"] = parentId;
+      request.fields["parentId"] = parentId;
     }
-    var response = await http.post(uri, headers: _headers, body: jsonEncode(unencodedBody));
+
+    if (image != null) {
+      request.files.add(
+          await http.MultipartFile.fromPath("image", image.path)
+      );
+    }
+
+    var response = await request.send();
     return response.statusCode == 200;
+
+    // Map<String, dynamic> unencodedBody = { "content": content };
+    // if (parentId != null) {
+    //   unencodedBody["parentId"] = parentId;
+    // }
+    // var request = await http.post(uri, headers: _headers, body: jsonEncode(unencodedBody));
+    // return response.statusCode == 200;
   }
 
   Future<bool> likePost({ required String postId }) async {
