@@ -192,7 +192,7 @@ router.post('/list', httpOnlyAuthentication, async (request, response) => {
         page: z.number().min(0),
         username: z.string().min(4).max(25).optional(),
         parentId: z.string().regex(/[0-9a-fA-F]+/).length(32).optional(),
-        category: z.enum(['trending', 'following']).optional()
+        category: z.enum(['trending', 'following', 'likes']).optional()
     }), request);
 
     if (!parameters) return response.sendStatus(400);
@@ -218,6 +218,11 @@ router.post('/list', httpOnlyAuthentication, async (request, response) => {
     else if (category === 'following')
         [results] = await connection.query<any[]>('(SELECT HEX(post_id) AS `uuid`, post_id, post_created_at FROM post JOIN follower ON (post_user_id = follows_id AND follower_id = UNHEX(?))) UNION (SELECT HEX(p.post_id) AS `uuid`, p.post_id, p.post_created_at FROM post p WHERE p.post_user_id = UNHEX(?)) ORDER BY post_created_at DESC, HEX(post_id) LIMIT ?, ?', [uuid, uuid, ...pagination]);
     
+    else if (category === 'likes')
+        [results] = await connection.query<any[]>('(SELECT HEX(post_id) AS `uuid`, post_id, post_created_at FROM post JOIN `like` ON (post_id = like_post_id AND like_user_id = UNHEX(?))) ORDER BY post_created_at DESC, HEX(post_id) LIMIT ?, ?', [uuid, ...pagination]);
+    
+    console.log(results);
+
     // postIds are only sent back, not all the details
     response.json({
         posts: results.map(entry => entry.uuid)
