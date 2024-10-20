@@ -263,7 +263,7 @@ class _ViewProfileWidgetState extends State<ViewProfileWidget> {
                                     children: [
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
-                                        child: ButtonWidget(
+                                        child: _user.username == _userController.user.username ? ButtonWidget(
                                           onPressed: () {
                                             print('Button pressed ...');
                                           },
@@ -291,7 +291,42 @@ class _ViewProfileWidgetState extends State<ViewProfileWidget> {
                                             BorderRadius.circular(
                                                 24.0),
                                           ),
-                                        ),
+                                        ) :
+                                        ButtonWidget(
+                                          onPressed: () async {
+                                            if (_follow.isFollowing) {
+                                              await _userController.unfollowAccount(username: _user.username);
+                                            } else {
+                                              await _userController.followAccount(username: _user.username);
+                                            }
+
+                                            await _loadFollow();
+                                          },
+                                          text: _follow.isFollowing ? 'Unfollow' : 'Follow',
+                                          options: ButtonOptions(
+                                            padding:
+                                            const EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
+                                            iconPadding:
+                                            const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                                            color: _follow.isFollowing
+                                                ? LightModeTheme().orangePeel
+                                                : LightModeTheme().secondaryBackground,
+                                            textStyle: TypographyTheme().titleSmall.override(
+                                              fontFamily: 'Roboto',
+                                              color: _follow.isFollowing
+                                                  ? Colors.white
+                                                  : LightModeTheme().orangePeel,
+                                              fontSize: 12.0,
+                                              letterSpacing: 0.0,
+                                            ),
+                                            elevation: 0.0,
+                                            borderSide: BorderSide(
+                                              color: LightModeTheme().orangePeel,
+                                            ),
+                                            borderRadius: BorderRadius.circular(24.0),
+                                          ),
+                                        )
+                                        ,
                                       ),
                                       Padding(
                                         padding: const EdgeInsetsDirectional
