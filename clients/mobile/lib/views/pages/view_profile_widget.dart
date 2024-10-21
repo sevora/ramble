@@ -89,390 +89,395 @@ class _ViewProfileWidgetState extends State<ViewProfileWidget> {
               _pageController.refresh();
             },
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Align(
-            alignment: const AlignmentDirectional(0.0, 0.0),
-            child: Container(
-              width: MediaQuery.sizeOf(context).width * 1.0,
-              height: 100.0,
-              constraints: const BoxConstraints(
-                minHeight: 300.0,
-              ),
-              decoration: BoxDecoration(
-                color: LightModeTheme().secondaryBackground,
-              ),
-              child: Stack(
-                children: [
-                  FullScreenWidget(
-                    disposeLevel: DisposeLevel.High,
-                    child: Center(
-                      child: ClipRRect(
-                        child: CachedNetworkImage(
-                          fadeInDuration: const Duration(milliseconds: 500),
-                          fadeOutDuration: const Duration(milliseconds: 500),
-                          imageUrl: _user.userBannerPicture ?? "",
-                          width: MediaQuery.sizeOf(context).width * 1.0,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Image.asset("assets/banner_placeholder.jpg", fit: BoxFit.cover,),
-                          errorWidget: (context, url, error) => Image.asset("assets/banner_placeholder.jpg", fit: BoxFit.cover),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Align(
+              alignment: const AlignmentDirectional(0.0, 0.0),
+              child: Container(
+                width: MediaQuery.sizeOf(context).width * 1.0,
+                height: 100.0,
+                constraints: const BoxConstraints(
+                  minHeight: 300.0,
+                ),
+                decoration: BoxDecoration(
+                  color: LightModeTheme().secondaryBackground,
+                ),
+                child: Stack(
+                  children: [
+                    FullScreenWidget(
+                      disposeLevel: DisposeLevel.High,
+                      child: Center(
+                        child: ClipRRect(
+                          child: CachedNetworkImage(
+                            fadeInDuration: const Duration(milliseconds: 500),
+                            fadeOutDuration: const Duration(milliseconds: 500),
+                            imageUrl: _user.userBannerPicture ?? "",
+                            width: MediaQuery.sizeOf(context).width * 1.0,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Image.asset("assets/banner_placeholder.jpg", fit: BoxFit.cover,),
+                            errorWidget: (context, url, error) => Image.asset("assets/banner_placeholder.jpg", fit: BoxFit.cover),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(
-                        0.0, 170.0, 0.0, 0.0),
-                    child: Container(
-                      width: MediaQuery.sizeOf(context).width * 1.0,
-                      height: 150.0,
-                      decoration: BoxDecoration(
-                        color: LightModeTheme().secondaryBackground,
-                      ),
-                      child: Align(
-                        alignment: const AlignmentDirectional(0.0, 0.0),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: Container(
-                                height:
-                                MediaQuery.sizeOf(context).height *
-                                    1.0,
-                                decoration: const BoxDecoration(),
-                                child: Padding(
-                                  padding: const EdgeInsetsDirectional.fromSTEB(
-                                      20.0, 10.0, 0.0, 0.0),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsetsDirectional
-                                            .fromSTEB(
-                                            0.0, 15.0, 0.0, 0.0),
-                                        child: Text(
-                                          _user.userCommonName,
-                                          textAlign: TextAlign.start,
+                    Padding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(
+                          0.0, 170.0, 0.0, 0.0),
+                      child: Container(
+                        width: MediaQuery.sizeOf(context).width * 1.0,
+                        height: 150.0,
+                        decoration: BoxDecoration(
+                          color: LightModeTheme().secondaryBackground,
+                        ),
+                        child: Align(
+                          alignment: const AlignmentDirectional(0.0, 0.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: Container(
+                                  height:
+                                  MediaQuery.sizeOf(context).height *
+                                      1.0,
+                                  decoration: const BoxDecoration(),
+                                  child: Padding(
+                                    padding: const EdgeInsetsDirectional.fromSTEB(
+                                        20.0, 10.0, 0.0, 0.0),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsetsDirectional
+                                              .fromSTEB(
+                                              0.0, 15.0, 0.0, 0.0),
+                                          child: Text(
+                                            _user.userCommonName,
+                                            textAlign: TextAlign.start,
+                                            style: TypographyTheme()
+                                                .bodyMedium
+                                                .override(
+                                              fontFamily: 'Roboto',
+                                              color: LightModeTheme()
+                                                  .primaryText,
+                                              fontSize: 20.0,
+                                              letterSpacing: 0.0,
+                                              fontWeight:
+                                              FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          '@${_user.username}',
                                           style: TypographyTheme()
                                               .bodyMedium
                                               .override(
                                             fontFamily: 'Roboto',
-                                            color: LightModeTheme()
-                                                .primaryText,
-                                            fontSize: 20.0,
+                                            color: const Color(0xFFEE8B60),
                                             letterSpacing: 0.0,
-                                            fontWeight:
-                                            FontWeight.w500,
+                                            fontWeight: FontWeight.w300,
                                           ),
                                         ),
-                                      ),
-                                      Text(
-                                        '@${_user.username}',
-                                        style: TypographyTheme()
-                                            .bodyMedium
-                                            .override(
-                                          fontFamily: 'Roboto',
-                                          color: const Color(0xFFEE8B60),
-                                          letterSpacing: 0.0,
-                                          fontWeight: FontWeight.w300,
+                                        Text(
+                                          _user.userBiography ?? "No biography...",
+                                          style: TypographyTheme()
+                                              .bodyMedium
+                                              .override(
+                                            fontFamily: 'Roboto',
+                                            letterSpacing: 0.0,
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        _user.userBiography ?? "No biography...",
-                                        style: TypographyTheme()
-                                            .bodyMedium
-                                            .override(
-                                          fontFamily: 'Roboto',
-                                          letterSpacing: 0.0,
-                                        ),
-                                      ),
-                                      Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          InkWell(
-                                            splashColor:
-                                            Colors.transparent,
-                                            focusColor:
-                                            Colors.transparent,
-                                            hoverColor:
-                                            Colors.transparent,
-                                            highlightColor:
-                                            Colors.transparent,
-                                            onTap: () async {
-                                              widget.baseController.push(
-                                                FollowingWidget(userController: _userController, baseController: widget.baseController, user: _user, initialCategory: "following")
-                                              );
-                                            },
-                                            child: Text(
-                                              '${_follow.followCount} Following',
-                                              style: TypographyTheme()
-                                                  .bodyMedium
-                                                  .override(
-                                                fontFamily:
-                                                'Roboto',
-                                                color: LightModeTheme()
-                                                    .secondaryText,
-                                                letterSpacing: 0.0,
-                                              ),
-                                            ),
-                                          ),
-                                          InkWell(
-                                            splashColor:
-                                            Colors.transparent,
-                                            focusColor:
-                                            Colors.transparent,
-                                            hoverColor:
-                                            Colors.transparent,
-                                            highlightColor:
-                                            Colors.transparent,
-                                            onTap: () async {
-                                              widget.baseController.push(
-                                                  FollowingWidget(userController: _userController, baseController: widget.baseController, user: _user, initialCategory: "follower")
-                                              );
-                                            },
-                                            child: Text(
-                                              '${_follow.followerCount} Followers',
-                                              style: TypographyTheme()
-                                                  .bodyMedium
-                                                  .override(
-                                                fontFamily:
-                                                'Roboto',
-                                                color: LightModeTheme()
-                                                    .secondaryText,
-                                                letterSpacing: 0.0,
-                                              ),
-                                            ),
-                                          ),
-                                        ].divide(const SizedBox(width: 10.0)),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: Container(
-                                height:
-                                MediaQuery.sizeOf(context).height *
-                                    1.0,
-                                decoration: const BoxDecoration(),
-                                child: Padding(
-                                  padding: const EdgeInsetsDirectional.fromSTEB(
-                                      0.0, 0.0, 10.0, 0.0),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.end,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: _user.username == _userController.user.username ? ButtonWidget(
-                                          onPressed: () {
-                                            widget.baseController.push(EditProfileWidget(userController: _userController, baseController: widget.baseController));
-                                          },
-                                          text: 'Edit',
-                                          options: ButtonOptions(
-                                            height: 40.0,
-                                            padding: const EdgeInsetsDirectional
-                                                .fromSTEB(
-                                                16.0, 0.0, 16.0, 0.0),
-                                            iconPadding:
-                                            const EdgeInsetsDirectional
-                                                .fromSTEB(0.0, 0.0,
-                                                0.0, 0.0),
-                                            color: LightModeTheme()
-                                                .orangePeel,
-                                            textStyle: TypographyTheme()
-                                                .titleMedium
-                                                .override(
-                                              fontFamily:
-                                              'Roboto',
-                                              letterSpacing: 0.0,
-                                            ),
-                                            elevation: 0.0,
-                                            borderRadius:
-                                            BorderRadius.circular(
-                                                24.0),
-                                          ),
-                                        ) :
-                                        ButtonWidget(
-                                          onPressed: () async {
-                                            if (_follow.isFollowing) {
-                                              await _userController.unfollowAccount(username: _user.username);
-                                            } else {
-                                              await _userController.followAccount(username: _user.username);
-                                            }
-
-                                            await _loadFollow();
-                                          },
-                                          text: _follow.isFollowing ? 'Unfollow' : 'Follow',
-                                          options: ButtonOptions(
-                                            padding:
-                                            const EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
-                                            iconPadding:
-                                            const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
-                                            color: _follow.isFollowing
-                                                ? LightModeTheme().orangePeel
-                                                : LightModeTheme().secondaryBackground,
-                                            textStyle: TypographyTheme().titleSmall.override(
-                                              fontFamily: 'Roboto',
-                                              color: _follow.isFollowing
-                                                  ? Colors.white
-                                                  : LightModeTheme().orangePeel,
-                                              fontSize: 12.0,
-                                              letterSpacing: 0.0,
-                                            ),
-                                            elevation: 0.0,
-                                            borderSide: BorderSide(
-                                              color: LightModeTheme().orangePeel,
-                                            ),
-                                            borderRadius: BorderRadius.circular(24.0),
-                                          ),
-                                        )
-                                        ,
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsetsDirectional
-                                            .fromSTEB(
-                                            0.0, 20.0, 0.0, 0.0),
-                                        child: Row(
+                                        Row(
                                           mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.end,
                                           children: [
-                                            Opacity(
-                                              opacity: 0.5,
-                                              child: Icon(
-                                                Icons
-                                                    .calendar_today_sharp,
-                                                color: LightModeTheme()
-                                                    .primaryText,
-                                                size: 20.0,
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding:
-                                              const EdgeInsetsDirectional
-                                                  .fromSTEB(3.0, 0.0,
-                                                  2.0, 0.0),
+                                            InkWell(
+                                              splashColor:
+                                              Colors.transparent,
+                                              focusColor:
+                                              Colors.transparent,
+                                              hoverColor:
+                                              Colors.transparent,
+                                              highlightColor:
+                                              Colors.transparent,
+                                              onTap: () async {
+                                                widget.baseController.push(
+                                                  FollowingWidget(userController: _userController, baseController: widget.baseController, user: _user, initialCategory: "following")
+                                                );
+                                              },
                                               child: Text(
-                                                'Joined',
+                                                '${_follow.followCount} Following',
                                                 style: TypographyTheme()
                                                     .bodyMedium
                                                     .override(
                                                   fontFamily:
                                                   'Roboto',
-                                                  fontSize: 10.0,
+                                                  color: LightModeTheme()
+                                                      .secondaryText,
                                                   letterSpacing: 0.0,
-                                                  fontWeight:
-                                                  FontWeight.w300,
                                                 ),
                                               ),
                                             ),
-                                            Padding(
-                                              padding:
+                                            InkWell(
+                                              splashColor:
+                                              Colors.transparent,
+                                              focusColor:
+                                              Colors.transparent,
+                                              hoverColor:
+                                              Colors.transparent,
+                                              highlightColor:
+                                              Colors.transparent,
+                                              onTap: () async {
+                                                widget.baseController.push(
+                                                    FollowingWidget(userController: _userController, baseController: widget.baseController, user: _user, initialCategory: "follower")
+                                                );
+                                              },
+                                              child: Text(
+                                                '${_follow.followerCount} Followers',
+                                                style: TypographyTheme()
+                                                    .bodyMedium
+                                                    .override(
+                                                  fontFamily:
+                                                  'Roboto',
+                                                  color: LightModeTheme()
+                                                      .secondaryText,
+                                                  letterSpacing: 0.0,
+                                                ),
+                                              ),
+                                            ),
+                                          ].divide(const SizedBox(width: 10.0)),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: Container(
+                                  height:
+                                  MediaQuery.sizeOf(context).height *
+                                      1.0,
+                                  decoration: const BoxDecoration(),
+                                  child: Padding(
+                                    padding: const EdgeInsetsDirectional.fromSTEB(
+                                        0.0, 0.0, 10.0, 0.0),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.end,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: _user.username == _userController.user.username ? ButtonWidget(
+                                            onPressed: () {
+                                              widget.baseController.push(EditProfileWidget(userController: _userController, baseController: widget.baseController));
+                                            },
+                                            text: 'Edit',
+                                            options: ButtonOptions(
+                                              height: 40.0,
+                                              padding: const EdgeInsetsDirectional
+                                                  .fromSTEB(
+                                                  16.0, 0.0, 16.0, 0.0),
+                                              iconPadding:
                                               const EdgeInsetsDirectional
                                                   .fromSTEB(0.0, 0.0,
-                                                  15.0, 0.0),
-                                              child: Text(
-                                                DateFormat("MMMM yyyy").format(_user.userCreatedAt),
-                                                style: TypographyTheme()
-                                                    .bodyMedium
-                                                    .override(
-                                                  fontFamily:
-                                                  'Roboto',
-                                                  color:
-                                                  LightModeTheme()
+                                                  0.0, 0.0),
+                                              color: LightModeTheme()
+                                                  .orangePeel,
+                                              textStyle: TypographyTheme()
+                                                  .titleMedium
+                                                  .override(
+                                                fontFamily:
+                                                'Roboto',
+                                                letterSpacing: 0.0,
+                                              ),
+                                              elevation: 0.0,
+                                              borderRadius:
+                                              BorderRadius.circular(
+                                                  24.0),
+                                            ),
+                                          ) :
+                                          ButtonWidget(
+                                            onPressed: () async {
+                                              if (_follow.isFollowing) {
+                                                await _userController.unfollowAccount(username: _user.username);
+                                              } else {
+                                                await _userController.followAccount(username: _user.username);
+                                              }
+        
+                                              await _loadFollow();
+                                            },
+                                            text: _follow.isFollowing ? 'Unfollow' : 'Follow',
+                                            options: ButtonOptions(
+                                              padding:
+                                              const EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
+                                              iconPadding:
+                                              const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 0.0),
+                                              color: _follow.isFollowing
+                                                  ? LightModeTheme().orangePeel
+                                                  : LightModeTheme().secondaryBackground,
+                                              textStyle: TypographyTheme().titleSmall.override(
+                                                fontFamily: 'Roboto',
+                                                color: _follow.isFollowing
+                                                    ? Colors.white
+                                                    : LightModeTheme().orangePeel,
+                                                fontSize: 12.0,
+                                                letterSpacing: 0.0,
+                                              ),
+                                              elevation: 0.0,
+                                              borderSide: BorderSide(
+                                                color: LightModeTheme().orangePeel,
+                                              ),
+                                              borderRadius: BorderRadius.circular(24.0),
+                                            ),
+                                          )
+                                          ,
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsetsDirectional
+                                              .fromSTEB(
+                                              0.0, 20.0, 0.0, 0.0),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                            children: [
+                                              Opacity(
+                                                opacity: 0.5,
+                                                child: Icon(
+                                                  Icons
+                                                      .calendar_today_sharp,
+                                                  color: LightModeTheme()
                                                       .primaryText,
-                                                  fontSize: 10.0,
-                                                  letterSpacing: 0.0,
-                                                  fontWeight:
-                                                  FontWeight.w300,
+                                                  size: 20.0,
                                                 ),
                                               ),
-                                            ),
-                                          ],
+                                              Padding(
+                                                padding:
+                                                const EdgeInsetsDirectional
+                                                    .fromSTEB(3.0, 0.0,
+                                                    2.0, 0.0),
+                                                child: Text(
+                                                  'Joined',
+                                                  style: TypographyTheme()
+                                                      .bodyMedium
+                                                      .override(
+                                                    fontFamily:
+                                                    'Roboto',
+                                                    fontSize: 10.0,
+                                                    letterSpacing: 0.0,
+                                                    fontWeight:
+                                                    FontWeight.w300,
+                                                  ),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                const EdgeInsetsDirectional
+                                                    .fromSTEB(0.0, 0.0,
+                                                    15.0, 0.0),
+                                                child: Text(
+                                                  DateFormat("MMMM yyyy").format(_user.userCreatedAt),
+                                                  style: TypographyTheme()
+                                                      .bodyMedium
+                                                      .override(
+                                                    fontFamily:
+                                                    'Roboto',
+                                                    color:
+                                                    LightModeTheme()
+                                                        .primaryText,
+                                                    fontSize: 10.0,
+                                                    letterSpacing: 0.0,
+                                                    fontWeight:
+                                                    FontWeight.w300,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(
-                        10.0, 100.0, 0.0, 0.0),
-                    child: Container(
-                      width: 100.0,
-                      height: 100.0,
-                      clipBehavior: Clip.antiAlias,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                      ),
-                      child: FullScreenWidget(
-                        disposeLevel: DisposeLevel.High,
-                        child: Center(
-                          child: AspectRatio(
-                            aspectRatio: 1,
-                            child: ClipRect(
-                              child: CachedNetworkImage(
-                                placeholder: (context, url) => Image.asset("assets/profile_placeholder.jpg"),
-                                errorWidget: (context, url, error) => Image.asset("assets/profile_placeholder.jpg"),
-                                fadeInDuration: const Duration(milliseconds: 500),
-                                fadeOutDuration: const Duration(milliseconds: 500),
-                                imageUrl:
-                                _user.userProfilePicture ?? "",
-                                fit: BoxFit.cover,
+                    Padding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(
+                          10.0, 100.0, 0.0, 0.0),
+                      child: Container(
+                        width: 100.0,
+                        height: 100.0,
+                        clipBehavior: Clip.antiAlias,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                        ),
+                        child: FullScreenWidget(
+                          disposeLevel: DisposeLevel.High,
+                          child: Center(
+                            child: AspectRatio(
+                              aspectRatio: 1,
+                              child: ClipRect(
+                                child: CachedNetworkImage(
+                                  placeholder: (context, url) => Image.asset("assets/profile_placeholder.jpg"),
+                                  errorWidget: (context, url, error) => Image.asset("assets/profile_placeholder.jpg"),
+                                  fadeInDuration: const Duration(milliseconds: 500),
+                                  fadeOutDuration: const Duration(milliseconds: 500),
+                                  imageUrl:
+                                  _user.userProfilePicture ?? "",
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          TabFilter(choices: ["posts", "likes"], active: _filter, onSelect: (choice) {
-            setState(() {
-              _filter = choice;
-              _pageController.refresh();
-            });
-          }),
-          Expanded(
-              child: PagedListView(
-                  pagingController: _pageController,
-                  builderDelegate: PagedChildBuilderDelegate<PostModel>(
-                      itemBuilder: (context, item, index) {
-                        return Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                            child: PostWidget(post: item, userController: _userController, allowViewPost: true,
-                              onDelete: () {
-                                _pageController.refresh();
-                              },baseController: widget.baseController,)
-                        );
-                      }
+            TabFilter(choices: ["posts", "likes"], active: _filter, onSelect: (choice) {
+              setState(() {
+                _filter = choice;
+                _pageController.refresh();
+              });
+            }),
+            SizedBox(
+              height: MediaQuery.sizeOf(context).height * 0.8,
+              child: Expanded(
+                  child: PagedListView(
+                      pagingController: _pageController,
+                      builderDelegate: PagedChildBuilderDelegate<PostModel>(
+                          itemBuilder: (context, item, index) {
+                            return Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                                child: PostWidget(post: item, userController: _userController, allowViewPost: true,
+                                  onDelete: () {
+                                    _pageController.refresh();
+                                  },baseController: widget.baseController,)
+                            );
+                          }
+                      )
                   )
-              )
-          ),
-        ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

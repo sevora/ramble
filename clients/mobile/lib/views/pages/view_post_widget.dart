@@ -51,88 +51,88 @@ class _ViewPostWidgetState extends State<ViewPostWidget> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Card(
-        child: Align(
-          alignment: const AlignmentDirectional(0.0, 0.0),
-          child: Container(
-            width: MediaQuery.sizeOf(context).width * 1.0,
-            height: MediaQuery.sizeOf(context).height * 1.0,
-            decoration: BoxDecoration(
-              color: LightModeTheme().secondaryBackground,
-              boxShadow: const [
-                BoxShadow(
-                  blurRadius: 4.0,
-                  color: Color(0x33000000),
-                  offset: Offset(
-                    0.0,
-                    2.0,
-                  ),
-                )
-              ],
-              borderRadius: BorderRadius.circular(6.0),
-              shape: BoxShape.rectangle,
-            ),
-            child: Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(10.0, 20.0, 10.0, 10.0),
-              child: Column(
+      child: Container(
+        width: MediaQuery.sizeOf(context).width * 1.0,
+        decoration: BoxDecoration(
+          color: LightModeTheme().secondaryBackground,
+          boxShadow: const [
+            BoxShadow(
+              blurRadius: 4.0,
+              color: Color(0x33000000),
+              offset: Offset(
+                0.0,
+                2.0,
+              ),
+            )
+          ],
+          borderRadius: BorderRadius.circular(6.0),
+          shape: BoxShape.rectangle,
+        ),
+        child: Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(10.0, 20.0, 10.0, 10.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Row(
                 mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      RambleIconButton(
-                        borderRadius: 8.0,
-                        icon: Icon(
-                          Icons.arrow_back_ios_new_outlined,
-                          color: LightModeTheme().primaryText,
-                          size: 24.0,
-                        ),
-                        onPressed: () async {
-                          widget.baseController.pop();
-                        },
-                      ),
-                      Text(
-                        'Post',
-                        style: TypographyTheme()
-                            .titleLarge
-                            .override(
-                          fontFamily: 'Roboto',
-                          letterSpacing: 0.0,
-                        ),
-                      ),
-                    ].divide(const SizedBox(width: 10.0)),
-                  ),
-                  PostWidget(post: _post, userController: _userController, onDelete: () {
-                    widget.baseController.pop();
-                  }, baseController: widget.baseController,),
-                  PostCreatorWidget(
-                    prompt: 'Share your thoughts...',
-                    controller: _userController,
-                    post: _post,
-                    onPost: () {
-                      _pageController.refresh();
+                  RambleIconButton(
+                    borderRadius: 8.0,
+                    icon: Icon(
+                      Icons.arrow_back_ios_new_outlined,
+                      color: LightModeTheme().primaryText,
+                      size: 24.0,
+                    ),
+                    onPressed: () async {
+                      widget.baseController.pop();
                     },
                   ),
-
-                  Expanded(
-                      child: PagedListView(
-                          pagingController: _pageController,
-                          builderDelegate: PagedChildBuilderDelegate<PostModel>(
-                              itemBuilder: (context, item, index) {
-                                return Padding(
-                                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                                    child: PostWidget(post: item, userController: _userController, allowViewPost: true, onDelete: () {
-                                      _pageController.refresh();
-                                    }, baseController: widget.baseController)
-                                );
-                              }
-                          )
-                      )
-                  )
-                ].divide(const SizedBox(height: 5.0)),
+                  Text(
+                    'Post',
+                    style: TypographyTheme()
+                        .titleLarge
+                        .override(
+                      fontFamily: 'Roboto',
+                      letterSpacing: 0.0,
+                    ),
+                  ),
+                ].divide(const SizedBox(width: 10.0)),
               ),
-            ),
+              PostWidget(post: _post, userController: _userController, onDelete: () {
+                widget.baseController.pop();
+              }, baseController: widget.baseController,),
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(0, 10, 0, 0),
+                child: PostCreatorWidget(
+                  prompt: 'Share your thoughts...',
+                  controller: _userController,
+                  post: _post,
+                  onPost: () {
+                    _pageController.refresh();
+                  },
+                ),
+              ),
+      
+              SizedBox(
+                height: MediaQuery.sizeOf(context).height * 0.8,
+                child: Expanded(
+                    child: PagedListView(
+                        pagingController: _pageController,
+                        builderDelegate: PagedChildBuilderDelegate<PostModel>(
+                            itemBuilder: (context, item, index) {
+                              return Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                                  child: PostWidget(post: item, userController: _userController, allowViewPost: true, onDelete: () {
+                                    _pageController.refresh();
+                                  }, baseController: widget.baseController)
+                              );
+                            }
+                        )
+                    )
+                ),
+              )
+            ],
           ),
         ),
       ),
