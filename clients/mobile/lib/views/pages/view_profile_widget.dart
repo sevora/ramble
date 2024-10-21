@@ -97,10 +97,7 @@ class _ViewProfileWidgetState extends State<ViewProfileWidget> {
               alignment: const AlignmentDirectional(0.0, 0.0),
               child: Container(
                 width: MediaQuery.sizeOf(context).width * 1.0,
-                height: 100.0,
-                constraints: const BoxConstraints(
-                  minHeight: 300.0,
-                ),
+                height: 300.0,
                 decoration: BoxDecoration(
                   color: LightModeTheme().secondaryBackground,
                 ),
@@ -459,20 +456,18 @@ class _ViewProfileWidgetState extends State<ViewProfileWidget> {
             }),
             SizedBox(
               height: MediaQuery.sizeOf(context).height * 0.8,
-              child: Expanded(
-                  child: PagedListView(
-                      pagingController: _pageController,
-                      builderDelegate: PagedChildBuilderDelegate<PostModel>(
-                          itemBuilder: (context, item, index) {
-                            return Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                                child: PostWidget(post: item, userController: _userController, allowViewPost: true,
-                                  onDelete: () {
-                                    _pageController.refresh();
-                                  },baseController: widget.baseController,)
-                            );
-                          }
-                      )
+              child: PagedListView(
+                  pagingController: _pageController,
+                  builderDelegate: PagedChildBuilderDelegate<PostModel>(
+                      itemBuilder: (context, item, index) {
+                        return Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                            child: PostWidget(post: item, userController: _userController, allowViewPost: true,
+                              onDelete: () {
+                                _pageController.refresh();
+                              },baseController: widget.baseController,)
+                        );
+                      }
                   )
               ),
             ),

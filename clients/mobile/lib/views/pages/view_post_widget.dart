@@ -103,7 +103,7 @@ class _ViewPostWidgetState extends State<ViewPostWidget> {
                 widget.baseController.pop();
               }, baseController: widget.baseController,),
               Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(0, 10, 0, 0),
+                padding: EdgeInsetsDirectional.fromSTEB(0, 10, 0, 10),
                 child: PostCreatorWidget(
                   prompt: 'Share your thoughts...',
                   controller: _userController,
@@ -116,19 +116,17 @@ class _ViewPostWidgetState extends State<ViewPostWidget> {
       
               SizedBox(
                 height: MediaQuery.sizeOf(context).height * 0.8,
-                child: Expanded(
-                    child: PagedListView(
-                        pagingController: _pageController,
-                        builderDelegate: PagedChildBuilderDelegate<PostModel>(
-                            itemBuilder: (context, item, index) {
-                              return Padding(
-                                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                                  child: PostWidget(post: item, userController: _userController, allowViewPost: true, onDelete: () {
-                                    _pageController.refresh();
-                                  }, baseController: widget.baseController)
-                              );
-                            }
-                        )
+                child: PagedListView(
+                    pagingController: _pageController,
+                    builderDelegate: PagedChildBuilderDelegate<PostModel>(
+                        itemBuilder: (context, item, index) {
+                          return Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                              child: PostWidget(post: item, userController: _userController, allowViewPost: true, onDelete: () {
+                                _pageController.refresh();
+                              }, baseController: widget.baseController)
+                          );
+                        }
                     )
                 ),
               )
