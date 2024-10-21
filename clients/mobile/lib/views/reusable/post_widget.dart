@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/intl.dart';
+import 'package:full_screen_image/full_screen_image.dart';
 import 'package:ramble_mobile/controllers/user_controller.dart';
 import 'package:ramble_mobile/utilities/time_ago.dart';
 import 'package:ramble_mobile/views/pages/base_widget.dart';
@@ -195,17 +195,21 @@ class _PostWidgetState extends State<PostWidget> {
                   ),
 
                   if (_post.postMedia != null)
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
-                      child: CachedNetworkImage(
-                        placeholder: (context, url) => Image.asset("assets/banner_placeholder.jpg"),
-                        errorWidget: (context, url, error) => Image.asset("assets/banner_placeholder.jpg"),
-                        fadeInDuration: const Duration(milliseconds: 500),
-                        fadeOutDuration: const Duration(milliseconds: 500),
-                        imageUrl: _post.postMedia!,
-                        width: MediaQuery.sizeOf(context).width * 1.0,
-                        height: 200.0,
-                        fit: BoxFit.cover,
+                    FullScreenWidget(
+                      disposeLevel: DisposeLevel.High,
+                      child: Center(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: CachedNetworkImage(
+                            placeholder: (context, url) => Image.asset("assets/banner_placeholder.jpg"),
+                            errorWidget: (context, url, error) => Image.asset("assets/banner_placeholder.jpg"),
+                            fadeInDuration: const Duration(milliseconds: 500),
+                            fadeOutDuration: const Duration(milliseconds: 500),
+                            imageUrl: _post.postMedia!,
+                            width: MediaQuery.sizeOf(context).width * 1.0,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
                     ),
                 ],

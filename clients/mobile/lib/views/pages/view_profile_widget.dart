@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:full_screen_image/full_screen_image.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:ramble_mobile/views/pages/base_widget.dart';
@@ -104,16 +105,20 @@ class _ViewProfileWidgetState extends State<ViewProfileWidget> {
               ),
               child: Stack(
                 children: [
-                  ClipRRect(
-                    child: CachedNetworkImage(
-                      fadeInDuration: const Duration(milliseconds: 500),
-                      fadeOutDuration: const Duration(milliseconds: 500),
-                      imageUrl: _user.userBannerPicture ?? "",
-                      width: MediaQuery.sizeOf(context).width * 1.0,
-                      height: 150.0,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Image.asset("assets/banner_placeholder.jpg", fit: BoxFit.cover,),
-                      errorWidget: (context, url, error) => Image.asset("assets/banner_placeholder.jpg", fit: BoxFit.cover),
+                  FullScreenWidget(
+                    disposeLevel: DisposeLevel.High,
+                    child: Center(
+                      child: ClipRRect(
+                        child: CachedNetworkImage(
+                          fadeInDuration: const Duration(milliseconds: 500),
+                          fadeOutDuration: const Duration(milliseconds: 500),
+                          imageUrl: _user.userBannerPicture ?? "",
+                          width: MediaQuery.sizeOf(context).width * 1.0,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Image.asset("assets/banner_placeholder.jpg", fit: BoxFit.cover,),
+                          errorWidget: (context, url, error) => Image.asset("assets/banner_placeholder.jpg", fit: BoxFit.cover),
+                        ),
+                      ),
                     ),
                   ),
                   Padding(
@@ -420,14 +425,24 @@ class _ViewProfileWidgetState extends State<ViewProfileWidget> {
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                       ),
-                      child: CachedNetworkImage(
-                        placeholder: (context, url) => Image.asset("assets/profile_placeholder.jpg"),
-                        errorWidget: (context, url, error) => Image.asset("assets/profile_placeholder.jpg"),
-                        fadeInDuration: const Duration(milliseconds: 500),
-                        fadeOutDuration: const Duration(milliseconds: 500),
-                        imageUrl:
-                        _user.userProfilePicture ?? "",
-                        fit: BoxFit.cover,
+                      child: FullScreenWidget(
+                        disposeLevel: DisposeLevel.High,
+                        child: Center(
+                          child: AspectRatio(
+                            aspectRatio: 1,
+                            child: ClipRect(
+                              child: CachedNetworkImage(
+                                placeholder: (context, url) => Image.asset("assets/profile_placeholder.jpg"),
+                                errorWidget: (context, url, error) => Image.asset("assets/profile_placeholder.jpg"),
+                                fadeInDuration: const Duration(milliseconds: 500),
+                                fadeOutDuration: const Duration(milliseconds: 500),
+                                imageUrl:
+                                _user.userProfilePicture ?? "",
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),

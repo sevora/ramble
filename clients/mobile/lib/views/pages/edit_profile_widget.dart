@@ -37,6 +37,8 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
   File? _profilePicture;
   File? _bannerPicture;
 
+  final _formKey = GlobalKey<FormState>();
+
   Future<void> _openProfileImage() async {
     final XFile? pickedImage =
     await _picker.pickImage(source: ImageSource.gallery);
@@ -67,13 +69,9 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () => Future.sync(
-            () async {
-
-            },
-      ),
-      child: SingleChildScrollView(
+    return SingleChildScrollView(
+      child: Form(
+        key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
@@ -127,18 +125,25 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                   child: Padding(
                                     padding: const EdgeInsetsDirectional.fromSTEB(
                                         20.0, 10.0, 0.0, 0.0),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsetsDirectional
-                                              .fromSTEB(
-                                              0.0, 15.0, 0.0, 0.0),
-                                          child: TextFormField(
+                                    child: Padding(
+                                      padding: const EdgeInsetsDirectional
+                                          .fromSTEB(
+                                          0.0, 0.0, 0.0, 30.0),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                        children: [
+                                          TextFormField(
+                                            validator:  (text) {
+                                              if (text == null || text.isEmpty){
+                                                return "Display name is required.";
+                                              }
+
+                                              return null;
+                                            },
                                             onChanged: (text) {
                                               setState(() {
                                                 _userCommonName = text;
@@ -161,18 +166,11 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                             obscureText: false,
                                             decoration: InputDecoration(
                                               isDense: true,
+                                              contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                                               labelStyle: TypographyTheme().labelMedium,
                                               hintText: "",
                                               hintStyle: TypographyTheme().labelMedium,
-
-                                              border: OutlineInputBorder(
-                                                borderSide: const BorderSide(width: 1.0),
-                                                borderRadius: BorderRadius.circular(8.0),
-                                              ),
-                                              enabledBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(width: 1.0),
-                                                borderRadius: BorderRadius.circular(8.0),
-                                              ),
+                                              border: InputBorder.none,
                                               focusedBorder: OutlineInputBorder(
                                                 borderSide: const BorderSide(
                                                   color: Color(0x00000000),
@@ -180,13 +178,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                                 ),
                                                 borderRadius: BorderRadius.circular(8.0),
                                               ),
-                                              errorBorder: OutlineInputBorder(
-                                                borderSide: BorderSide(
-                                                  color: LightModeTheme().error,
-                                                  width: 1.0,
-                                                ),
-                                                borderRadius: BorderRadius.circular(8.0),
-                                              ),
+                                              errorBorder: InputBorder.none,
                                               focusedErrorBorder: OutlineInputBorder(
                                                 borderSide: BorderSide(
                                                   color: LightModeTheme().error,
@@ -198,154 +190,150 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                                               fillColor: LightModeTheme().secondaryBackground,
                                             ),
                                           ),
-                                        ),
-                                        Text(
-                                          '@${_userController.user.username}',
-                                          style: TypographyTheme()
-                                              .bodyMedium
-                                              .override(
-                                            fontFamily: 'Roboto',
-                                            color: const Color(0xFFEE8B60),
-                                            letterSpacing: 0.0,
-                                            fontWeight: FontWeight.w300,
+                                          Text(
+                                            '@${_userController.user.username}',
+                                            style: TypographyTheme()
+                                                .bodyMedium
+                                                .override(
+                                              fontFamily: 'Roboto',
+                                              color: const Color(0xFFEE8B60),
+                                              letterSpacing: 0.0,
+                                              fontWeight: FontWeight.w300,
+                                            ),
                                           ),
-                                        ),
-                                        TextFormField(
-                                          onChanged: (text) {
-                                            setState(() {
-                                              _biography = text;
-                                            });
-                                          },
-                                          initialValue: _biography,
-                                          style: TypographyTheme()
-                                              .bodyMedium
-                                              .override(
-                                            fontFamily: 'Roboto',
-                                            letterSpacing: 0.0,
+                                          TextFormField(
+                                            maxLines: null,
+                                            validator: (text) {
+                                              if (text != null && text.length > 200){
+                                                return "Maximum of 200 characters only.";
+                                              }
+                                              return null;
+                                            },
+                                            onChanged: (text) {
+                                              setState(() {
+                                                _biography = text;
+                                              });
+                                            },
+                                            initialValue: _biography,
+                                            style: TypographyTheme()
+                                                .bodyMedium
+                                                .override(
+                                              fontFamily: 'Roboto',
+                                              letterSpacing: 0.0,
+                                            ),
+                                            autofocus: false,
+                                            obscureText: false,
+                                            decoration: InputDecoration(
+                                              isDense: true,
+                                              contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                                              labelStyle: TypographyTheme().labelMedium,
+                                              hintText: "Enter biography here",
+                                              hintStyle: TypographyTheme().labelMedium,
+                                              border: InputBorder.none,
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                  color: Color(0x00000000),
+                                                  width: 1.0,
+                                                ),
+                                                borderRadius: BorderRadius.circular(8.0),
+                                              ),
+                                              errorBorder: InputBorder.none,
+                                              focusedErrorBorder: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                  color: LightModeTheme().error,
+                                                  width: 1.0,
+                                                ),
+                                                borderRadius: BorderRadius.circular(8.0),
+                                              ),
+                                              filled: true,
+                                              fillColor: LightModeTheme().secondaryBackground,
+                                            ),
                                           ),
-                                          autofocus: false,
-                                          obscureText: false,
-                                          decoration: InputDecoration(
-                                            isDense: true,
-                                            labelStyle: TypographyTheme().labelMedium,
-                                            hintText: "Enter biography here",
-                                            hintStyle: TypographyTheme().labelMedium,
-                                            enabledBorder: OutlineInputBorder(
-                                              borderSide: const BorderSide(width: 1.0),
-                                              borderRadius: BorderRadius.circular(8.0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderSide: const BorderSide(
-                                                color: Color(0x00000000),
-                                                width: 1.0,
-                                              ),
-                                              borderRadius: BorderRadius.circular(8.0),
-                                            ),
-                                            errorBorder: OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                color: LightModeTheme().error,
-                                                width: 1.0,
-                                              ),
-                                              borderRadius: BorderRadius.circular(8.0),
-                                            ),
-                                            focusedErrorBorder: OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                color: LightModeTheme().error,
-                                                width: 1.0,
-                                              ),
-                                              borderRadius: BorderRadius.circular(8.0),
-                                            ),
-                                            filled: true,
-                                            fillColor: LightModeTheme().secondaryBackground,
-                                          ),
-                                        ),
 
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                                Expanded(
-                                  flex: 1,
-                                  child: Container(
-                                    height:
-                                    MediaQuery.sizeOf(context).height *
-                                        1.0,
-                                    decoration: const BoxDecoration(),
-                                    child: Padding(
-                                      padding: const EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 0.0, 10.0, 0.0),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                        MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                        CrossAxisAlignment.end,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsetsDirectional
-                                                .fromSTEB(
-                                                0.0, 20.0, 0.0, 0.0),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                              children: [
-                                                Opacity(
-                                                  opacity: 0.5,
-                                                  child: Icon(
-                                                    Icons
-                                                        .calendar_today_sharp,
-                                                    color: LightModeTheme()
+                                Container(
+                                  height:
+                                  MediaQuery.sizeOf(context).height *
+                                      1.0,
+                                  decoration: const BoxDecoration(),
+                                  child: Padding(
+                                    padding: const EdgeInsetsDirectional.fromSTEB(
+                                        0.0, 0.0, 10.0, 0.0),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.end,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsetsDirectional
+                                              .fromSTEB(
+                                              0.0, 20.0, 0.0, 0.0),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                            children: [
+                                              Opacity(
+                                                opacity: 0.5,
+                                                child: Icon(
+                                                  Icons
+                                                      .calendar_today_sharp,
+                                                  color: LightModeTheme()
+                                                      .primaryText,
+                                                  size: 20.0,
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                const EdgeInsetsDirectional
+                                                    .fromSTEB(3.0, 0.0,
+                                                    2.0, 0.0),
+                                                child: Text(
+                                                  'Joined',
+                                                  style: TypographyTheme()
+                                                      .bodyMedium
+                                                      .override(
+                                                    fontFamily:
+                                                    'Roboto',
+                                                    fontSize: 10.0,
+                                                    letterSpacing: 0.0,
+                                                    fontWeight:
+                                                    FontWeight.w300,
+                                                  ),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                const EdgeInsetsDirectional
+                                                    .fromSTEB(0.0, 0.0,
+                                                    15.0, 0.0),
+                                                child: Text(
+                                                  DateFormat("MMMM yyyy").format(_userController.user.userCreatedAt),
+                                                  style: TypographyTheme()
+                                                      .bodyMedium
+                                                      .override(
+                                                    fontFamily:
+                                                    'Roboto',
+                                                    color:
+                                                    LightModeTheme()
                                                         .primaryText,
-                                                    size: 20.0,
+                                                    fontSize: 10.0,
+                                                    letterSpacing: 0.0,
+                                                    fontWeight:
+                                                    FontWeight.w300,
                                                   ),
                                                 ),
-                                                Padding(
-                                                  padding:
-                                                  const EdgeInsetsDirectional
-                                                      .fromSTEB(3.0, 0.0,
-                                                      2.0, 0.0),
-                                                  child: Text(
-                                                    'Joined',
-                                                    style: TypographyTheme()
-                                                        .bodyMedium
-                                                        .override(
-                                                      fontFamily:
-                                                      'Roboto',
-                                                      fontSize: 10.0,
-                                                      letterSpacing: 0.0,
-                                                      fontWeight:
-                                                      FontWeight.w300,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding:
-                                                  const EdgeInsetsDirectional
-                                                      .fromSTEB(0.0, 0.0,
-                                                      15.0, 0.0),
-                                                  child: Text(
-                                                    DateFormat("MMMM yyyy").format(_userController.user.userCreatedAt),
-                                                    style: TypographyTheme()
-                                                        .bodyMedium
-                                                        .override(
-                                                      fontFamily:
-                                                      'Roboto',
-                                                      color:
-                                                      LightModeTheme()
-                                                          .primaryText,
-                                                      fontSize: 10.0,
-                                                      letterSpacing: 0.0,
-                                                      fontWeight:
-                                                      FontWeight.w300,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -381,23 +369,25 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                           ),
                         ),
                       ),
-        
+
                       Row(
                         children: [
                           Spacer(),
                           ButtonWidget(
                             onPressed: () async {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const LoadingScreen()));
-                              await _userController.updateAccount(
-                                  userCommonName: _userCommonName,
-                                  biography: _biography,
-                                  profilePicture: _profilePicture,
-                                  bannerPicture: _bannerPicture
-                              );
+                              if (_formKey.currentState!.validate()) {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => const LoadingScreen()));
+                                await _userController.updateAccount(
+                                    userCommonName: _userCommonName,
+                                    biography: _biography,
+                                    profilePicture: _profilePicture,
+                                    bannerPicture: _bannerPicture
+                                );
 
-                              if (context.mounted) {
-                                Navigator.pop(context);
-                                widget.baseController.pop();
+                                if (context.mounted) {
+                                  Navigator.pop(context);
+                                  widget.baseController.pop();
+                                }
                               }
                             },
                             text: 'Save',
@@ -420,7 +410,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                               borderRadius: BorderRadius.circular(24.0),
                             ),
                           ),
-        
+
                           SizedBox(
                             width: 5,
                           ),
